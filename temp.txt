@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | PetPocket</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product-detail.css') }}">
+    
+    <!-- Google Fonts and Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap');
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <section class="product-detail-section">
+        <!-- Enhanced Main Product Section -->
+        <div class="product-container">
+            <div class="product-image">
+                <img id="main-product-image" src="{{ product.image_url or 'https://placehold.co/400x400/46f27a/ffffff?text=Product' }}" 
+                    alt="{{ product.name }}">
+                <div class="image-gallery">
+                    <div class="thumbnail active" data-image-url="{{ product.image_url or 'https://placehold.co/400x400/46f27a/ffffff?text=Product' }}">
+                        <img src="{{ product.image_url or 'https://placehold.co/80x80/46f27a/ffffff?text=1' }}" alt="Thumbnail 1">
+                    </div>
+                    
+                    {% for image in additional_images %}
+                    <div class="thumbnail" data-image-url="{{ image.image_url }}">
+                        <img src="{{ image.image_url }}" alt="Thumbnail {{ loop.index + 1 }}">
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not additional_images %}
+                    <!-- Fallback placeholders if no additional images -->
+                    <div class="thumbnail">
+                        <img src="https://placehold.co/80x80/46f27a/ffffff?text=2" alt="Thumbnail 2">
+                    </div>
+                    <div class="thumbnail">
+                        <img src="https://placehold.co/80x80/46f27a/ffffff?text=3" alt="Thumbnail 3">
+                    </div>
+                    <div class="thumbnail">
+                        <img src="https://placehold.co/80x80/46f27a/ffffff?text=4" alt="Thumbnail 4">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="product-info">
+                <h1>{{ product.name }}</h1>
+                <div class="product-meta">
+                    <span class="product-price">${{ "%.2f"|format(product.price) }}</span>
+                    <div class="product-rating">
+                        <span class="stars">★★★★☆</span>
+                        <span class="rating-count">(4 reviews)</span>
+                    </div>
+                </div>
+                <div class="product-description">
+                    <p>{{ product.description }}</p>
+                </div>
+                <div class="product-stock">
+                    {% if product.stock > 0 %}
+                        <span class="in-stock">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            In Stock ({{ product.stock }} available)
+                        </span>
+                    {% else %}
+                        <span class="out-of-stock">
+                            <span class="material-symbols-outlined">cancel</span>
+                            Out of Stock
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="quantity-selector">
+                    <button class="quantity-btn decrease">-</button>
+                    <input type="number" value="1" min="1" max="{{ product.stock }}" class="quantity-input">
+                    <button class="quantity-btn increase">+</button>
+                </div>
+                <div class="product-actions">
+                    <button class="add-to-cart" {% if product.stock <= 0 %}disabled{% endif %}>
+                        <span class="material-symbols-outlined">shopping_cart</span> Add to Cart
+                    </button>
+                    <button class="add-to-wishlist" title="Add to Wishlist">
+                        <span class="material-symbols-outlined">favorite</span>
+                    </button>
+                    <button class="share-product" title="Share Product">
+                        <span class="material-symbols-outlined">share</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Product Tabs Section -->
+        <div class="product-tabs">
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="description">Description</button>
+                <button class="tab-btn" data-tab="specifications">Specifications</button>
+                <button class="tab-btn" data-tab="reviews">Reviews (4)</button>
+            </div>
+            
+            <div class="tab-content" id="description">
+                <h2>Product Description</h2>
+                <p>{{ product.description }}</p>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam at nibh vel ligula fermentum varius. Suspendisse potenti. Praesent sagittis sit amet dolor id dignissim. Sed fermentum lacinia velit, at sollicitudin nibh aliquet vel.</p>
+                <p>Nullam vehicula nibh a leo ultrices, vel tincidunt nibh lacinia. Proin rutrum lectus ac purus ultricies, eget luctus ipsum aliquet. Nulla facilisi. Vivamus semper dui in nisl sagittis, non pulvinar tortor pulvinar.</p>
+            </div>
+            
+            <div class="tab-content" id="specifications" style="display: none;">
+                <h2>Specifications</h2>
+                <table class="specs-table">
+                    <tr>
+                        <th>Product Material</th>
+                        <td>Premium Grade</td>
+                    </tr>
+                    <tr>
+                        <th>Dimensions</th>
+                        <td>30cm x 20cm x 15cm</td>
+                    </tr>
+                    <tr>
+                        <th>Weight</th>
+                        <td>0.5 kg</td>
+                    </tr>
+                    <tr>
+                        <th>Suitable For</th>
+                        <td>{{ product.pet_type.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Category</th>
+                        <td>{{ product.category.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Care Instructions</th>
+                        <td>Wipe clean with damp cloth</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="tab-content" id="reviews" style="display: none;">
+                <div class="reviews-header">
+                    <h2>Customer Reviews</h2>
+                    <button class="write-review-btn">Write a Review</button>
+                </div>
+                
+                <div class="review-summary">
+                    <div class="average-rating">
+                        <div class="big-rating">4.0</div>
+                        <div class="star-rating">★★★★☆</div>
+                        <div class="rating-count">Based on 4 reviews</div>
+                    </div>
+                    <div class="rating-bars">
+                        <div class="rating-bar-item">
+                            <span class="rating-level">5 stars</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" style="width: 75%"></div>
+                            </div>
+                            <span class="rating-percent">75%</span>
+                        </div>
+                        <div class="rating-bar-item">
+                            <span class="rating-level">4 stars</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" style="width: 15%"></div>
+                            </div>
+                            <span class="rating-percent">15%</span>
+                        </div>
+                        <div class="rating-bar-item">
+                            <span class="rating-level">3 stars</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" style="width: 5%"></div>
+                            </div>
+                            <span class="rating-percent">5%</span>
+                        </div>
+                        <div class="rating-bar-item">
+                            <span class="rating-level">2 stars</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" style="width: 5%"></div>
+                            </div>
+                            <span class="rating-percent">5%</span>
+                        </div>
+                        <div class="rating-bar-item">
+                            <span class="rating-level">1 star</span>
+                            <div class="rating-bar">
+                                <div class="rating-fill" style="width: 0%"></div>
+                            </div>
+                            <span class="rating-percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="review-list">
+                    <!-- Review 1 -->
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-image">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                </div>
+                                <div class="reviewer-name-date">
+                                    <h4>John D.</h4>
+                                    <span class="review-date">March 12, 2025</span>
+                                </div>
+                            </div>
+                            <div class="review-rating">★★★★★</div>
+                        </div>
+                        <div class="review-title">Perfect for my dog!</div>
+                        <div class="review-content">
+                            <p>This product is amazing! My dog absolutely loves it and uses it every day. The quality is exceptional and it's holding up really well despite daily use. Would highly recommend to any pet owner.</p>
+                        </div>
+                        <div class="review-photos">
+                            <img src="https://placehold.co/80x80/46f27a/ffffff?text=Photo" alt="Review photo">
+                            <img src="https://placehold.co/80x80/46f27a/ffffff?text=Photo" alt="Review photo">
+                        </div>
+                        <div class="review-actions">
+                            <button class="helpful-btn">
+                                <span class="material-symbols-outlined">thumb_up</span>
+                                Helpful (3)
+                            </button>
+                            <button class="report-btn">
+                                <span class="material-symbols-outlined">flag</span>
+                                Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 2 -->
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-image">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                </div>
+                                <div class="reviewer-name-date">
+                                    <h4>Sarah M.</h4>
+                                    <span class="review-date">March 5, 2025</span>
+                                </div>
+                            </div>
+                            <div class="review-rating">★★★★☆</div>
+                        </div>
+                        <div class="review-title">Good quality but a bit small</div>
+                        <div class="review-content">
+                            <p>The quality of this product is excellent, but it's slightly smaller than I expected. My cat still enjoys it though! Fast shipping and good customer service when I had questions.</p>
+                        </div>
+                        <div class="review-actions">
+                            <button class="helpful-btn">
+                                <span class="material-symbols-outlined">thumb_up</span>
+                                Helpful (1)
+                            </button>
+                            <button class="report-btn">
+                                <span class="material-symbols-outlined">flag</span>
+                                Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Review 3 -->
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="reviewer-info">
+                                <div class="reviewer-image">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                </div>
+                                <div class="reviewer-name-date">
+                                    <h4>Michael T.</h4>
+                                    <span class="review-date">February 28, 2025</span>
+                                </div>
+                            </div>
+                            <div class="review-rating">★★★☆☆</div>
+                        </div>
+                        <div class="review-title">Decent product</div>
+                        <div class="review-content">
+                            <p>It's an okay product but not as durable as I was hoping. After a few weeks, it's already showing signs of wear. On the positive side, my pet really enjoys it!</p>
+                        </div>
+                        <div class="review-actions">
+                            <button class="helpful-btn">
+                                <span class="material-symbols-outlined">thumb_up</span>
+                                Helpful (0)
+                            </button>
+                            <button class="report-btn">
+                                <span class="material-symbols-outlined">flag</span>
+                                Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Write Review Form -->
+                    <div class="write-review-form" style="display: none;">
+                        <h3>Write Your Review</h3>
+                        <form id="reviewForm">
+                            <div class="form-group">
+                                <label>Rating</label>
+                                <div class="star-rating-select">
+                                    <span class="star" data-value="1">☆</span>
+                                    <span class="star" data-value="2">☆</span>
+                                    <span class="star" data-value="3">☆</span>
+                                    <span class="star" data-value="4">☆</span>
+                                    <span class="star" data-value="5">☆</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewTitle">Review Title</label>
+                                <input type="text" id="reviewTitle" placeholder="Summarize your experience">
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewContent">Your Review</label>
+                                <textarea id="reviewContent" rows="5" placeholder="Tell others about your experience with this product"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Add Photos (optional)</label>
+                                <input type="file" multiple accept="image/*">
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="cancel-review">Cancel</button>
+                                <button type="submit" class="submit-review">Submit Review</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <div class="related-products">
+            <h2>You May Also Like</h2>
+            <div class="product-recommendations">
+                <div class="product-cards-wrapper" id="recommendationsContainer">
+                    <!-- Recommendations will be loaded here via JavaScript -->
+                    <div class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/product-detail.js') }}" defer></script>
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and hide all content
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+                
+                // Add active class to clicked button and show corresponding content
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).style.display = 'block';
+            });
+        });
+        
+        // Image Gallery
+        document.querySelectorAll('.thumbnail').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                // Remove active class from all thumbnails
+                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked thumbnail
+                thumb.classList.add('active');
+                
+                // Update main image
+                const mainImage = document.getElementById('main-product-image');
+                const imageUrl = thumb.getAttribute('data-image-url');
+                if (imageUrl) {
+                    mainImage.src = imageUrl;
+                }
+            });
+        });
+        
+        // Write Review Button
+        document.querySelector('.write-review-btn').addEventListener('click', () => {
+            document.querySelector('.write-review-form').style.display = 'block';
+        });
+        
+        document.querySelector('.cancel-review').addEventListener('click', () => {
+            document.querySelector('.write-review-form').style.display = 'none';
+        });
+        
+        // Star Rating Selection
+        document.querySelectorAll('.star-rating-select .star').forEach(star => {
+            star.addEventListener('mouseover', () => {
+                const value = star.getAttribute('data-value');
+                document.querySelectorAll('.star-rating-select .star').forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.textContent = '★';
+                    } else {
+                        s.textContent = '☆';
+                    }
+                });
+            });
+            
+            star.addEventListener('click', () => {
+                const value = star.getAttribute('data-value');
+                document.querySelectorAll('.star-rating-select .star').forEach(s => {
+                    if (s.getAttribute('data-value') <= value) {
+                        s.textContent = '★';
+                        s.classList.add('selected');
+                    } else {
+                        s.textContent = '☆';
+                        s.classList.remove('selected');
+                    }
+                });
+            });
+        });
+        
+        document.querySelector('.star-rating-select').addEventListener('mouseout', () => {
+            document.querySelectorAll('.star-rating-select .star').forEach(s => {
+                if (s.classList.contains('selected')) {
+                    s.textContent = '★';
+                } else {
+                    s.textContent = '☆';
+                }
+            });
+        });
+        
+        // Quantity Selectors
+        document.querySelector('.quantity-btn.decrease').addEventListener('click', () => {
+            const input = document.querySelector('.quantity-input');
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+        
+        document.querySelector('.quantity-btn.increase').addEventListener('click', () => {
+            const input = document.querySelector('.quantity-input');
+            const max = parseInt(input.getAttribute('max'));
+            if (parseInt(input.value) < max) {
+                input.value = parseInt(input.value) + 1;
+            }
+        });
+    </script>
+
+    <!-- Product Recommendations Section -->
+    <script>
+        // Get initial wishlist and cart states
+        let wishlistItems = [];
+        let cartItems = [];
+
+        // Fetch initial wishlist state
+        fetch('/check_wishlist_status')
+            .then(response => response.json())
+            .then(data => {
+                wishlistItems = data.items;
+            });
+
+        // Fetch initial cart state
+        fetch('/check_cart_status')
+            .then(response => response.json())
+            .then(data => {
+                cartItems = data.items;
+            });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentProductId = {{ product.id }};
+            
+            // Fetch recommendations
+            fetch(`/api/recommendations/${currentProductId}?limit=4`)
+                .then(response => response.json())
+                .then(recommendations => {
+                    const container = document.getElementById('recommendationsContainer');
+                    container.innerHTML = '';
+                    
+                    if (recommendations.length === 0) {
+                        container.innerHTML = '<p class="no-recommendations">No recommendations available</p>';
+                        return;
+                    }
+                    
+                    recommendations.forEach(product => {
+                        const productCard = document.createElement('div');
+                        productCard.className = 'product-card';
+                        
+                        const isInWishlist = wishlistItems.includes(product.id);
+                        const isInCart = cartItems.includes(product.id);
+                        
+                        productCard.innerHTML = `
+                            <div class="product-card-inner">
+                                <div class="product-image">
+                                    <a href="/product/${product.id}">
+                                        <img src="${product.image_url || 'https://placehold.co/220x220/46f27a/ffffff?text=Product'}" alt="${product.name}">
+                                    </a>
+                                    <div class="product-quick-actions">
+                                        <button class="quick-view-btn" onclick="window.location.href='/product/${product.id}'">
+                                            <span class="material-symbols-outlined">visibility</span>
+                                        </button>
+                                        <button class="quick-cart-btn ${isInCart ? 'in-cart' : ''}" data-product-id="${product.id}">
+                                            <span class="material-symbols-outlined">${isInCart ? 'check' : 'shopping_cart'}</span>
+                                        </button>
+                                        <button class="quick-wishlist-btn ${isInWishlist ? 'in-wishlist' : ''}" data-product-id="${product.id}">
+                                            <span class="material-symbols-outlined">favorite</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="product-card-info">
+                                    <h3 class="product-card-title">${product.name}</h3>
+                                    <div class="product-card-price">₹${product.price.toFixed(2)}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(productCard);
+                    });
+
+                    // Add event listeners to all quick action buttons
+                    document.querySelectorAll('.quick-cart-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const productId = this.dataset.productId;
+                            addToCart(productId, this);
+                        });
+                    });
+
+                    document.querySelectorAll('.quick-wishlist-btn').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const productId = this.dataset.productId;
+                            toggleWishlist(productId, this);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching recommendations:', error);
+                    const container = document.getElementById('recommendationsContainer');
+                    container.innerHTML = '<p class="recommendation-error">Could not load recommendations</p>';
+                });
+        });
+    </script>
+</body>
+</html>
