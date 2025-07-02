@@ -1,0 +1,9 @@
+.product-actions .add-to-cart.added.go-to-cart,
+.add-to-cart.added.go-to-cart {
+    background: #4caf50 !important;
+    color: #fff !important;
+}
+.product-actions .add-to-cart.added.go-to-cart .material-symbols-outlined,
+.add-to-cart.added.go-to-cart .material-symbols-outlined {
+    color: #fff !important;
+} 
