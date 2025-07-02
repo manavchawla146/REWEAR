@@ -1,0 +1,23 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container">
+    <h2>API Documentation</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Available Endpoints</h5>
+            <ul>
+                <li>
+                    <strong>GET /admin/admin_api/filter_parents</strong>
+                    <p>Filters parent products based on category and pet type.</p>
+                    <p><em>Parameters:</em></p>
+                    <ul>
+                        <li>category_id (integer): ID of the category</li>
+                        <li>pet_type_id (integer): ID of the pet type</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

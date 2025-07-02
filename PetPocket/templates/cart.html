@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | PetPocket</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cart.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/navbar.css')}}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
+</head>
+
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="cart-container">
+        <div class="cart-header">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
+            </svg>
+            <h1>Shopping Cart ({% if cart_count %}{{ cart_count }}{% else %}0{% endif %})</h1>
+        </div>
+
+        <div class="cart-layout" style="min-height:60vh;display:flex;align-items:center;justify-content:center;">
+            <div class="cart-main" style="width:100%;display:flex;align-items:center;justify-content:center;">
+                {% if current_user.is_authenticated %}
+                    {% if cart_items %}
+                    <div class="cart-items" id="cart-items">
+                        {% for item in cart_items %}
+                        <div class="cart-item" data-product-id="{{ item.product.id }}">
+                            <div class="info">
+                            <div class="item-image">
+                                <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="product-img">
+                            </div>
+                            <div class="item-details">
+                                <h3>{{ item.product.name }}</h3>
+                                <p class="item-price">Rs.{{ "%.2f"|format(item.product.price) }}</p>
+                            </div>
+                            </div>
+                            
+
+                            <div class="controls">
+                            <div class="item-quantity">
+                                <button class="quantity-btn" onclick="updateQuantity({{ item.product.id }}, -1)">−</button>
+                                <span class="quantity-number">{{ item.quantity }}</span>
+                                <button class="quantity-btn" onclick="updateQuantity({{ item.product.id }}, 1)">+</button>
+                            </div>
+                            <button class="remove-btn" onclick="removeItem({{ item.product.id }})"><i class="ri-delete-bin-5-line"></i></button>
+                        </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-cart-message" id="empty-cart-message" style="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,0.07);padding:3rem 2.5rem;max-width:600px;width:100%;">
+                        <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your PetPocket Cart is empty</h2>
+                        <p style="font-size:1.2rem;color:#666;margin-bottom:1.5rem;text-align:center;">Looks like you haven't added anything to your cart yet</p>
+                        <a href="{{ url_for('main.home') }}#shop-by-category" class="continue-shopping-btn" style="background:#FFD12A;color:#222;font-weight:600;padding:0.8rem 2.5rem;border-radius:2rem;font-size:1.1rem;box-shadow:0 2px 8px rgba(255,209,42,0.12);transition:background 0.2s;">Continue Shopping</a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-cart-message" id="empty-cart-message" style="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,0.07);padding:3rem 2.5rem;max-width:600px;width:100%;">
+                    <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your PetPocket Cart is empty</h2>
+                    <p style="font-size:1.2rem;color:#666;margin-bottom:1.5rem;text-align:center;">Shop today's deals</p>
+                    <div class="auth-buttons">
+                        <a href="{{ url_for('main.signin') }}" class="signin-btn">Sign in to your account</a>
+                        <a href="{{ url_for('main.signin') }}" class="signup-btn">Sign up now</a>
+                    </div>
+                </div>
+            {% endif %}
+         </div>
+
+            {% if cart_items %}
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span class="subtotal">Rs.{{ "%.2f"|format(subtotal|default(0)) }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span class="shipping">Rs.{{ "%.2f"|format(shipping|default(0)) }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span class="tax">Rs.{{ "%.2f"|format(tax|default(0)) }}</span>
+                </div>
+                <div class="summary-row total">
+                    <strong>Total</strong>
+                    <strong class="total-value">Rs.{{ "%.2f"|format(total|default(0)) }}</strong>
+                </div>
+                <button class="checkout-btn" {% if not cart_items %}disabled{% endif %}>
+                    <a href="{{ url_for('main.checkout') }}" {% if not cart_items %}class="disabled"{% endif %}>
+                        Proceed to Checkout
+                    </a>
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+    <nav class="mobile-bottom-nav">
+        <a href="{{ url_for('main.home') }}">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('main.search') }}">
+            <span class="material-symbols-outlined">search</span>
+            <span>Search</span>
+        </a>
+        <a href="{{ url_for('main.wishlist') }}">
+            <span class="material-symbols-outlined">favorite</span>
+            <span>Wishlist</span>
+        </a>
+       
+        <a href="{{ url_for('main.profile') }}">
+            <span class="material-symbols-outlined">person</span>
+            <span>Profile</span>
+        </a>
+    </nav>
+    
+    <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+</body>
+
+</html>

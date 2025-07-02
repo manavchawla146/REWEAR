@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetPocket - Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Google Fonts and Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+       <!-- Barba.js CDN -->
+  <script src="https://unpkg.com/@barba/core"></script>
+    <script src="barba.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap');
+        /* Remove underline from product details */
+        .product-card a {
+            text-decoration: none;
+        }
+        .product-card img {
+     width: 100%;
+    border-radius: 10px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+/* Add margin to prevent navbar overlap */
+.search-container, .product-grid {
+    margin-top: 90px;
+}
+
+.product-actions{
+    display: flex;
+    flex-direction: row;
+}
+
+.product-content h3{
+    font-weight: 600;
+    text-align: center;
+}
+
+@media (max-width:767px) {
+    .product-rating{
+        font-size: 1em;
+    }
+}
+  body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            padding-bottom: 60px; /* Space for mobile bottom nav */
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 15px;
+            display: none;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: #333;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .search-btn {
+            background-color: #ffc107;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: absolute;
+            right: 20px;
+            top: 5px;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .search-btn i {
+            color: #333;
+            font-size: 1.2rem;
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 15px;
+            right: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 99;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: #333;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .suggestion-item:hover {
+            background: #f5f7fa;
+        }
+
+        .product-grid {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 10px 20px;
+        }
+
+        .product-card {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            max-width: 300px;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(8, 40, 74, 0.3);
+        }
+
+        .product-card a {
+            text-decoration: none;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .product-content h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            color: #333;
+            margin: 0 0 5px 0;
+            height: auto;
+            overflow: hidden;
+            line-height: 1.4;
+            min-height: 2.8em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+        }
+
+        .product-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+
+        .product-price {
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+            color: #222;
+            flex-shrink: 0;
+            font-size: 1.2em;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            font-size: 1.2em;
+            color: #ffc107;
+            flex-shrink: 0;
+        }
+
+       
+
+        .product-actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .product-actions .add-to-cart {
+          background-color: #ffc107;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .product-actions .add-to-cart:hover {
+            /* REMOVE this block to prevent Add to Cart hover color */
+            /*
+            background: #0d1b2a;
+            color: #fff;
+            transform: scale(1.05);
+            */
+        }
+
+        .product-actions .add-to-wishlist {
+            background: #fff;
+            color: #FFD700;
+            border: 1px solid #FFD700;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .product-actions .add-to-wishlist:hover {
+            transform: scale(1.05);
+            background: #FFD700;
+            color: #fff;
+        }
+
+        .add-to-wishlist.favorited,
+        .add-to-wishlist:focus {
+            background-color: #ffca28;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            color: #666;
+        }
+
+        .no-results h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .no-results p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+        }
+
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px;
+            z-index: 100;
+        }
+
+        .mobile-bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .mobile-bottom-nav a:hover {
+            color: #FFD700;
+            transform: scale(1.1);
+        }
+
+        .mobile-bottom-nav .material-symbols-outlined {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767px) {
+            .search-container {
+                padding: 0 10px;
+                margin: 15px auto;
+            }
+            
+            .search-box {
+                padding: 10px 35px 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .search-btn {
+                padding: 8px 12px;
+            }
+
+            .search-btn i {
+                font-size: 1rem;
+            }
+
+            .suggestions {
+                left: 10px;
+                right: 10px;
+            }
+
+            .suggestion-item {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr); /* Two cards side by side */
+                gap: 15px;
+                padding: 0 10px;
+            }
+            .cart-txt{
+              display: none;
+            }
+
+            .product-card {
+                padding: 1rem;
+            }
+
+            .product-card img {
+                height: 120px;
+            }
+
+            .product-details{
+              display: flex;
+              flex-direction: column;
+            }
+
+            .product-content h3 {
+                font-size: 0.9em;
+                min-height: 2.4em;
+            }
+
+            .product-price {
+                font-size: 1em;
+            }
+
+            .product-rating {
+                font-size: 1em;
+            }
+
+            .product-actions .add-to-cart {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+
+            .product-actions .add-to-wishlist {
+                width: 36px;
+                height: 36px;
+            }
+
+            .no-results h2 {
+                font-size: 1.5rem;
+            }
+
+            .no-results p {
+                font-size: 0.9rem;
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
+            }
+            
+        .search-container {
+            max-width: 600px;
+            margin: 20px auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 15px;
+            display: block;
+            flex-direction: row;
+            display: block;
+        }
+
+        }
+
+        @media (min-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+
+            .product-card img {
+                height: 180px;
+            }
+
+            .product-content h3 {
+                font-size: 1.1em;
+            }
+
+            .product-price {
+                font-size: 1.2em;
+            }
+
+            .product-rating {
+                font-size: 1.2em;
+            }
+
+            .mobile-bottom-nav {
+                display: none;
+            }
+        }
+
+        /* Add this CSS for wishlist animation if not present */
+        if (!document.getElementById('wishlist-animate-style')) {
+            const style = document.createElement('style');
+            style.id = 'wishlist-animate-style';
+            style.textContent = `
+            .add-to-wishlist.wishlist-animate {
+                animation: wishlist-pop 0.5s;
+            }
+            @keyframes wishlist-pop {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.3); }
+                100% { transform: scale(1); }
+            }
+            `;
+            document.head.appendChild(style);
+        }
+
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <h2 class="search-results-title">Search Results</h2>
+
+    <div data-barba="wrapper">
+    <div data-barba="container">
+
+    <div class="search-container">
+        <input type="text" class="search-box" placeholder="Search for pet products...">
+        <button class="search-btn">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <div class="suggestions"></div>
+    </div>
+
+    <div class="product-grid" id="productsGrid"></div>
+
+    </div>
+    </div>
+
+    {% include 'footer.html' %}
+
+    <nav class="mobile-bottom-nav">
+        <a href="{{ url_for('main.home') }}">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('main.search') }}">
+            <span class="material-symbols-outlined">search</span>
+            <span>Search</span>
+        </a>
+        <a href="{{ url_for('main.wishlist') }}">
+            <span class="material-symbols-outlined">favorite</span>
+            <span>Wishlist</span>
+        </a>
+        <a href="{{ url_for('main.profile') }}">
+            <span class="material-symbols-outlined">person</span>
+            <span>Profile</span>
+        </a>
+    </nav>
+
+    <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
+    <script>
+        const searchBox = document.querySelector('.search-box');
+        const suggestionsBox = document.querySelector('.suggestions');
+        const productsGrid = document.querySelector('#productsGrid');
+        const searchBtn = document.querySelector('.search-btn');
+
+        // CSRF token helper
+        function getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
+        // Cart state
+        let cartItems = [];
+
+        // Update cart count in navbar
+        function updateCartCount(count) {
+            const cartIcon = document.querySelector('.cart-icon');
+            let cartBadge = document.querySelector('.cart-badge');
+            if (!cartIcon) return;
+            if (!cartBadge) {
+                cartBadge = document.createElement('span');
+                cartBadge.className = 'cart-badge cart-badge-visible';
+                cartIcon.appendChild(cartBadge);
+            }
+            cartBadge.textContent = count;
+            if (count > 0) {
+                cartBadge.style.display = 'block';
+                cartBadge.classList.add('cart-badge-visible');
+                cartIcon.classList.add('cart-has-items');
+            } else {
+                cartBadge.style.display = 'none';
+                cartBadge.classList.remove('cart-badge-visible');
+                cartIcon.classList.remove('cart-has-items');
+            }
+        }
+
+        // Fetch cart state and update all Add to Cart buttons
+        async function fetchCartStateAndUpdateButtons() {
+            try {
+                const response = await fetch('/check_cart_status');
+                const data = await response.json();
+                cartItems = data.items || [];
+                updateCartButtons();
+                updateCartCount(cartItems.length);
+            } catch (error) {
+                console.error('Error fetching cart state:', error);
+            }
+        }
+
+        // Add event listeners to Add to Cart buttons after rendering
+        function attachCartButtonListeners() {
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                // Remove any previous listeners
+                btn.replaceWith(btn.cloneNode(true));
+            });
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                const productId = parseInt(btn.closest('.product-card').dataset.productId);
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (btn.classList.contains('go-to-cart')) {
+                        window.location.href = '/cart';
+                    } else {
+                        addToCart(productId, btn);
+                    }
+                });
+                // Add hover effect
+                btn.addEventListener('mouseenter', function() {
+                    if (btn.classList.contains('go-to-cart')) {
+                        btn.style.backgroundColor = '#388e3c';
+                    } else {
+                        // No hover effect for Add to Cart
+                    }
+                });
+                btn.addEventListener('mouseleave', function() {
+                    if (btn.classList.contains('go-to-cart')) {
+                        btn.style.backgroundColor = '#4caf50';
+                        btn.style.color = '#fff';
+                    } else {
+                        btn.style.backgroundColor = '';
+                        btn.style.color = '';
+                    }
+                });
+            });
+        }
+
+        function updateCartButtons() {
+            document.querySelectorAll('.add-to-cart').forEach(btn => {
+                const productId = parseInt(btn.closest('.product-card').dataset.productId);
+                const isInCart = cartItems.includes(productId);
+                if (isInCart) {
+                    btn.classList.add('go-to-cart');
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                    btn.style.backgroundColor = '#4caf50';
+                    btn.style.color = '#fff';
+                } else {
+                    btn.classList.remove('go-to-cart');
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Add to Cart';
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                }
+            });
+            attachCartButtonListeners();
+        }
+
+        // Wishlist state
+        let wishlistItems = [];
+
+        // Fetch wishlist state and update all wishlist buttons
+        async function fetchWishlistStateAndUpdateButtons() {
+            try {
+                const response = await fetch('/check_wishlist_status');
+                const data = await response.json();
+                wishlistItems = data.items || [];
+                updateWishlistButtons();
+            } catch (error) {
+                console.error('Error fetching wishlist state:', error);
+            }
+        }
+
+        function updateWishlistButtons() {
+            document.querySelectorAll('.add-to-wishlist').forEach(btn => {
+                const productId = parseInt(btn.closest('.product-card').dataset.productId);
+                const icon = btn.querySelector('.material-symbols-outlined');
+                if (wishlistItems.includes(productId)) {
+                    btn.classList.add('in-wishlist');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 1";
+                } else {
+                    btn.classList.remove('in-wishlist');
+                    if (icon) icon.style.fontVariationSettings = "'FILL' 0";
+                }
+            });
+        }
+
+        async function fetchProducts(searchTerm = '') {
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                return [];
+            }
+        }
+
+        function createProductCard(product) {
+            return `
+                <div class="product-card" data-product-id="${product.id}" data-category="${product.category || ''}" onclick="window.location.href='/product/${product.id}'">
+                    <div class="product-content">
+                        <img src="${product.image_url || 'https://placehold.co/200x200/46f27a/ffffff?text=Product'}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <div class="product-details">
+                            <span class="product-price">₹${product.price.toFixed(2)}</span>
+                            <span class="product-rating">★★★★☆ (4)</span>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id}, this)">
+                            <span class="material-symbols-outlined">shopping_cart</span> <p class="cart-txt">Add to Cart</p>
+                        </button>
+                        <button class="add-to-wishlist" onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)">
+                            <span class="material-symbols-outlined">favorite</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function displayProducts(searchTerm = '') {
+            const products = await fetchProducts(searchTerm);
+            
+            if (products.length === 0) {
+                productsGrid.innerHTML = `
+                    <div class="no-results">
+                        <h2 style="font-size:2.5rem;">No products found</h2>
+                        <p style="font-size:1.3rem;">Try searching for something else!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            productsGrid.innerHTML = products
+                .map(product => createProductCard(product))
+                .join('');
+            updateCartButtons(); // Ensure correct state after rendering
+            updateWishlistButtons(); // Ensure correct wishlist state after rendering
+        }
+
+        async function showSuggestions(searchTerm) {
+            if (!searchTerm) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            const products = await fetchProducts(searchTerm);
+            const filteredSuggestions = products.slice(0, 5);
+
+            if (filteredSuggestions.length > 0) {
+                suggestionsBox.innerHTML = filteredSuggestions
+                    .map(product => `
+                        <div class="suggestion-item" data-id="${product.id}">
+                            ${product.name}
+                        </div>
+                    `).join('');
+                suggestionsBox.style.display = 'block';
+            } else {
+                suggestionsBox.style.display = 'none';
+            }
+        }
+
+        async function addToCart(productId, btn) {
+            try {
+                const response = await fetch('/add_to_cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ product_id: productId }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    if (!cartItems.includes(productId)) {
+                        cartItems.push(productId);
+                    }
+                    // Update only the clicked button immediately
+                    btn.classList.add('go-to-cart');
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                    btn.style.backgroundColor = '#4caf50';
+                    btn.style.color = '#fff';
+                    updateCartCount(data.cart_count || cartItems.length);
+                } else if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.message || 'Failed to add to cart');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while adding to cart');
+            }
+        }
+
+        async function toggleWishlist(productId, button) {
+            try {
+                const response = await fetch('/add_to_wishlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrfToken()
+                    },
+                    body: JSON.stringify({ product_id: productId }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Animate the heart
+                    button.classList.add('wishlist-animate');
+                    setTimeout(() => button.classList.remove('wishlist-animate'), 500);
+                    // Toggle heart fill
+                    const icon = button.querySelector('.material-symbols-outlined');
+                    if (button.classList.contains('in-wishlist')) {
+                        button.classList.remove('in-wishlist');
+                        icon.style.fontVariationSettings = "'FILL' 0";
+                    } else {
+                        button.classList.add('in-wishlist');
+                        icon.style.fontVariationSettings = "'FILL' 1";
+                    }
+                } else if (data.redirect) {
+                    window.location.href = data.redirect;
+                } // No alert or message
+            } catch (error) {
+                console.error('Error:', error);
+                // No alert
+            }
+        }
+
+        // Event Listeners
+        searchBox.addEventListener('input', (e) => {
+            showSuggestions(e.target.value);
+        });
+
+        searchBox.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                await displayProducts(searchBox.value);
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        searchBtn.addEventListener('click', async () => {
+            await displayProducts(searchBox.value);
+            suggestionsBox.style.display = 'none';
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!suggestionsBox.contains(e.target) && e.target !== searchBox) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        suggestionsBox.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('suggestion-item')) {
+                searchBox.value = e.target.textContent.trim();
+                await displayProducts(searchBox.value);
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        // Helper to get query param from URL
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || '';
+        }
+
+        // On page load, pre-fill search box and trigger search if 'q' param exists
+        document.addEventListener('DOMContentLoaded', async () => {
+            const initialQuery = getQueryParam('q');
+            if (initialQuery) {
+                searchBox.value = initialQuery;
+                await displayProducts(initialQuery);
+                searchBox.focus();
+            } else {
+                displayProducts();
+            }
+            fetchCartStateAndUpdateButtons();
+            fetchWishlistStateAndUpdateButtons();
+        });
+        window.addEventListener('pageshow', () => {
+            fetchCartStateAndUpdateButtons();
+            fetchWishlistStateAndUpdateButtons();
+        });
+    </script>
+</body>
+</html>

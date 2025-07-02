@@ -1,0 +1,295 @@
+{% extends 'admin/master.html' %}
+
+{% block head_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
+    <style>
+        .stats-card {
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .stats-card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 18px;
+        }
+        .stats-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stats-card .change {
+            font-size: 14px;
+        }
+        .positive-change {
+            color: #28a745;
+        }
+        .negative-change {
+            color: #dc3545;
+        }
+        .chart-container {
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-container h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .time-filter {
+            display: flex;
+            align-items: center;
+        }
+        .time-filter label {
+            margin-right: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="dashboard-header">
+        <h1>Analytics Dashboard</h1>
+        <div class="time-filter">
+            <label for="timeRange">Time Range:</label>
+            <select id="timeRange" class="form-control">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="60">Last 60 days</option>
+                <option value="90">Last 90 days</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h3>Total Revenue</h3>
+                <div class="value">₹{{ "{:,.2f}".format(monthly_revenue) }}</div>
+                <div class="change {% if mom_growth >= 0 %}positive-change{% else %}negative-change{% endif %}">
+                    {% if mom_growth >= 0 %}
+                        <i class="fa fa-arrow-up"></i> 
+                    {% else %}
+                        <i class="fa fa-arrow-down"></i>
+                    {% endif %}
+                    {{ "{:,.1f}".format(mom_growth|abs) }}% from last month
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h3>Total Orders</h3>
+                <div class="value">{{ total_orders }}</div>
+                <div class="change">Last 30 days</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h3>Total Products</h3>
+                <div class="value">{{ total_products }}</div>
+                <div class="change">In catalog</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h3>Total Users</h3>
+                <div class="value">{{ total_users }}</div>
+                <div class="change">Registered users</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h3>Revenue Over Time</h3>
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h3>Sales by Category</h3>
+                <canvas id="categorySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>Conversion Funnel</h3>
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>Sales by Month</h3>
+                <canvas id="monthlySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <h3>Analytics Links</h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin_analytics.sales_analytics') }}" class="btn btn-primary btn-block">
+                            <i class="fa fa-chart-line"></i> Detailed Sales Analytics
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin_analytics.product_analytics') }}" class="btn btn-success btn-block">
+                            <i class="fa fa-box"></i> Product Performance
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('admin_analytics.user_analytics') }}" class="btn btn-info btn-block">
+                            <i class="fa fa-users"></i> User Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block tail_js %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            const revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ revenue_dates|tojson }},
+                    datasets: [{
+                        label: 'Revenue',
+                        data: {{ revenue_values|tojson }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Category Sales Chart
+            const categoryCtx = document.getElementById('categorySalesChart').getContext('2d');
+            const categorySalesChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ category_labels|tojson }},
+                    datasets: [{
+                        data: {{ category_values|tojson }},
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)',
+                            'rgba(255, 159, 64, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                const dataset = data.datasets[tooltipItem.datasetIndex];
+                                const total = dataset.data.reduce((previousValue, currentValue) => {
+                                    return previousValue + currentValue;
+                                });
+                                const currentValue = dataset.data[tooltipItem.index];
+                                const percentage = Math.floor(((currentValue/total) * 100) + 0.5);
+                                return `${data.labels[tooltipItem.index]}: ₹${currentValue.toFixed(2)} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Funnel Chart
+            const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+            const funnelChart = new Chart(funnelCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Views', 'Cart Adds', 'Purchases'],
+                    datasets: [{
+                        label: 'Conversion Funnel',
+                        data: {{ funnel_values|tojson }},
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Monthly Sales Chart
+            const monthlySalesCtx = document.getElementById('monthlySalesChart').getContext('2d');
+            const monthlySalesChart = new Chart(monthlySalesCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ monthly_sales_dates|tojson }},
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        data: {{ monthly_sales_values|tojson }},
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

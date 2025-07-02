@@ -1,0 +1,240 @@
+ .diet-plan-banner {
+            background-color: #FFF9E6; /* Light beige for a warm feel */
+            padding: 20px;
+            text-align: center;
+            position: relative; /* To position the GIF */
+            margin: 4vh;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px gray;
+            margin-top: 15vh;
+        }
+
+        /* Glitter GIF */
+        .glitter-gif {
+            position: absolute;
+            top: -5%;
+            right: -5%;
+            width: 80px; /* Default size for mobile */
+            height: auto;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: sparkleIn 0.8s ease-out forwards;
+            animation-delay: 0.8s;
+        }
+
+
+
+        /* Sparkle Animation for GIF */
+        @keyframes sparkleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .banner-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Left Side: Convincing Text */
+        .banner-text {
+            max-width: 100%;
+        }
+
+        .banner-text h2 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            color: #2A2A2A;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .banner-text p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            color: #555;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+        }
+
+        /* Center: Image */
+        .banner-image {
+            max-width: 100%;
+        }
+
+        .banner-image img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            object-fit: contain; /* Respect PNG transparency */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.4s;
+            scale: 1.4;
+        }
+
+        /* Right Side: Download Button */
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #F2D80B, #fae64b);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.6s;
+        }
+
+         
+
+        .diet-plan-banner a{
+            font-size: clamp(2vw,1em, 2em);
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Micro-Interaction: Paw Icon Animation */
+        .download-btn::after {
+            content: '🐾';
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.3);
+            top: 50%;
+            right: -30px;
+            transform: translateY(-50%);
+            transition: right 0.5s ease;
+        }
+
+        .download-btn:hover::after {
+            right: 10px;
+        }
+
+        /* Fade-In Animation */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .diet-plan-banner {
+                padding: 40px 20px;
+            }
+
+            .glitter-gif {
+                width: 120px; /* Larger size for desktop */
+                top: -10%;
+                right: -5%;
+            }
+
+            .banner-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .banner-text {
+                max-width: 30%;
+                text-align: left;
+            }
+
+            .banner-text h2 {
+                font-size: clamp(1.8rem, 5vw, 2.2rem);
+            }
+
+            .banner-text p {
+                font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+            }
+
+            .banner-image {
+                max-width: 35%;
+                scale: 1;
+            }
+
+            .banner-image img {
+                max-width: 100%;
+                scale: 1;
+            }
+
+            .download-btn {
+                font-size: clamp(1.1rem, 2.5vw, 1.2rem);
+                padding: 14px 28px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .banner-text {
+                max-width: 25%;
+            }
+
+            .banner-image {
+                max-width: 30%;
+                scale: 1.4;
+            }
+
+            .glitter-gif {
+                width: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .diet-plan-banner {
+                padding: 15px;
+            }
+
+            .glitter-gif {
+                width: 60px; /* Smaller size for small screens */
+                top: -6%;
+                right: -6%;
+            }
+
+            .banner-content {
+                gap: 15px;
+            }
+
+            .banner-text h2 {
+                font-size: clamp(1.2rem, 4vw, 1.5rem);
+            }
+
+            .banner-text p {
+                font-size: clamp(0.85rem, 2vw, 0.9rem);
+            }
+
+            .banner-image img {
+                max-width: 250px;
+                scale: 1;
+            }
+
+            .download-btn {
+                font-size: clamp(0.9rem, 2vw, 1rem);
+                padding: 10px 20px;
+            }
+        }

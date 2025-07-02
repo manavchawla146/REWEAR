@@ -1,0 +1,133 @@
+.newsletter-section {
+  /* @tweakable newsletter background color */
+  background: url(https://hoppers.wpbingosite.com/wp-content/uploads/2024/11/back-2.png);
+  /* background: linear-gradient(135deg, #ffd1d1 0%, #fff6e5 100%); */
+  /* @tweakable newsletter section padding */
+  padding: 4rem 2rem;
+  overflow: hidden;
+}
+
+.newsletter-container {
+  max-width: 1500px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3rem;
+  align-items: center;
+}
+
+.newsletter-images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.newsletter-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 20px;
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.newsletter-img:hover {
+  transform: rotate(0deg) scale(1.05);
+}
+
+.newsletter-content {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.newsletter-content h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.newsletter-content p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: clamp(1rem, 1.5vw, 1.1rem);
+}
+
+.newsletter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletter-form input {
+  flex: 1;
+  padding: 0.8rem 1.2rem;
+  border: 2px solid #ddd;
+  border-radius: 25px;
+  font-size: 1rem;
+}
+
+.newsletter-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ffc847 100%);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.newsletter-btn:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .newsletter-container {
+    grid-template-columns: 1fr;
+  }
+
+  .newsletter-form input {
+    width: 80%;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-section h3::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .social-icons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-images {
+    grid-template-columns: 1fr;
+  }
+
+  .newsletter-img {
+    height: 180px;
+  }
+}

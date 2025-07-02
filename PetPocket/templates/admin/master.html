@@ -1,0 +1,12 @@
+{% extends 'admin/menu.html' %}
+
+{% block head_css %}
+    {{ super() }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+{% endblock %}

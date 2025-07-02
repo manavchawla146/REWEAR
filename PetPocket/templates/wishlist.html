@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Wishlist | PetPocket</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/product-listing.css') }}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/navbar.css')}}">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/footer.css')}}">
+    <!-- Remove this line -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wishlist.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&family=Francois+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&family=Francois+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+
+<body>
+  {% include 'navbar.html' %}
+
+  <div class="wishlist-section">
+    <h2>My Wishlist</h2>
+    <div class="wishlist-grid">
+      {% if products %}
+        <div class="product-grid">
+          {% for product in products %}
+            <div class="product-card" data-product-id="{{ product.id }}">
+              <div class="product-image-container">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+              </div>
+              <div class="product-card-bottom">
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-price-rating">
+                  <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+                  <div class="product-rating">
+                    {% set avg_rating = (product.reviews|map(attribute='rating')|sum / product.reviews|length)|round if product.reviews else 0 %}
+                    {% for i in range(5) %}
+                      {% if i < avg_rating|int %}★{% else %}☆{% endif %}
+                    {% endfor %}
+                    ({{ product.reviews|length }})
+                  </div>
+                </div>
+                <div class="product-actions">
+                  <button class="add-to-cart">
+                    <span class="material-symbols-outlined">add_shopping_cart</span>
+                    <p class="cart-txt">Add to Cart</p>
+                  </button>
+                  <button class="remove-from-wishlist">
+                    <span class="material-symbols-outlined">delete</span>
+                    <p class="del-txt">Remove</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-wishlist">
+          <p>Your wishlist is empty</p>
+          <a href="/" class="shop-now-btn">Shop Now</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% include 'footer.html' %}
+
+  <div class="mobile-bottom-nav">
+  <a href="{{ url_for('main.home') }}">
+    <span class="material-symbols-outlined">home</span>
+    Home
+  </a>
+  <a href="{{ url_for('main.search') }}">
+    <span class="material-symbols-outlined">search</span>
+    Search
+  </a>
+  <a href="{{ url_for('main.wishlist') }}">
+    <span class="material-symbols-outlined">favorite</span>
+    Wishlist
+  </a>
+  <a href="{{ url_for('main.profile') }}">
+    <span class="material-symbols-outlined">person</span>
+    Profile
+  </a>
+  </div>
+  <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
+  <script src="script.js"></script>
+  <script src="{{ url_for('static', filename='js/wishlist.js') }}" defer></script>
+</body>
+</html>

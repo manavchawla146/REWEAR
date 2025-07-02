@@ -1,0 +1,328 @@
+ * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #e8f0f5);
+            color: #333;
+        }
+
+        .wishlist-section {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .wishlist-section h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 600;
+            color: #2A2A2A;
+            margin-bottom: 30px;
+        }
+
+        .wishlist-grid {
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1800px;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 15px;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-image-container img {
+            transform: scale(1.1);
+        }
+
+        .product-card-bottom {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .product-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            font-weight: 500;
+            color: #2A2A2A;
+            line-height: 1.4;
+            height: 2.8em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            
+        }
+
+        .product-price-rating {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-price {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+            font-weight: 600;
+            color: #222;
+        }
+
+        .product-rating {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            color: #FFD700; /* Gold stars */
+        }
+
+        .product-rating span {
+            color: #666;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .add-to-cart,
+        .remove-from-wishlist {
+            /* flex: 1; */
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .add-to-cart {
+            background-color: #FFD700;
+            color: #fff;
+        }
+
+        .add-to-cart:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .remove-from-wishlist {
+            background: #fff;
+            color: #ff5252;
+            border: 1px solid #ff5252;
+        }
+
+        .remove-from-wishlist:hover {
+            transform: scale(1.05);
+            background: #ff5252;
+            color: #fff;
+        }
+
+        .empty-wishlist {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .empty-wishlist p {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .shop-now-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #FFD700;
+            color: #fff;
+            border-radius: 25px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .shop-now-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 8px;
+            z-index: 10;
+        }
+
+        .mobile-bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #555;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            transition: color 0.3s ease;
+        }
+
+        .mobile-bottom-nav a:hover {
+            color: #FFD700;
+        }
+
+        .mobile-bottom-nav span.material-symbols-outlined {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767px) {
+            .wishlist-section {
+                padding: 20px 15px;
+                padding-bottom: 80px; /* Space for mobile nav */
+            }
+
+            .wishlist-section h2 {
+                font-size: clamp(1.5rem, 4vw, 2rem);
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns for mobile */
+                gap: 15px;
+                /* Removed max-height and overflow-y to allow natural wrapping */
+            }
+
+            .product-card {
+                border-radius: 10px;
+            }
+
+            .product-image-container {
+                height: 150px;
+            }
+
+            .product-card-bottom {
+                padding: 10px;
+            }
+
+            .product-name {
+                font-size: clamp(0.9rem, 2vw, 1rem);
+                min-height: 2.4em;
+            }
+
+            .product-price-rating{
+                display: flex;
+                flex-direction: column;
+               
+            }
+
+            .cart-txt,.del-txt{
+                display: none;
+            }
+
+            .product-price {
+                font-size: clamp(0.9rem, 2vw, 1rem);
+            }
+
+            .product-rating {
+                font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+            }
+
+            .add-to-cart,
+            .remove-from-wishlist {
+                padding: 8px;
+                font-size: clamp(0.7rem, 1.8vw, 0.8rem);
+            }
+
+            .empty-wishlist {
+                padding: 30px 15px;
+            }
+
+            .empty-wishlist p {
+                font-size: clamp(0.9rem, 2.5vw, 1rem);
+            }
+
+            .shop-now-btn {
+                padding: 10px 25px;
+                font-size: clamp(0.8rem, 2vw, 0.9rem);
+            }
+
+            .mobile-bottom-nav {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 30px;
+            }
+
+            .product-image-container {
+                height: 220px;
+            }
+
+            .product-name {
+                font-size: clamp(1.1rem, 2.5vw, 1.2rem);
+            }
+
+            .product-price {
+                font-size: clamp(1.1rem, 2.5vw, 1.2rem);
+            }
+
+            .product-rating {
+                font-size: clamp(1rem, 2vw, 1.1rem);
+            }
+
+            .add-to-cart,
+            .remove-from-wishlist {
+                font-size: clamp(0.9rem, 2vw, 1rem);
+            }
+
+            .mobile-bottom-nav {
+                display: none;
+            }
+        }

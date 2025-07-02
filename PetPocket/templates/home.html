@@ -1,0 +1,534 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PetPocket Navbar</title>
+  <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/premium-diet.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/newsletter.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/navbar.css')}}">
+  <link rel="stylesheet" href="{{url_for('static', filename='css/footer.css')}}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+ <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap');
+  </style>
+  <style>
+    .product-name{
+      color: red;
+    }
+
+        .product-cards{
+          overflow-y: hidden;
+        }
+         .product-details {
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+         }
+
+         .product-content h3{
+          font-weight: 500;
+          height: 65px;
+         }
+
+         .product-content .product-price{
+           color: #222;
+            font-weight: 600;
+            font-size: clamp(1.3rem, 2vw, 0.95rem);
+         }
+
+         .product-details{
+          display: flex;
+          flex-direction: row;
+          gap: 4vh;
+         }
+         
+         
+         @media (max-width:480px) {
+          
+         .product-actions {
+            
+            display: flex;
+            flex-direction: row;
+         }
+
+         .cart-txt{
+          display: none;
+         }
+
+           .product-details{
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+         }
+         }
+
+         .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+            color: #ffca28;
+          
+        }
+
+        .product-rating .stars {
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+        }
+
+        .star.filled {
+            color: #ffca28;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .rating-count {
+            font-size: clamp(0.75rem, 1.5vw, 0.8rem);
+            color: #555;
+        }
+  </style>
+</head>
+<body>
+  {% include 'navbar.html' %}
+   <div class="carousel-container">
+        <div class="carousel">
+            <div class="carousel-slide">
+                <img class="pet-image" src="{{ url_for('static', filename='images/s1.jpg') }}" alt="Pet 1">
+            </div>
+            <div class="carousel-slide">
+                <img class="pet-image" src="{{ url_for('static', filename='images/s2.jpg') }}" alt="Pet 2">
+            </div>
+            <div class="carousel-slide">
+                <img class="pet-image" src="{{ url_for('static', filename='images/s3.jpg') }}" alt="Pet 3">
+            </div>
+        </div>
+        <div class="carousel-controls">
+            <i class="ri-arrow-left-line" id="prevBtn"></i>
+            <i class="ri-arrow-right-line" id="nextBtn"></i>
+        </div>
+    </div>
+
+  <section class="shop-by-category">
+        <h2>Shop By Category</h2>
+        <div class="category-grid">
+            {% for pet_type in pet_types %}
+            <div class="category-item" onclick="window.location.href = '{{ url_for('main.products', pet_type_id=pet_type.id) }}'">
+                <div class="category-circle">
+                    <img src="{{ pet_type.image_url or 'https://placehold.co/200x200' }}" alt="{{ pet_type.name }}">
+                </div>
+                <h3 class="category-label">{{ pet_type.name }}</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    <div class="main-container" id="shop">
+      <section class="product-list">
+        <div class="product-list-header">
+          <h2>Recommended Products</h2>
+          <div class="product-header-controls">
+            <button class="product-header-control prev">
+              <span class="material-symbols-outlined">arrow_back_ios</span>
+            </button>
+            <button class="product-header-control next">
+              <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </button>
+          </div>
+        </div>
+        <div class="product-slider">
+          <div class="product-cards" id="recommended-products">
+            <template id="product-card-template">
+              <div class="product-card">
+                <img class="product-image" alt="Product Image">
+                <h3 class="product-name"></h3>
+                <div class="product-price-rating">
+                  <span class="product-price">₹54.99</span>
+                  <div class="product-rating">
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star empty">☆</span>
+                    <span class="review-count">(2)</span>
+                  </div>
+                </div>
+                <div class="product-actions">
+                  <button class="add-to-cart">
+                    <span class="material-symbols-outlined">add_shopping_cart</span> <p class="cart-txt">Add to Cart</p>
+                  </button>
+                  <button class="add-to-wishlist">
+                    <span class="material-symbols-outlined">favorite</span>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </section>
+  
+      <section class="product-list">
+        <div class="product-list-header">
+          <h2>Pet Parent Loves This</h2>
+          <div class="product-header-controls">
+            <button class="product-header-control prev">
+              <span class="material-symbols-outlined">arrow_back_ios</span>
+            </button>
+            <button class="product-header-control next">
+              <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </button>
+          </div>
+        </div>
+        <div class="product-slider">
+          <div class="product-cards" id="pet-parent-loves">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+  
+      <section class="product-list">
+        <div class="product-list-header">
+          <h2>Best Sellers</h2>
+          <div class="product-header-controls">
+            <button class="product-header-control prev">
+              <span class="material-symbols-outlined">arrow_back_ios</span>
+            </button>
+            <button class="product-header-control next">
+              <span class="material-symbols-outlined">arrow_forward_ios</span>
+            </button>
+          </div>
+        </div>
+        <div class="product-slider">
+          <div class="product-cards" id="best-sellers">
+            <div class="loading-spinner">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="pet-reviews-section">
+        <!-- Section Title -->
+        <h2 class="section-title">Pet Parents Loves Us</h2>
+
+        <!-- Content Wrapper for Image and Reviews -->
+        <div class="reviews-content-wrapper">
+            <!-- Pet Image (Top on Small Devices, Right on Large Devices) -->
+            <div class="pet-image-container">
+                <img class="pet-image" src="https://pettie.wpengine.com/rtl-demo/wp-content/uploads/sites/3/2023/04/Pty-Grid-Sec-Img-a-1.webp" alt="Pet">
+            </div>
+
+            <!-- Reviews Carousel (Below Image on Small Devices, Left on Large Devices) -->
+            <div class="reviews-carousel-section">
+                <div class="reviews-carousel-wrapper">
+                    <div class="reviews-carousel">
+                        <!-- Review 1 -->
+                        <div class="reviews-card">
+                            <span class="quote-icon">"</span>
+                            <p class="review-text">I bought some premium dog food from here, and my Rocky absolutely loves it! The delivery was super fast, and the quality is top-notch. Highly recommend this store to all pet parents in Mumbai!</p>
+                            <div class="user-info">
+                                <img class="user-image" src="https://randomuser.me/api/portraits/women/45.jpg" alt="Priya Sharma">
+                                <div class="user-details">
+                                    <span class="user-name">Priya Sharma</span>
+                                    <span class="pet-type">Dog (Rocky)</span>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                                <span>4.5/5</span>
+                            </div>
+                        </div>
+                        <!-- Review 2 -->
+                        <div class="reviews-card">
+                            <span class="quote-icon">"</span>
+                            <p class="review-text">My cat, Mithu, is very picky, but the fish-flavored food I got here made her so happy! The packaging was great, and the customer service team in Delhi was very helpful. Will order again!</p>
+                            <div class="user-info">
+                                <img class="user-image" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Rahul Verma">
+                                <div class="user-details">
+                                    <span class="user-name">Rahul Verma</span>
+                                    <span class="pet-type">Cat (Mithu)</span>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <span>5/5</span>
+                            </div>
+                        </div>
+                        <!-- Review 3 -->
+                        <div class="reviews-card">
+                            <span class="quote-icon">"</span>
+                            <p class="review-text">The bird seeds I ordered for my parrot, Kiki, are amazing! She's been so active and chirpy since then. The prices are reasonable, and I love supporting a local Bangalore pet store!</p>
+                            <div class="user-info">
+                                <img class="user-image" src="https://randomuser.me/api/portraits/women/67.jpg" alt="Anjali Rao">
+                                <div class="user-details">
+                                    <span class="user-name">Anjali Rao</span>
+                                    <span class="pet-type">Bird (Kiki)</span>
+                                </div>
+                            </div>
+                            <div class="rating">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-empty-fill"></i>
+                                <span>4/5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reviews-controls">
+                    <i class="ri-arrow-left-line" id="reviews-prev-btn"></i>
+                    <i class="ri-arrow-right-line" id="reviews-next-btn"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+   <section class="pet-at-home-section">
+    <div class="pet-at-home-content">
+        <!-- Left Side: Heading, Subheading, Tiles -->
+        <div class="pet-at-home-text">
+            <div class="wdt-heading-holder">
+                <h2 class="wdt-heading-title">New Pet at Home</h2>
+                <p class="wdt-heading-subtitle">Let's make their transition smooth and comfortable</p>
+            </div>
+            <div class="pet-at-home-tiles">
+                <!-- Tile 1 -->
+                <div class="tile-card"  onclick="window.open('https://petsatlas.com/pet-products-for-new-pet-owners-in-india/','_blank')">
+                    <div class="tile-image">
+                        <img src="https://petszone.wpengine.com/wp-content/uploads/2024/06/blog-gallery-image-4a.jpg" alt="Starter Essential Gear">
+                    </div>
+                    <div class="tile-text">
+                        <h3>Starter Essential Gear for Your New Friend</h3>
+                    </div>
+                </div>
+                <!-- Tile 2 -->
+                <div class="tile-card" onclick="window.open('https://www.24petwatch.com/blog/new-dog-or-cat-the-ultimate-checklist-for-new-pet-parents','_blank')">
+                    <div class="tile-image">
+                        <img src="https://petszone.wpengine.com/wp-content/uploads/2024/06/Home-2-Section-16-Images-07.jpg" alt="Training Made Easy">
+                    </div>
+                    <div class="tile-text">
+                        <h3>Training Made Easy</h3>
+                    </div>
+                </div>
+                <!-- Tile 3 --> 
+                <div class="tile-card" onclick="window.open('https://www.vetchatbot.com/','_blank')">
+                    <div class="tile-image">
+                        <img src="https://petszone.wpengine.com/wp-content/uploads/2024/06/Trainer-image-2.jpg" alt="Get Vet Help For Free">
+                    </div>
+                    <div class="tile-text">
+                        <h3>Get Vet Help For Free</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Side: Banner Image -->
+        <div class="pet-at-home-banner">
+            <img src="https://pettie.wpengine.com/rtl-demo/wp-content/uploads/sites/3/2023/04/Pty-Dog-Sleep-Type.webp" alt="Pet at Home Banner">
+        </div>
+    </div>
+</section>
+
+
+ 
+ 
+
+   <section class="diet-plan-banner">
+        <!-- Glitter GIF -->
+        <img src="https://pettie.wpengine.com/rtl-demo/wp-content/uploads/sites/3/2023/04/Glitter-1.gif" alt="Glitter Effect" class="glitter-gif">
+        <div class="banner-content">
+            <!-- Left Side: Text -->
+            <div class="banner-text">
+                <h2>Premium Diet Plan for Your Pet</h2>
+                <p>Unlock a tailored diet plan to keep your furry friend healthy and happy—download now!</p>
+            </div>
+            <!-- Center: Image -->
+            <div class="banner-image">
+                <img src="https://pettie.wpengine.com/rtl-demo/wp-content/uploads/sites/3/2023/05/Pty-Dog-Image-1.webp" alt="Pet Image">
+            </div>
+            <!-- Right Side: Download Button -->
+            <a href="./pet_diet_pdf.pdf" download="PetWale" class="download-btn">Download Now, it's Free</a>
+        </div>
+    </section>
+
+    <section class="about-me-section">
+        <div class="about-me-content">
+            <!-- Left Side: Image with Tile -->
+            <div class="about-me-image">
+                <img src="https://softivuspro.com/wp/petpath/wp-content/uploads/2024/12/team-3.png" alt="Arsh, Founder of PetSwale">
+                <div class="about-me-tile">
+                    <h3>Hey, I'm Arsh</h3>
+                    <p>Founder of Petswale</p>
+                </div>
+            </div>
+            <!-- Right Side: About Me Story with Read More -->
+            <div class="about-me-text">
+                <h2>About Me</h2>
+                <div class="story-container" id="storyContainer">
+                    <p>
+                        Hi, I'm Arsh, a college student who turned my love for pets into Petswale! It all started with my dog Coco, a golden retriever who stole my heart during my first year. I'd spend hours finding the perfect toys and treats to make him happy, but it was tough to find everything in one place. So, I decided to build Petswale—a space where pet parents can find quality products with ease.<br><br>
+                        Balancing college and building Petswale was a challenge, but Coco's wagging tail kept me going. One day, a customer wrote, "The bed I got from Petswale is my cat's favorite—she sleeps on it all day!" That made it all worthwhile. At Petswale, we're more than a store—we're a family of pet lovers, and I'd love for you to join us!
+                    </p>
+                </div>
+                <button class="read-more-btn" id="readMoreBtn">Read More</button>
+            </div>
+        </div>
+    </section>
+
+     <section class="faq-section">
+        <h2 class="faq-heading">Pet Parents Queries </h2>
+        <div class="faq-content">
+            <!-- Left Side: FAQ Accordion -->
+            <div class="faq-column">
+                <div class="faq-item">
+                    <div class="faq-question">How long does shipping take for my pet's goodies?</div>
+                    <div class="faq-answer">
+                        We strive to deliver your pet's goodies within 3-5 business days across most regions. For rural areas, it might take up to 7 days. You'll receive a tracking link as soon as your order ships, so you can keep an eye on its journey!
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Are your products safe for my pet's sensitive tummy?</div>
+                    <div class="faq-answer">
+                        Absolutely! We carefully source products with natural ingredients, and many are vet-approved for pets with sensitive stomachs. Check the product details for specific dietary info, or reach out to us for personalized recommendations.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Can I return a toy my pet didn't like?</div>
+                    <div class="faq-answer">
+                        Yes, we offer a 30-day return policy! If your pet isn't thrilled with a toy, you can return it in its original condition for a full refund or exchange. Just contact us, and we'll guide you through the process.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Do you offer subscription plans for pet food?</div>
+                    <div class="faq-answer">
+                        Yes, we do! Our subscription plans let you schedule regular deliveries of your pet's favorite food, saving you 10% on each order. You can customize, pause, or cancel anytime through your account.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">What if my order arrives damaged?</div>
+                    <div class="faq-answer">
+                        We're sorry if that happens! Please contact us within 48 hours of delivery with photos of the damaged items, and we'll send a replacement or issue a full refund, hassle-free.
+                    </div>
+                </div>
+            </div>
+            <!-- Right Side: Image and Call Us Tile -->
+            <div class="faq-right-column">
+                <div class="image-right">
+                <img src="https://softivuspro.com/wp/petpath/wp-content/uploads/2024/12/why-choose-us-banner.png" alt="Why Choose Us Banner" class="faq-image">
+                <!-- Call Us Tile -->
+                <div class="call-us-tile" onclick="window.location.href='tel:+91 9537664929'">
+                    <div class="call-us-text">
+                        <h3>Call Us 📞</h3>
+                        <p>+91 9537664929</p>
+                    </div>
+                    <!-- <img src="https://img.freepik.com/free-photo/cute-little-dog-isolated-yellow_23-2148985932.jpg" alt="PetSwale Dog" class="call-us-dog"> -->
+                </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+   <section class="blog-section" id="blogs">
+       <h1 style="font-size: clamp(3vw,4vw,2em); text-align: center;">See our Latest blogs Posts 🐾</h1>
+
+   
+    <div class="blog-carousel">
+      <div class="blog-card">
+        <img src="https://pawly-html.wpthemeverse.com/images/hm2-gallery-1.png" alt="Blog Post 1">
+        <div class="blog-content">
+          <div class="blog-date">May 06, 2025</div> <br>
+          <span class="blog-category">Pet Care</span>
+          <h3 class="blog-title">Top 10 Pet Toys for 2025</h3>
+          <p class="blog-description">Discover the best pet toys to keep your furry friend entertained and active throughout the year.</p>
+          <a href="#" class="read-more">Read More</a>
+        </div>
+      </div>
+      <div class="blog-card">
+        <img src="https://pawly-html.wpthemeverse.com/images/hm2-gallery-3.png" alt="Blog Post 2">
+        <div class="blog-content">
+          <div class="blog-date">May 06, 2025</div> <br>
+          <span class="blog-category">Toys</span>
+          <h3 class="blog-title">How to Choose the Perfect Pet Bed</h3>
+          <p class="blog-description">Learn tips and tricks to find a cozy and comfortable bed for your pet.</p>
+          <a href="#" class="read-more">Read More</a>
+        </div>
+      </div>
+      <div class="blog-card">
+        <img src="https://pawly-html.wpthemeverse.com/images/hm2-gallery-4.png" alt="Blog Post 3">
+        <div class="blog-content">
+          <div class="blog-date">May 06, 2025</div> <br>
+          <span class="blog-category">Health</span>
+          <h3 class="blog-title">Healthy Pet Food Choices</h3>
+          <p class="blog-description">Explore the best food options to keep your pet healthy and happy.</p>
+          <a href="#" class="read-more">Read More</a>
+        </div>
+      </div>
+      <div class="blog-card">
+        <img src="https://pawly-html.wpthemeverse.com/images/hm2-gallery-5.png" alt="Blog Post 4">
+        <div class="blog-content">
+          <div class="blog-date">May 06, 2025</div> <br>
+          <span class="blog-category">Grooming</span>
+          <h3 class="blog-title">Grooming Tips for Pets</h3>
+          <p class="blog-description">Keep your pet looking their best with these grooming essentials.</p>
+          <a href="#" class="read-more">Read More</a>
+        </div>
+      </div>
+      <div class="blog-card">
+        <img src="https://pawly-html.wpthemeverse.com/images/hm2-gallery-1.png" alt="Blog Post 5">
+        <div class="blog-content">
+          <div class="blog-date">May 06, 2025</div> <br>
+          <span class="blog-category">Activities</span>
+          <h3 class="blog-title">Fun Activities for Pets</h3>
+          <p class="blog-description">Engage your pet with these fun and exciting activities.</p>
+          <a href="#" class="read-more">Read More</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  {% include 'footer.html' %}
+
+  <nav class="mobile-bottom-nav">
+    <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
+      <span class="material-symbols-outlined">home</span>
+      <span>Home</span>
+    </a>
+    <a href="{{ url_for('main.search') }}" class="{% if request.endpoint == 'main.search' %}active{% endif %}">
+      <span class="material-symbols-outlined">search</span>
+      <span>Search</span>
+    </a>
+    <a href="{{ url_for('main.wishlist') }}" class="{% if request.endpoint == 'main.wishlist' %}active{% endif %}">
+      <span class="material-symbols-outlined">favorite</span>
+      <span>Wishlist</span>
+    </a>
+    <a href="{{ url_for('main.profile') }}" class="{% if request.endpoint == 'main.profile' %}active{% endif %}">
+      <span class="material-symbols-outlined">person</span>
+      <span>Profile</span>
+    </a>
+  </nav>
+
+  <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
+  <script src="{{url_for('static', filename='js/script.js')}}" defer></script>
+</body>
+</html>

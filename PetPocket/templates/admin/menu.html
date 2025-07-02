@@ -1,0 +1,48 @@
+{% extends 'admin/base.html' %}
+
+{% block menu %}
+<ul class="nav navbar-nav">
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin_analytics.analytics_dashboard') }}">Dashboard</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('user.index_view') }}">Users</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('product.index_view') }}">Products</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('category.index_view') }}">Categories</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('pettype.index_view') }}">Pet Types</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('order.index_view') }}">Orders</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('orderitem.index_view') }}">Order Items</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('productimage.index_view') }}">Product Images</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('productattribute.index_view') }}">Product Attributes</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('review.index_view') }}">Reviews</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('promocode.index_view') }}">Promo Codes</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin_analytics.sales_analytics') }}">Sales Analytics</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin_analytics.product_analytics') }}">Product Analytics</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('admin_analytics.user_analytics') }}">User Analytics</a>
+    </li>
+</ul>
+{% endblock %}

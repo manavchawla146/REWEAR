@@ -1,0 +1,201 @@
+{% extends 'admin/master.html' %}
+
+{% block head_css %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
+    <style>
+        .chart-container {
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-container h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .stats-card {
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats-card h3 {
+            margin-top: 0;
+            color: #555;
+            font-size: 18px;
+        }
+        .stats-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .date-selector {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Sales Analytics</h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>Total Sales</h3>
+                <div class="value">₹{{ "{:,.2f}".format(total_sales) }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>Total Orders</h3>   
+                <div class="value">{{ total_orders }}</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stats-card">
+                <h3>Average Order Value</h3>
+                <div class="value">₹{{ "{:,.2f}".format(avg_order_value) }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <h3>Daily Sales</h3>
+                <canvas id="dailySalesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>Orders by Day</h3>
+                <canvas id="ordersChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3>Average Order Value</h3>
+                <canvas id="aovChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block tail_js %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Format dates for better display
+            const formatDates = (dates) => {
+                return dates.map(date => {
+                    const d = new Date(date);
+                    return `${d.getDate()}/${d.getMonth() + 1}`;
+                });
+            };
+            
+            // Get data from Flask
+            const dates = {{ dates|tojson }};
+            const sales = {{ sales|tojson }};
+            const orders = {{ orders|tojson }};
+            const aov = {{ aov|tojson }};
+            const formattedDates = formatDates(dates);
+            
+            // Daily Sales Chart
+            const salesCtx = document.getElementById('dailySalesChart').getContext('2d');
+            const dailySalesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: formattedDates,
+                    datasets: [{
+                        label: 'Daily Sales (₹)',
+                        data: sales,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Orders Chart
+            const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+            const ordersChart = new Chart(ordersCtx, {
+                type: 'bar',
+                data: {
+                    labels: formattedDates,
+                    datasets: [{
+                        label: 'Number of Orders',
+                        data: orders,
+                        backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // AOV Chart
+            const aovCtx = document.getElementById('aovChart').getContext('2d');
+            const aovChart = new Chart(aovCtx, {
+                type: 'line',
+                data: {
+                    labels: formattedDates,
+                    datasets: [{
+                        label: 'Average Order Value (₹)',
+                        data: aov,
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
