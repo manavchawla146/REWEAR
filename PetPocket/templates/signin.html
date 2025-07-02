@@ -707,6 +707,7 @@ span {
     
     <div class="form-container sign-up-container">
       <form action="{{ url_for('auth.register') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <h1>Create Account</h1>
         <span>Join our community today</span>
         
