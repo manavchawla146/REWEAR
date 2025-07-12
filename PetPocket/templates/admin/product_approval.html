@@ -1,0 +1,149 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+        .approval-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .approval-actions {
+            margin-top: 10px;
+        }
+        .btn-approve {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .product-image {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .product-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .status-approved {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <h2>Product Approval System</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Quick Stats</h5>
+                    <p><strong>Pending:</strong> {{ pending_count }}</p>
+                    <p><strong>Approved:</strong> {{ approved_count }}</p>
+                    <p><strong>Rejected:</strong> {{ rejected_count }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            {% if products %}
+                {% for product in products %}
+                <div class="approval-card">
+                    <div class="product-details">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                        {% else %}
+                            <div style="width: 100px; height: 100px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                No Image
+                            </div>
+                        {% endif %}
+                        
+                        <div style="flex: 1;">
+                            <h5>{{ product.name }}</h5>
+                            <p><strong>Price:</strong> ₹{{ "%.2f"|format(product.price) }}</p>
+                            <p><strong>Uploaded by:</strong> {{ product.uploader.username }}</p>
+                            <p><strong>Upload Date:</strong> {{ product.created_at.strftime('%B %d, %Y') }}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="status-{{ product.approval_status }}">
+                                    {{ product.approval_status.title() }}
+                                </span>
+                            </p>
+                            {% if product.description %}
+                                <p><strong>Description:</strong> {{ product.description[:200] }}...</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if product.approval_status == 'pending' %}
+                    <div class="approval-actions">
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-approve" onclick="return confirm('Approve this product?')">
+                                ✓ Approve
+                            </button>
+                        </form>
+                        
+                        <form method="POST" style="display: inline;">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="action" value="reject">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn-reject" onclick="return confirm('Reject this product?')">
+                                ✗ Reject
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    <h4>No products found</h4>
+                    <p>There are no products waiting for approval at this time.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

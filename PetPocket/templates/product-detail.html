@@ -3,7 +3,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Petswale</title>
+    <title>{{ product.name }} - ReWear</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
@@ -624,11 +624,11 @@
                 </div>
                 <div class="image-gallery">
                     <div class="thumbnail active" data-image-url="{{ product.image_url }}">
-                        <img src="{{ product.image_url }}" alt="Main Thumbnail">
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}">
                     </div>
-                    {% for image in additional_images %}
+                    {% for image in product.additional_images %}
                         <div class="thumbnail" data-image-url="{{ image.image_url }}">
-                            <img src="{{ image.image_url }}" alt="Thumbnail">
+                            <img src="{{ image.image_url }}" alt="{{ product.name }}">
                         </div>
                     {% endfor %}
                 </div>
@@ -640,53 +640,110 @@
                     <div class="product-meta-flex">
                         <div class="price-container" style="display: flex; align-items: start; justify-content: center; flex-direction: column; gap: 0vh;">
                             <div class="upper" style="display: flex; align-items: center; gap: 2vh;">
-                                <p class="mrp">MRP:</p>
-                                <p class="product-price"> ₹{{ "%.2f"|format(product.price) }}</p>
+                                {% if product.points_required %}
+                                <p class="mrp">Gold</p>
+                                <p class="product-price">{{ product.points_required }} points</p>
+                                {% else %}
+                                <p class="mrp">Available for:</p>
+                                <p class="product-price">Swap Only</p>
+                                {% endif %}
                             </div>
                             <div class="tax" style="font-size: 0.7em;">
-                                *inclusive of all taxes
+                                *Exchange through points or swaps only
                             </div>
                         </div>
-                        <div class="product-tag" style="align-self: flex-start; border: 1.5px solid #ffca28; border-radius: 8px; padding: 2px 14px; font-weight: 600; color: #ffca28; font-size: 1em; margin-left: 2vw; margin-top: 4px; height: fit-content; display: flex; align-items: center;">Mens</div>
+                        <div class="product-tag" style="align-self: flex-start; border: 1.5px solid #ffca28; border-radius: 8px; padding: 2px 14px; font-weight: 600; color: #ffca28; font-size: 1em; margin-left: 2vw; margin-top: 4px; height: fit-content; display: flex; align-items: center;">{{ product.category.name }}</div>
                     </div>
                 </div>
                
                <div class="weight-quantity-stock">
-                
-                {% if product.category.name == 'Food' and variants|length > 1 %}
-                <div class="qty-btn-container">
-                    <p>Size: </p>
-                    <div class="qty-btns">
-                        {% for variant in variants %}
-                            <button
-                                class="qty-btn{% if variant.id == selected_variant.id %} selected{% endif %}"
-                                onclick="window.location.href='{{ url_for('main.product_detail', product_id=variant.id) }}'"
-                                {% if variant.id == selected_variant.id %}disabled{% endif %}
-                            >
-                                Size: M
-                            </button>
-                        {% endfor %}
+                    <!-- Stock information -->
+                    <div class="stock-info" style="margin: 15px 0;">
+                        {% if product.stock > 0 %}
+                            <span class="in-stock" style="color: #4caf50; font-weight: 600;">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                {{ product.stock }} items in stock
+                            </span>
+                        {% else %}
+                            <span class="out-of-stock" style="color: #f44336; font-weight: 600;">
+                                <span class="material-symbols-outlined">cancel</span>
+                                Out of stock
+                            </span>
+                        {% endif %}
                     </div>
+
+                    <!-- Product attributes -->
+                    {% if product.attributes %}
+                    <div class="product-attributes" style="margin: 15px 0;">
+                        <h4>Specifications:</h4>
+                        <div class="attributes-list">
+                            {% for attr in product.attributes %}
+                            <div class="attribute-item" style="margin: 5px 0;">
+                                <strong>{{ attr.key }}:</strong> {{ attr.value }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                </div>
-                <!-- Static product description -->
+                
+                <!-- Dynamic product description -->
                 <div class="static-product-description">
-                  Premium dry dog food for large breeds
+                  {{ product.description or 'Premium quality clothing item for style-conscious individuals.' }}
                 </div>
-                <div class="static-size">Size: M</div>
+                
+                <div class="static-size">Category: {{ product.category.name }} | Style: {{ product.pet_type.name }}</div>
+                
                 <div class="product-action">
-                    <button id="redeem-points-btn" class="redeem-points" data-product-id="{{ product.id }}">
-                        Redeem for Points
-                    </button>
-                    <button id="request-swap-btn" class="request-swap" data-product-id="{{ product.id }}">
-                        Request Swap
-                    </button>
+                    {% if current_user.is_authenticated %}
+                        {% if product.points_required and current_user.points_balance >= product.points_required and product.stock > 0 %}
+                        <button id="redeem-points-btn" class="redeem-points" data-product-id="{{ product.id }}" onclick="redeemWithPoints({{ product.id }}, {{ product.points_required }})">
+                            <span class="material-symbols-outlined">stars</span>
+                            Redeem for {{ product.points_required }} points
+                        </button>
+                        {% elif product.points_required and current_user.points_balance < product.points_required %}
+                        <button class="redeem-points" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            <span class="material-symbols-outlined">stars</span>
+                            Need {{ product.points_required - current_user.points_balance }} more points
+                        </button>
+                        {% endif %}
+                        
+                        {% if product.stock > 0 %}
+                        <button id="request-swap-btn" class="request-swap" data-product-id="{{ product.id }}" onclick="requestSwap({{ product.id }})">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                            Request Swap
+                        </button>
+                        {% endif %}
+                    {% else %}
+                        <p style="text-align: center; padding: 20px; color: #666;">
+                            <a href="{{ url_for('main.signin') }}" style="color: #ffca28; text-decoration: none; font-weight: 600;">Login</a> to redeem points or request swaps
+                        </p>
+                    {% endif %}
                 </div>
+                
                 <div class="product-meta-extra" style="margin-top: 18px; font-size: 1.05em; line-height: 1.7; color: #333;">
-                    <div><strong>Uploader:</strong> @sarah_style (15 swaps)</div>
-                    <div><strong>Status:</strong> <span style="color: #4caf50;">✅ Available</span></div>
-                    <div><strong>Listed:</strong> 3 days ago</div>
+                    {% if product.uploader %}
+                    <div><strong>Listed by:</strong> {{ product.uploader.username }} 
+                        {% if product.uploader.swaps_as_user1|length + product.uploader.swaps_as_user2|length > 0 %}
+                        ({{ product.uploader.swaps_as_user1|length + product.uploader.swaps_as_user2|length }} swaps)
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <div><strong>Status:</strong> 
+                        {% if product.stock > 0 %}
+                        <span style="color: #4caf50;">✅ Available</span>
+                        {% else %}
+                        <span style="color: #f44336;">❌ Out of Stock</span>
+                        {% endif %}
+                    </div>
+                    <div><strong>Listed:</strong> {{ product.created_at.strftime('%B %d, %Y') }}</div>
+                    {% if product.reviews|length > 0 %}
+                    <div><strong>Rating:</strong> 
+                        {% set avg_rating = (product.reviews | sum(attribute='rating')) / (product.reviews | length) %}
+                        <span style="color: #ffca28;">{{ "%.1f"|format(avg_rating) }}/5</span> 
+                        ({{ product.reviews|length }} reviews)
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -701,27 +758,59 @@
         </div>
         <div class="product-slider">
             <div class="product-cards" id="recommended-products">
-                {% for product in recommended_products %}
-                    <div class="product-card" data-product-id="{{ product.id }}">
-                        <div class="image-container">
-                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                {% if recommended_products %}
+                    {% for product in recommended_products %}
+                        <div class="product-card" data-product-id="{{ product.id }}">
+                            <div class="image-container">
+                                <img src="{{ product.image_url or '/static/images/default-product.jpg' }}" alt="{{ product.name }}">
+                            </div>
+                            <div class="product-info">
+                                <h3>{{ product.name }}</h3>
+                                {% if product.points_required %}
+                                <p class="points-badge">{{ product.points_required }} points</p>
+                                {% endif %}
+                            </div>
+                            <div class="product-price-rating">
+                                {% if product.points_required %}
+                                <p class="product-price">{{ product.points_required }} points</p>
+                                {% else %}
+                                <p class="product-price">Swap Only</p>
+                                {% endif %}
+                                {% if product.reviews|length > 0 %}
+                                    {% set avg_rating = (product.reviews | sum(attribute='rating')) / (product.reviews | length) %}
+                                    <div class="rating">
+                                        <span class="material-symbols-outlined star">star</span>
+                                        <span>{{ "%.1f"|format(avg_rating) }}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="product-actions">
+                                {% if current_user.is_authenticated %}
+                                    {% if product.points_required and current_user.points_balance >= product.points_required %}
+                                    <button class="redeem-points" data-product-id="{{ product.id }}">
+                                        <span class="material-symbols-outlined">stars</span> <p class="cart-txt">Redeem</p>
+                                    </button>
+                                    {% else %}
+                                    <button class="request-swap" data-product-id="{{ product.id }}">
+                                        <span class="material-symbols-outlined">swap_horiz</span> <p class="cart-txt">Swap</p>
+                                    </button>
+                                    {% endif %}
+                                    <button class="add-to-wishlist" data-product-id="{{ product.id }}">
+                                        <span class="material-symbols-outlined">favorite</span>
+                                    </button>
+                                {% else %}
+                                    <a href="{{ url_for('main.signin') }}" class="login-to-action">
+                                        <span class="material-symbols-outlined">login</span> <p class="cart-txt">Login</p>
+                                    </a>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="product-info">
-                            <h3>{{ product.name }}</h3>
-                        </div>
-                        <div class="product-price-rating">
-                            <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
-                        </div>
-                        <div class="product-actions">
-                            <button class="add-to-cart" data-product-id="{{ product.id }}">
-                                <span class="material-symbols-outlined">add_shopping_cart</span> <p class="cart-txt">Add to Cart</p>
-                            </button>
-                            <button class="add-to-wishlist" data-product-id="{{ product.id }}">
-                                <span class="material-symbols-outlined">favorite</span>
-                            </button>
-                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-products" style="text-align: center; padding: 40px; color: #666;">
+                        <p>No related products found</p>
                     </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>
