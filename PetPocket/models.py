@@ -11,7 +11,7 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(15), nullable=True, default=None)
     password_hash = db.Column(db.String(128), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(datetime.timezone.utc))
     
     google_id = db.Column(db.String(100), unique=True, nullable=True)
     profile_picture = db.Column(db.String(200), nullable=True)
@@ -21,6 +21,8 @@ class User(UserMixin, db.Model):
     uploaded_products = db.relationship('Product', backref='uploader', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
     reviews = db.relationship('Review', backref='reviewer', lazy=True)
+    points_balance = db.Column(db.Integer, default=0)
+
     
     @property
     def password(self):
@@ -30,14 +32,43 @@ class User(UserMixin, db.Model):
     def password(self, password):
         if password:
             self.password_hash = generate_password_hash(password)
+    
         
     def verify_password(self, password):
         if not self.password_hash:
             return False
         return check_password_hash(self.password_hash, password)
     
-    def __repr__(self):
-        return f'<User {self.username}>'
+def __repr__(self):
+    return f'<User {self.username}>'
+    
+def add_points(self, amount, reason=None):
+    self.points_balance += amount
+    log = AdminAuditLog(
+        admin_id=self.id if self.is_admin else None,
+        action='add_points',
+        target_type='user',
+        target_id=self.id,
+        message=reason or f'Added {amount} points'
+    )
+    db.session.add(log)
+    db.session.commit()
+
+def deduct_points(self, amount, reason=None):
+    if self.points_balance >= amount:
+        self.points_balance -= amount
+        log = AdminAuditLog(
+            admin_id=self.id if self.is_admin else None,
+            action='deduct_points',
+            target_type='user',
+            target_id=self.id,
+            message=reason or f'Deducted {amount} points'
+        )
+        db.session.add(log)
+        db.session.commit()
+        return True
+    return False
+
 
 class PetType(db.Model):
     __tablename__ = 'pet_types'
@@ -86,6 +117,8 @@ class Product(db.Model):
     attributes = db.relationship('ProductAttribute', backref='product', lazy=True, cascade='all, delete-orphan')
     analytics = db.relationship('ProductAnalytics', backref='product', lazy=True, cascade='all, delete-orphan')
     views = db.relationship('ProductView', backref='product', lazy=True, cascade='all, delete-orphan')
+    points_required = db.Column(db.Integer, default=10)  # Default cost in points
+
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -310,3 +343,73 @@ class PromoCode(db.Model):
         else:
             discount = self.discount_value
         return max(0, discount)
+    
+# Enhancement 1: Admin Audit Logs
+class AdminAuditLog(db.Model):
+    __tablename__ = 'admin_audit_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    action = db.Column(db.String(50), nullable=False)  # e.g., 'approve_item', 'reject_item'
+    target_type = db.Column(db.String(50), nullable=False)  # e.g., 'product', 'user', 'report'
+    target_id = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    admin = db.relationship('User', backref='admin_logs')
+
+    def __repr__(self):
+        return f'<AdminAuditLog {self.action} on {self.target_type}:{self.target_id}>'
+
+
+# Enhancement 2: Swap History
+class SwapHistory(db.Model):
+    __tablename__ = 'swap_history'
+    id = db.Column(db.Integer, primary_key=True)
+    item1_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    item2_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    user1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    item1 = db.relationship('Product', foreign_keys=[item1_id], backref='swaps_as_item1')
+    item2 = db.relationship('Product', foreign_keys=[item2_id], backref='swaps_as_item2')
+    user1 = db.relationship('User', foreign_keys=[user1_id], backref='swaps_as_user1')
+    user2 = db.relationship('User', foreign_keys=[user2_id], backref='swaps_as_user2')
+
+    def __repr__(self):
+        return f'<SwapHistory {self.item1_id} <--> {self.item2_id}>'
+
+
+# Enhancement 3: Item Reports
+class ItemReport(db.Model):
+    __tablename__ = 'item_reports'
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending, reviewed, dismissed, action_taken
+    reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+
+    item = db.relationship('Product', backref='reports')
+    reporter = db.relationship('User', foreign_keys=[reported_by], backref='submitted_reports')
+    reviewer = db.relationship('User', foreign_keys=[reviewed_by], backref='reviewed_reports')
+
+    def __repr__(self):
+        return f'<ItemReport item={self.item_id} by user={self.reported_by}>'
+    
+class PointRedemption(db.Model):
+    __tablename__ = 'point_redemptions'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    points_spent = db.Column(db.Integer, nullable=False)
+    redeemed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='point_redemptions')
+    product = db.relationship('Product', backref='point_redemptions')
+
+    def __repr__(self):
+        return f'<PointRedemption user={self.user_id} item={self.product_id} points={self.points_spent}>'
+
