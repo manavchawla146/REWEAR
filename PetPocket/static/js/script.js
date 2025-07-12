@@ -77,70 +77,24 @@ document.addEventListener('DOMContentLoaded', function () {
             const card = `
                 <div class="product-card" data-product-id="${product.id}">
                     <div class="product-content" onclick="window.location.href='/product/${product.id}'">
+                        <div class="wishlist-button-top">
+                            <button class="add-to-wishlist">
+                                <span class="material-symbols-outlined">favorite</span>
+                            </button>
+                        </div>
                         <img src="${product.image_url || 'https://placehold.co/200x200/46f27a/ffffff?text=Product'}" 
                              alt="${product.name}">
                         <h3>${product.name}</h3>
                         <div class="product-details">
                             <span class="product-price">₹${product.price.toFixed(2)}</span>
-                            <span class="product-rating">${stars} (${product.review_count})</span>
                         </div>
-                    </div>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>
-                        </button>
-                        <button class="add-to-wishlist">
-                            <span class="material-symbols-outlined">favorite</span>
-                        </button>
                     </div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', card);
         });
 
-        // Attach event listeners to buttons
-        container.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.addEventListener('click', async function(e) {
-                e.stopPropagation();
-                const card = btn.closest('.product-card');
-                const productId = parseInt(card.dataset.productId);
-                if (btn.classList.contains('go-to-cart')) {
-                    window.location.href = '/cart';
-                    return;
-                }
-                btn.disabled = true;
-                fetch('/add_to_cart', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                    },
-                    body: JSON.stringify({ product_id: productId, quantity: 1 })
-                })
-                .then(response => {
-                    if (response.status === 401) {
-                        window.location.href = '/signin';
-                        return;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    btn.disabled = false;
-                    if (data && data.success) {
-                        btn.classList.add('go-to-cart');
-                        btn.style.backgroundColor = '#4caf50';
-                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
-                        updateCartCount(data.cart_count);
-                    } else if (data && !data.success) {
-                        alert(data.message || 'Failed to add to cart');
-                    }
-                })
-                .catch(error => {
-                    btn.disabled = false;
-                    alert('Error adding to cart');
-                });
-            });
-        });
+
 
         container.querySelectorAll('.add-to-wishlist').forEach(btn => {
             btn.addEventListener('click', function(e) {
