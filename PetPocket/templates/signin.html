@@ -15,6 +15,11 @@
   </head>
 </head>
 <body>
+    {% if request.args.get('next_action') in ['redeem', 'swap'] %}
+    <div class="login-action-msg" style="background: #fffbe6; color: #b8860b; border: 1px solid #ffe58f; padding: 12px 20px; border-radius: 8px; margin-bottom: 18px; text-align: center; font-weight: 500;">
+        Please login to redeem or swap.
+    </div>
+    {% endif %}
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       <div class="flash-messages">

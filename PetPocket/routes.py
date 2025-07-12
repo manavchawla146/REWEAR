@@ -165,6 +165,10 @@ def create_swap_request():
         if requested_item.uploader_id == current_user.id:
             return jsonify({'success': False, 'message': 'You cannot request your own item'}), 400
         
+        # Prevent user from swapping the same product (offered and requested are the same)
+        if requested_item_id == offered_item_id:
+            return jsonify({'success': False, 'message': 'You cannot swap the same product with itself'}), 400
+        
         # Check if a similar swap request already exists
         existing_request = SwapRequest.query.filter_by(
             requester_id=current_user.id,
@@ -505,6 +509,9 @@ def product_detail(product_id):
         selected_variant = product
     variants = [master_product] + list(master_product.variants)
     variants = sorted(variants, key=lambda x: x.weight or 0)
+    user_uploaded_products = []
+    if current_user.is_authenticated:
+        user_uploaded_products = Product.query.filter_by(uploader_id=current_user.id).all()
     return render_template('product-detail.html', 
                          product=product, 
                          variants=variants,
@@ -515,7 +522,9 @@ def product_detail(product_id):
                          total_reviews=total_reviews,
                          avg_rating=avg_rating,
                          rating_counts=rating_counts,
-                         recommended_products=recommended_products)
+                         recommended_products=recommended_products,
+                         user_uploaded_products=user_uploaded_products
+                         )
 
 @main.route('/api/reviews/add', methods=['POST'])
 @login_required
@@ -910,6 +919,10 @@ def redeem_points():
         product = Product.query.get(product_id)
         if not product:
             return jsonify({'success': False, 'message': 'Product not found'}), 404
+        
+        # Prevent user from redeeming their own product
+        if product.uploader_id == current_user.id:
+            return jsonify({'success': False, 'message': 'You cannot redeem your own product'}), 400
         
         if product.stock <= 0:
             return jsonify({'success': False, 'message': 'Product is out of stock'}), 400
