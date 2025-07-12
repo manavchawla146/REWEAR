@@ -69,13 +69,32 @@ def search():
 def profile():
     orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.timestamp.desc()).all()
     wishlist_items = WishlistItem.query.filter_by(user_id=current_user.id).all()
-    reviews = Review.query.filter_by(user_id=current_user.id).order_by(Review.created_at.desc()).all()
     addresses = Address.query.filter_by(user_id=current_user.id).all()
+    categories = Category.query.all()
+    
+    # Create recent activity data
+    recent_activity = []
+    
+    # Add recent orders
+    for order in orders[:3]:
+        recent_activity.append({
+            'icon': 'shopping_cart',
+            'text': f'Purchased items for Rs.{order.total_price:.2f}',
+            'time': order.timestamp.strftime('%B %d, %Y')
+        })
+    
+
+    
+    # Sort by time (most recent first)
+    recent_activity.sort(key=lambda x: x['time'], reverse=True)
+    recent_activity = recent_activity[:5]  # Limit to 5 most recent activities
+    
     return render_template('profile.html', 
                           orders=orders,
                           wishlist_items=wishlist_items,
-                          reviews=reviews,
-                          addresses=addresses)
+                          addresses=addresses,
+                          categories=categories,
+                          recent_activity=recent_activity)
 
 @main.route('/products/<int:pet_type_id>')
 def products(pet_type_id):
@@ -1162,3 +1181,4 @@ def home_products():
     except Exception as e:
         current_app.logger.error(f"Home products error: {str(e)}")
         return jsonify({'best_sellers': [], 'pet_parent_loves': [], 'recommendations': []})
+
