@@ -279,4 +279,64 @@ document.addEventListener('DOMContentLoaded', function () {
   // Make functions globally available if needed
   window.toggleEditForm = toggleEditForm;
   window.showFlashMessage = showFlashMessage;
+
+  // Add Item Form Handling
+  const addItemForm = document.getElementById('add-item-form');
+  if (addItemForm) {
+    addItemForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitButton = addItemForm.querySelector('button[type="submit"]');
+      if (!submitButton) {
+        console.error('Submit button not found');
+        return;
+      }
+      
+      // Disable submit button and show loading state
+      const originalText = submitButton.textContent;
+      submitButton.disabled = true;
+      submitButton.textContent = 'Submitting...';
+
+      const formData = new FormData(addItemForm);
+      const data = {
+        name: formData.get('name')?.trim(),
+        description: formData.get('description')?.trim(),
+        points: formData.get('points'),
+        category_id: formData.get('category_id'),
+        image_url: formData.get('image_url')?.trim() || ''
+      };
+
+      // Basic client-side validation
+      if (!data.name || !data.description || !data.points || !data.category_id) {
+        showFlashMessage('All required fields must be filled.', 'danger');
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+        return;
+      }
+
+      // Points validation
+      const points = parseInt(data.points);
+      if (isNaN(points) || points < 1) {
+        showFlashMessage('Please enter a valid number of points (minimum 1).', 'danger');
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+        return;
+      }
+
+      // Show placeholder message for now
+      showFlashMessage('Swap request functionality coming soon! This is a UI preview.', 'success');
+      addItemForm.reset();
+      
+      // Switch to swap requests tab
+      setTimeout(() => {
+        const swapRequestsTab = document.querySelector('[data-tab="swap-requests"]');
+        if (swapRequestsTab) {
+          swapRequestsTab.click();
+        }
+      }, 1500);
+      
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    });
+  }
 });
