@@ -310,3 +310,58 @@ class PromoCode(db.Model):
         else:
             discount = self.discount_value
         return max(0, discount)
+    
+# Enhancement 1: Admin Audit Logs
+class AdminAuditLog(db.Model):
+    __tablename__ = 'admin_audit_logs'
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    action = db.Column(db.String(50), nullable=False)  # e.g., 'approve_item', 'reject_item'
+    target_type = db.Column(db.String(50), nullable=False)  # e.g., 'product', 'user', 'report'
+    target_id = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    admin = db.relationship('User', backref='admin_logs')
+
+    def __repr__(self):
+        return f'<AdminAuditLog {self.action} on {self.target_type}:{self.target_id}>'
+
+
+# Enhancement 2: Swap History
+class SwapHistory(db.Model):
+    __tablename__ = 'swap_history'
+    id = db.Column(db.Integer, primary_key=True)
+    item1_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    item2_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    user1_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user2_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    item1 = db.relationship('Product', foreign_keys=[item1_id], backref='swaps_as_item1')
+    item2 = db.relationship('Product', foreign_keys=[item2_id], backref='swaps_as_item2')
+    user1 = db.relationship('User', foreign_keys=[user1_id], backref='swaps_as_user1')
+    user2 = db.relationship('User', foreign_keys=[user2_id], backref='swaps_as_user2')
+
+    def __repr__(self):
+        return f'<SwapHistory {self.item1_id} <--> {self.item2_id}>'
+
+
+# Enhancement 3: Item Reports
+class ItemReport(db.Model):
+    __tablename__ = 'item_reports'
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending, reviewed, dismissed, action_taken
+    reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+
+    item = db.relationship('Product', backref='reports')
+    reporter = db.relationship('User', foreign_keys=[reported_by], backref='submitted_reports')
+    reviewer = db.relationship('User', foreign_keys=[reviewed_by], backref='reviewed_reports')
+
+    def __repr__(self):
+        return f'<ItemReport item={self.item_id} by user={self.reported_by}>'
