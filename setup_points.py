@@ -42,7 +42,7 @@ def setup_initial_points():
             products = Product.query.limit(10).all()
             print(f"\n🛍️ Sample Product Point Costs (first 10):")
             for product in products:
-                print(f"  {product.name[:30]:<30} | ₹{product.price:<6} | {product.points_required} points")
+                print(f"  {product.name[:30]:<30} | <img src='/static/images/coin.png' class='coin-icon'>{product.price:<6} | {product.points_required} points")
             
             # Show total stats
             total_products = Product.query.count()

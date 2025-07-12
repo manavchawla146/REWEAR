@@ -509,13 +509,14 @@ html{
   border-radius: 10px;
   aspect-ratio: 1 / 1;
   object-fit: contain;
-  margin-bottom: 10px;
-  margin-top: 20px;
+  margin-bottom: 8px;
+  margin-top: 32px;
 }
 
         .product-name{
             font-size: clamp(1rem, 2vw, 0.95rem);
-            height: 55px;
+            margin-top: 18px;
+            margin-bottom: 0;
         }
 
          .product-price-rating {
@@ -582,7 +583,7 @@ html{
 
          .add-to-wishlist {
             background: transparent;
-            color: #ffca28;
+            color: red;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -598,7 +599,7 @@ html{
 
          .add-to-wishlist:hover,
          .add-to-wishlist.active {
-            color: #ffc107;
+            color: red;
             transform: scale(1.15);
         }
 
@@ -2554,4 +2555,49 @@ html{
   .footer-bottom, .footer {
     padding-bottom: 60px !important;
   }
+}
+
+/* Coin icon styling */
+.coin-icon {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    object-fit: contain;
+    vertical-align: middle;
+    margin-right: 4px;
+    display: inline-block;
+}
+
+/* Ensure coin icon aligns well with price text */
+.product-price .coin-icon,
+.item-price .coin-icon,
+.subtotal .coin-icon,
+.shipping .coin-icon,
+.tax .coin-icon,
+.total-value .coin-icon,
+.summary-item .coin-icon,
+.summary-total .coin-icon,
+.purchase-item-price .coin-icon,
+.purchase-total .coin-icon {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    object-fit: contain;
+    vertical-align: text-bottom;
+    margin-right: 2px;
+    display: inline-block;
+}
+
+/* For admin analytics, make coin icon slightly larger */
+.value .coin-icon {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    object-fit: contain;
+    vertical-align: text-bottom;
+    margin-right: 3px;
+    display: inline-block;
 }

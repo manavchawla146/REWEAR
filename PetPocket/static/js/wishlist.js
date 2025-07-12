@@ -11,40 +11,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to create a product card HTML string
     function createProductCard(product) {
-        const avgRating = product.avg_rating;
-        let starsHtml = '';
-        for (let i = 0; i < 5; i++) {
-            starsHtml += i < avgRating ? '★' : '☆';
-        }
-
-        const isInCartClass = cartItems.includes(product.id) ? 'added-to-cart' : '';
-        const cartButtonText = cartItems.includes(product.id)
-            ? '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>'
-            : '<span class="material-symbols-outlined">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
-
         return `
             <div class="product-card" data-product-id="${product.id}">
-              <div class="product-image-container">
-                <img src="${product.image_url}" alt="${product.name}">
-              </div>
-              <div class="product-card-bottom">
-                <div class="product-name">${product.name}</div>
-                <div class="product-price-rating">
-                  <div class="product-price">₹${product.price.toFixed(2)}</div>
-                  <div class="product-rating">
-                    <span class="stars">${starsHtml}</span>
-                    (${product.review_count})
-                  </div>
-                </div>
-                <div class="product-actions">
-                  <button class="add-to-cart ${isInCartClass}" data-product-id="${product.id}">
-                    ${cartButtonText}
-                  </button>
-                  <button class="remove-from-wishlist" data-product-id="${product.id}">
-                    <span class="material-symbols-outlined">delete</span>
-                    <p class="del-txt">Remove</p>
-                  </button>
-                </div>
+              <img class="product-image" src="${product.image_url}" alt="${product.name}">
+              <h3 class="product-name">${product.name}</h3>
+              <div class="product-price-rating">
+                <span class="product-price">₹${product.price.toFixed(2)}</span>
+                <button class="remove-from-wishlist" data-product-id="${product.id}">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span class="del-txt">Remove</span>
+                </button>
               </div>
             </div>
         `;

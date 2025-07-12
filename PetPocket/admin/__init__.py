@@ -36,7 +36,7 @@ class HomeAdminView(AdminIndexView):
 def formatter_price(view, context, model, name):
     price_value = getattr(model, name)
     if price_value is not None:
-        return f"₹{price_value:.2f}"
+        return f"<img src='/static/images/coin.png' class='coin-icon'>{price_value:.2f}"
     return ""
 
 # Admin views
@@ -132,7 +132,7 @@ class PromoCodeView(SecureModelView):
         },
         'discount_value': {
             'validators': [validators.DataRequired(), validators.NumberRange(min=0)],
-            'description': 'Enter percentage (0-100) or fixed amount in ₹'
+            'description': 'Enter percentage (0-100) or fixed amount in <img src="/static/images/coin.png" class="coin-icon">'
         },
         'valid_from': {
             'validators': [validators.DataRequired()]
@@ -146,7 +146,7 @@ class PromoCodeView(SecureModelView):
         },
         'min_order_value': {
             'validators': [validators.Optional(), validators.NumberRange(min=0)],
-            'description': 'Minimum order value in ₹ (optional)'
+            'description': 'Minimum order value in <img src="/static/images/coin.png" class="coin-icon"> (optional)'
         },
         'active': {
             'default': True
@@ -154,8 +154,8 @@ class PromoCodeView(SecureModelView):
     }
     
     column_formatters = {
-        'discount_value': lambda v, c, m, n: f"{m.discount_value}%" if m.discount_type == 'percentage' else f"₹{m.discount_value:.2f}",
-        'min_order_value': lambda v, c, m, n: f"₹{m.min_order_value:.2f}" if m.min_order_value else "None",
+        'discount_value': lambda v, c, m, n: f"{m.discount_value}%" if m.discount_type == 'percentage' else f"<img src='/static/images/coin.png' class='coin-icon'>{m.discount_value:.2f}",
+        'min_order_value': lambda v, c, m, n: f"<img src='/static/images/coin.png' class='coin-icon'>{m.min_order_value:.2f}" if m.min_order_value else "None",
         'active': lambda v, c, m, n: '<span class="badge badge-success">Active</span>' if m.active else '<span class="badge badge-danger">Inactive</span>'
     }
     

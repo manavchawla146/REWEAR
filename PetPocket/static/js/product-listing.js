@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const cardsArray = Array.from(productCards);
 
         cardsArray.sort((a, b) => {
-            const aPrice = parseFloat(a.querySelector('.product-price').textContent.replace('₹', ''));
-            const bPrice = parseFloat(b.querySelector('.product-price').textContent.replace('₹', ''));
+            const aPrice = parseFloat(a.querySelector('.product-price').textContent.replace(/[^\d.]/g, ''));
+            const bPrice = parseFloat(b.querySelector('.product-price').textContent.replace(/[^\d.]/g, ''));
             const aName = a.querySelector('.product-name').textContent.trim().toLowerCase();
             const bName = b.querySelector('.product-name').textContent.trim().toLowerCase();
 

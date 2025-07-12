@@ -156,8 +156,8 @@
               </div>
               <div class="item-details">
                 <h4>{{ item.product.name }}</h4>
-                <p class="item-price">₹{{ item.product.price }} × {{ item.quantity }}</p>
-                <p class="item-total">₹{{ "%.2f"|format(item.product.price * item.quantity) }}</p>
+                <p class="item-price"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ item.product.price }} × {{ item.quantity }}</p>
+                <p class="item-total"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(item.product.price * item.quantity) }}</p>
               </div>
             </div>
             {% else %}
@@ -173,20 +173,20 @@
           <div class="summary-calculations">
             <div class="summary-item">
               <span>Subtotal</span>
-              <span>₹{{ "%.2f"|format(subtotal) }}</span>
+              <span><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(subtotal) }}</span>
             </div>
             <div class="summary-item">
               <span>Shipping</span>
-              <span>₹{{ "%.2f"|format(shipping) }}</span>
+              <span><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(shipping) }}</span>
             </div>
             <div class="summary-item">
               <span>Tax</span>
-              <span>₹{{ "%.2f"|format(tax) }}</span>
+              <span><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(tax) }}</span>
             </div>
             <div class="summary-total-container">
             <div class="summary-total">
               <span>Total</span>
-              <span>₹{{ "%.2f"|format(total) }}</span>
+              <span><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(total) }}</span>
             </div>
           
           <button class="proceed-button" id="proceedToPayment" {% if not cart_items %}disabled{% endif %}>
@@ -527,23 +527,23 @@
               const taxElement = document.querySelector('.summary-item:nth-child(3) span:last-child');
               const totalElement = document.querySelector('.summary-total span:last-child');
 
-              if (subtotalElement) subtotalElement.textContent = `₹${data.cart_total.subtotal.toFixed(2)}`;
-              if (shippingElement) shippingElement.textContent = `₹${data.cart_total.shipping.toFixed(2)}`;
-              if (taxElement) taxElement.textContent = `₹${data.cart_total.tax.toFixed(2)}`;
-              if (totalElement) totalElement.textContent = `₹${data.cart_total.total.toFixed(2)}`;
+              if (subtotalElement) subtotalElement.textContent = `<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.subtotal.toFixed(2)}`;
+              if (shippingElement) shippingElement.textContent = `<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.shipping.toFixed(2)}`;
+              if (taxElement) taxElement.textContent = `<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.tax.toFixed(2)}`;
+              if (totalElement) totalElement.textContent = `<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.total.toFixed(2)}`;
               
               // Add discount row if not exists
               let discountRow = document.querySelector('.discount-row');
               if (!discountRow) {
                   discountRow = document.createElement('div');
                   discountRow.className = 'summary-item discount-row';
-                  discountRow.innerHTML = `<span>Discount</span><span class="discount-amount">-₹${data.cart_total.discount.toFixed(2)}</span>`;
+                  discountRow.innerHTML = `<span>Discount</span><span class="discount-amount">-<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.discount.toFixed(2)}</span>`;
                   const summaryCalculations = document.querySelector('.summary-calculations');
                   if (summaryCalculations) {
                       summaryCalculations.insertBefore(discountRow, document.querySelector('.summary-total'));
                   }
               } else if (discountRow.querySelector('.discount-amount')) {
-                  discountRow.querySelector('.discount-amount').textContent = `-₹${data.cart_total.discount.toFixed(2)}`;
+                  discountRow.querySelector('.discount-amount').innerHTML = `-<img src="/static/images/coin.png" class="coin-icon">${data.cart_total.discount.toFixed(2)}`;
               }
               
               alert('Promo code applied successfully!');

@@ -167,7 +167,7 @@
                                 });
                                 const currentValue = dataset.data[tooltipItem.index];
                                 const percentage = Math.floor(((currentValue/total) * 100) + 0.5);
-                                return `${data.labels[tooltipItem.index]}: ₹${currentValue.toFixed(2)} (${percentage}%)`;
+                                return `${data.labels[tooltipItem.index]}: <img src="/static/images/coin.png" class="coin-icon">${currentValue.toFixed(2)} (${percentage}%)`;
                             }
                         }
                     }
@@ -215,7 +215,7 @@
                                 });
                                 const currentValue = dataset.data[tooltipItem.index];
                                 const percentage = Math.floor(((currentValue/total) * 100) + 0.5);
-                                return `${data.labels[tooltipItem.index]}: ₹${currentValue.toFixed(2)} (${percentage}%)`;
+                                return `${data.labels[tooltipItem.index]}: <img src="/static/images/coin.png" class="coin-icon">${currentValue.toFixed(2)} (${percentage}%)`;
                             }
                         }
                     }

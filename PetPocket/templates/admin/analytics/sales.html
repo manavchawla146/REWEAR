@@ -56,7 +56,7 @@
         <div class="col-md-4">
             <div class="stats-card">
                 <h3>Total Sales</h3>
-                <div class="value">₹{{ "{:,.2f}".format(total_sales) }}</div>
+                <div class="value"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "{:,.2f}".format(total_sales) }}</div>
             </div>
         </div>
         <div class="col-md-4">
@@ -68,7 +68,7 @@
         <div class="col-md-4">
             <div class="stats-card">
                 <h3>Average Order Value</h3>
-                <div class="value">₹{{ "{:,.2f}".format(avg_order_value) }}</div>
+                <div class="value"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "{:,.2f}".format(avg_order_value) }}</div>
             </div>
         </div>
     </div>
@@ -127,7 +127,7 @@
                 data: {
                     labels: formattedDates,
                     datasets: [{
-                        label: 'Daily Sales (₹)',
+                        label: 'Daily Sales (<img src="/static/images/coin.png" class="coin-icon">)',
                         data: sales,
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
@@ -178,7 +178,7 @@
                 data: {
                     labels: formattedDates,
                     datasets: [{
-                        label: 'Average Order Value (₹)',
+                        label: 'Average Order Value (<img src="/static/images/coin.png" class="coin-icon">)',
                         data: aov,
                         backgroundColor: 'rgba(255, 159, 64, 0.2)',
                         borderColor: 'rgba(255, 159, 64, 1)',
