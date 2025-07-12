@@ -28,8 +28,8 @@
       <a href="{{ url_for('main.wishlist') }}" title="Saved Items">
         <span class="material-symbols-outlined">favorite</span>
       </a>
-      <a href="{{ url_for('main.cart') }}" class="cart-icon{% if cart_count > 0 %} cart-has-items{% endif %}" title="Exchange Cart">
-        <span class="material-symbols-outlined">shopping_bag</span>
+      <a href="{{ url_for('main.cart') }}" class="cart-icon{% if cart_count > 0 %} cart-has-items{% endif %}" title="Items to Exchange">
+        <span class="material-symbols-outlined">swap_horiz</span>
         {% if cart_count > 0 %}
           <span class="cart-badge">{{ cart_count }}</span>
         {% endif %}

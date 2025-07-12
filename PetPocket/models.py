@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
     
     cart_items = db.relationship('CartItem', backref='user', lazy=True)
     wishlist_items = db.relationship('WishlistItem', backref='user', lazy=True)
-    uploaded_products = db.relationship('Product', backref='uploader', lazy=True)
+    # uploaded_products relationship defined in Product model
     orders = db.relationship('Order', backref='user', lazy=True)
     reviews = db.relationship('Review', backref='reviewer', lazy=True)
     points_balance = db.Column(db.Integer, default=0)
@@ -39,35 +39,35 @@ class User(UserMixin, db.Model):
             return False
         return check_password_hash(self.password_hash, password)
     
-def __repr__(self):
-    return f'<User {self.username}>'
-    
-def add_points(self, amount, reason=None):
-    self.points_balance += amount
-    log = AdminAuditLog(
-        admin_id=self.id if self.is_admin else None,
-        action='add_points',
-        target_type='user',
-        target_id=self.id,
-        message=reason or f'Added {amount} points'
-    )
-    db.session.add(log)
-    db.session.commit()
-
-def deduct_points(self, amount, reason=None):
-    if self.points_balance >= amount:
-        self.points_balance -= amount
+    def __repr__(self):
+        return f'<User {self.username}>'
+        
+    def add_points(self, amount, reason=None):
+        self.points_balance += amount
         log = AdminAuditLog(
             admin_id=self.id if self.is_admin else None,
-            action='deduct_points',
+            action='add_points',
             target_type='user',
             target_id=self.id,
-            message=reason or f'Deducted {amount} points'
+            message=reason or f'Added {amount} points'
         )
         db.session.add(log)
         db.session.commit()
-        return True
-    return False
+
+    def deduct_points(self, amount, reason=None):
+        if self.points_balance >= amount:
+            self.points_balance -= amount
+            log = AdminAuditLog(
+                admin_id=self.id if self.is_admin else None,
+                action='deduct_points',
+                target_type='user',
+                target_id=self.id,
+                message=reason or f'Deducted {amount} points'
+            )
+            db.session.add(log)
+            db.session.commit()
+            return True
+        return False
 
 
 class PetType(db.Model):
@@ -112,6 +112,13 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     uploader_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
+    # Approval system fields
+    is_approved = db.Column(db.Boolean, default=False, nullable=False)
+    approval_status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
+    approved_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    approved_at = db.Column(db.DateTime, nullable=True)
+    rejection_reason = db.Column(db.Text, nullable=True)
+
     additional_images = db.relationship('ProductImage', backref='product', lazy=True, cascade='all, delete-orphan')
     reviews = db.relationship('Review', backref='product', lazy=True, cascade='all, delete-orphan')
     attributes = db.relationship('ProductAttribute', backref='product', lazy=True, cascade='all, delete-orphan')
@@ -119,6 +126,9 @@ class Product(db.Model):
     views = db.relationship('ProductView', backref='product', lazy=True, cascade='all, delete-orphan')
     points_required = db.Column(db.Integer, default=10)  # Default cost in points
 
+    # Relationships for approval system
+    approver = db.relationship('User', foreign_keys=[approved_by], backref='approved_products')
+    uploader = db.relationship('User', foreign_keys=[uploader_id], backref='uploaded_products')
 
     def __repr__(self):
         return f'<Product {self.name}>'
@@ -378,6 +388,40 @@ class SwapHistory(db.Model):
 
     def __repr__(self):
         return f'<SwapHistory {self.item1_id} <--> {self.item2_id}>'
+
+
+# Enhancement 3: Swap Request System with Approval
+class SwapRequest(db.Model):
+    __tablename__ = 'swap_requests'
+    id = db.Column(db.Integer, primary_key=True)
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    requested_item_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    offered_item_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
+    
+    # Status tracking
+    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected, completed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Approval from both parties
+    requester_approved = db.Column(db.Boolean, default=True)  # Always true since they initiated
+    owner_approved = db.Column(db.Boolean, default=False)
+    
+    # Response tracking
+    responded_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    rejection_reason = db.Column(db.Text, nullable=True)
+    
+    # Relationships
+    requester = db.relationship('User', foreign_keys=[requester_id], backref='swap_requests_made')
+    requested_item = db.relationship('Product', foreign_keys=[requested_item_id], backref='swap_requests_received')
+    offered_item = db.relationship('Product', foreign_keys=[offered_item_id], backref='swap_requests_offered')
+    
+    @property
+    def owner(self):
+        return self.requested_item.uploader
+    
+    def __repr__(self):
+        return f'<SwapRequest {self.requester.username} wants {self.requested_item.name}>'
 
 
 # Enhancement 3: Item Reports

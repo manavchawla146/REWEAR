@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, redirect, url_fo
 from flask_login import current_user, login_required
 from .models import PetType, Product, Category, WishlistItem, CartItem, Order, User
 from .models import OrderItem, ProductAnalytics, Address, ProductImage, ProductView, Review, ProductAttribute, PromoCode
+from .models import SwapHistory, PointRedemption, ItemReport, SwapRequest
 from . import db
 from flask import current_app
 from . import razorpay_client
@@ -31,7 +32,8 @@ def handle_csrf_error(e):
 @main.route("/", methods=["GET", "POST"])
 def home():
     pet_types = PetType.query.all()
-    products = Product.query.limit(8).all()
+    # Only show approved products
+    products = Product.query.filter_by(is_approved=True).limit(8).all()
     return render_template("home.html", pet_types=pet_types, products=products)
 
 @main.route("/signin", methods=["GET", "POST"])
@@ -42,9 +44,11 @@ def signin():
 def api_search():
     query = request.args.get('q', '')
     # Join with Category and PetType to allow searching by those names
+    # Only show approved products
     products = Product.query \
         .join(Category, isouter=True) \
         .join(PetType, isouter=True) \
+        .filter(Product.is_approved == True) \
         .filter(
             (Product.name.ilike(f'%{query}%')) |
             (Product.description.ilike(f'%{query}%')) |
@@ -67,34 +71,222 @@ def search():
 @main.route('/profile')
 @login_required
 def profile():
-    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.timestamp.desc()).all()
+    # Refresh current user data from database to get latest points balance
+    db.session.refresh(current_user)
+    
+    # Remove orders since we're removing purchase functionality
     wishlist_items = WishlistItem.query.filter_by(user_id=current_user.id).all()
     addresses = Address.query.filter_by(user_id=current_user.id).all()
     categories = Category.query.all()
     
+    # Get swap history for the current user
+    user_swaps = SwapHistory.query.filter(
+        (SwapHistory.user1_id == current_user.id) | 
+        (SwapHistory.user2_id == current_user.id)
+    ).order_by(SwapHistory.completed_at.desc()).all()
+    
+    # Get point redemptions for the current user
+    point_redemptions = PointRedemption.query.filter_by(user_id=current_user.id).order_by(PointRedemption.redeemed_at.desc()).all()
+    
+    # Get user's uploaded products
+    uploaded_products = Product.query.filter_by(uploader_id=current_user.id).all()
+    
     # Create recent activity data
     recent_activity = []
     
-    # Add recent orders
-    for order in orders[:3]:
+    # Add recent swaps
+    for swap in user_swaps[:3]:
+        if swap.user1_id == current_user.id:
+            other_user = User.query.get(swap.user2_id)
+            recent_activity.append({
+                'icon': 'swap_horiz',
+                'text': f'Completed swap with {other_user.username}',
+                'time': swap.completed_at.strftime('%B %d, %Y'),
+                'timestamp': swap.completed_at
+            })
+        else:
+            other_user = User.query.get(swap.user1_id)
+            recent_activity.append({
+                'icon': 'swap_horiz',
+                'text': f'Completed swap with {other_user.username}',
+                'time': swap.completed_at.strftime('%B %d, %Y'),
+                'timestamp': swap.completed_at
+            })
+    
+    # Add recent point redemptions
+    for redemption in point_redemptions[:3]:
         recent_activity.append({
-            'icon': 'shopping_cart',
-            'text': f'Purchased items for <img src="/static/images/coin.png" class="coin-icon">{order.total_price:.2f}',
-            'time': order.timestamp.strftime('%B %d, %Y')
+            'icon': 'stars',
+            'text': f'Redeemed {redemption.points_spent} points for {redemption.product.name}',
+            'time': redemption.redeemed_at.strftime('%B %d, %Y'),
+            'timestamp': redemption.redeemed_at
         })
     
-
+    # Add recent item listings
+    for product in uploaded_products[:2]:
+        recent_activity.append({
+            'icon': 'add_circle',
+            'text': f'Listed {product.name} for exchange',
+            'time': product.created_at.strftime('%B %d, %Y'),
+            'timestamp': product.created_at
+        })
     
-    # Sort by time (most recent first)
-    recent_activity.sort(key=lambda x: x['time'], reverse=True)
+    # Sort by timestamp (most recent first)
+    recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
     recent_activity = recent_activity[:5]  # Limit to 5 most recent activities
     
     return render_template('profile.html', 
-                          orders=orders,
                           wishlist_items=wishlist_items,
                           addresses=addresses,
                           categories=categories,
-                          recent_activity=recent_activity)
+                          recent_activity=recent_activity,
+                          user_swaps=user_swaps,
+                          point_redemptions=point_redemptions,
+                          uploaded_products=uploaded_products)
+
+@main.route('/create-swap-request', methods=['POST'])
+@login_required
+def create_swap_request():
+    """Create a swap request"""
+    try:
+        data = request.get_json()
+        requested_item_id = data.get('requested_item_id')
+        offered_item_id = data.get('offered_item_id')
+        
+        # Validate the request
+        requested_item = Product.query.get_or_404(requested_item_id)
+        offered_item = Product.query.get_or_404(offered_item_id)
+        
+        # Check if user owns the offered item
+        if offered_item.uploader_id != current_user.id:
+            return jsonify({'success': False, 'message': 'You can only offer items you own'}), 400
+        
+        # Check if user is not requesting their own item
+        if requested_item.uploader_id == current_user.id:
+            return jsonify({'success': False, 'message': 'You cannot request your own item'}), 400
+        
+        # Check if a similar swap request already exists
+        existing_request = SwapRequest.query.filter_by(
+            requester_id=current_user.id,
+            requested_item_id=requested_item_id,
+            offered_item_id=offered_item_id,
+            status='pending'
+        ).first()
+        
+        if existing_request:
+            return jsonify({'success': False, 'message': 'Swap request already exists'}), 400
+        
+        # Create the swap request
+        swap_request = SwapRequest(
+            requester_id=current_user.id,
+            requested_item_id=requested_item_id,
+            offered_item_id=offered_item_id
+        )
+        
+        db.session.add(swap_request)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Swap request sent to {requested_item.uploader.username}!'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@main.route('/respond-swap-request', methods=['POST'])
+@login_required
+def respond_swap_request():
+    """Respond to a swap request (approve/reject)"""
+    try:
+        data = request.get_json()
+        request_id = data.get('request_id')
+        action = data.get('action')  # 'approve' or 'reject'
+        
+        swap_request = SwapRequest.query.get_or_404(request_id)
+        
+        # Check if user owns the requested item
+        if swap_request.requested_item.uploader_id != current_user.id:
+            return jsonify({'success': False, 'message': 'You can only respond to requests for your items'}), 403
+        
+        if action == 'approve':
+            swap_request.status = 'approved'
+            swap_request.owner_approved = True
+            swap_request.responded_at = datetime.utcnow()
+            
+            # If both parties have approved, complete the swap
+            if swap_request.requester_approved and swap_request.owner_approved:
+                # Create swap history record
+                swap_history = SwapHistory(
+                    item1_id=swap_request.offered_item_id,
+                    item2_id=swap_request.requested_item_id,
+                    user1_id=swap_request.requester_id,
+                    user2_id=current_user.id
+                )
+                
+                db.session.add(swap_history)
+                swap_request.status = 'completed'
+                swap_request.completed_at = datetime.utcnow()
+                
+                # Award points to both users
+                requester = User.query.get(swap_request.requester_id)
+                owner = current_user
+                
+                if requester:
+                    requester.points_balance += 10  # Points for successful swap
+                if owner:
+                    owner.points_balance += 10
+                
+                message = 'Swap completed successfully! Both users have been awarded 10 points.'
+            else:
+                message = 'Swap request approved! Waiting for final confirmation.'
+            
+        elif action == 'reject':
+            swap_request.status = 'rejected'
+            swap_request.responded_at = datetime.utcnow()
+            swap_request.rejection_reason = data.get('reason', 'Request rejected by owner')
+            message = 'Swap request rejected.'
+        
+        else:
+            return jsonify({'success': False, 'message': 'Invalid action'}), 400
+        
+        db.session.commit()
+        return jsonify({'success': True, 'message': message})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@main.route('/my-swap-requests')
+@login_required
+def my_swap_requests():
+    """Get user's swap requests (both made and received)"""
+    swap_requests_made = SwapRequest.query.filter_by(requester_id=current_user.id)\
+        .order_by(SwapRequest.created_at.desc()).all()
+    
+    swap_requests_received = SwapRequest.query.join(Product, SwapRequest.requested_item_id == Product.id)\
+        .filter(Product.uploader_id == current_user.id)\
+        .order_by(SwapRequest.created_at.desc()).all()
+    
+    return jsonify({
+        'requests_made': [{
+            'id': req.id,
+            'requested_item': req.requested_item.name,
+            'offered_item': req.offered_item.name,
+            'status': req.status,
+            'created_at': req.created_at.strftime('%B %d, %Y'),
+            'owner': req.requested_item.uploader.username
+        } for req in swap_requests_made],
+        'requests_received': [{
+            'id': req.id,
+            'requested_item': req.requested_item.name,
+            'offered_item': req.offered_item.name,
+            'status': req.status,
+            'created_at': req.created_at.strftime('%B %d, %Y'),
+            'requester': req.requester.username
+        } for req in swap_requests_received]
+    })
 
 @main.route('/products/<int:pet_type_id>')
 def products(pet_type_id):
@@ -103,7 +295,8 @@ def products(pet_type_id):
     category_id = request.args.get('category_id', type=int)
     
     # Build the query with optional category filtering
-    query = Product.query.filter_by(pet_type_id=pet_type_id)
+    # Only show approved products
+    query = Product.query.filter_by(pet_type_id=pet_type_id, is_approved=True)
     if category_id:
         query = query.filter_by(category_id=category_id)
     
@@ -703,52 +896,192 @@ def apply_promo_code():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@main.route('/redeem-points', methods=['POST'])
+@login_required
+def redeem_points():
+    try:
+        data = request.get_json()
+        product_id = data.get('product_id')
+        points_required = data.get('points_required')
+        
+        if not product_id or not points_required:
+            return jsonify({'success': False, 'message': 'Product ID and points required'}), 400
+        
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'success': False, 'message': 'Product not found'}), 404
+        
+        if product.stock <= 0:
+            return jsonify({'success': False, 'message': 'Product is out of stock'}), 400
+        
+        if current_user.points_balance < points_required:
+            return jsonify({'success': False, 'message': 'Insufficient points'}), 400
+        
+        # Create point redemption record
+        redemption = PointRedemption(
+            user_id=current_user.id,
+            product_id=product_id,
+            points_spent=points_required
+        )
+        
+        # Deduct points from user
+        current_user.points_balance -= points_required
+        
+        # Reduce product stock
+        product.stock -= 1
+        
+        db.session.add(redemption)
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': 'Product redeemed successfully!'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@main.route('/request-swap', methods=['POST'])
+@login_required
+def request_swap():
+    try:
+        data = request.get_json()
+        product_id = data.get('product_id')
+        
+        if not product_id:
+            return jsonify({'success': False, 'message': 'Product ID is required'}), 400
+        
+        product = Product.query.get(product_id)
+        if not product:
+            return jsonify({'success': False, 'message': 'Product not found'}), 404
+        
+        if product.stock <= 0:
+            return jsonify({'success': False, 'message': 'Product is out of stock'}), 400
+        
+        if product.uploader_id == current_user.id:
+            return jsonify({'success': False, 'message': 'You cannot swap your own product'}), 400
+        
+        # Check if swap request already exists
+        existing_swap = SwapHistory.query.filter_by(
+            user1_id=current_user.id,
+            item1_id=product_id
+        ).first()
+        
+        if existing_swap:
+            return jsonify({'success': False, 'message': 'Swap request already exists for this product'}), 400
+        
+        # For simplification, let's award points to the user instead of creating incomplete swap
+        # In a real app, you'd show a form to select which of user's products to offer
+        points_awarded = min(10, int(product.price * 0.1))  # Award 10% of product price as points, max 10
+        current_user.points_balance += points_awarded
+        
+        # Create a swap history record showing interest (using current user's latest product as placeholder)
+        user_latest_product = Product.query.filter_by(uploader_id=current_user.id).order_by(Product.created_at.desc()).first()
+        
+        if user_latest_product:
+            swap_request = SwapHistory(
+                user1_id=current_user.id,
+                user2_id=product.uploader_id,
+                item1_id=user_latest_product.id,
+                item2_id=product_id
+            )
+            db.session.add(swap_request)
+        
+        db.session.commit()
+        
+        return jsonify({'success': True, 'message': f'Swap interest recorded! Earned {points_awarded} points.'})
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@main.route('/refresh-points', methods=['GET'])
+@login_required
+def refresh_points():
+    """Refresh current user's points balance from database"""
+    try:
+        # Refresh user data from database
+        db.session.refresh(current_user)
+        return jsonify({
+            'success': True, 
+            'points_balance': current_user.points_balance,
+            'message': 'Points balance refreshed'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 @main.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
+    # Now handles exchange confirmations instead of payments
     cart_items = CartItem.query.filter_by(user_id=current_user.id).all()
-    subtotal = sum(item.product.price * item.quantity for item in cart_items)
-    discount = session.get('discount', 0)
-    tax = (subtotal - discount) * 0.10
-    shipping = 5.00 if cart_items else 0
-    total = subtotal - discount + tax + shipping
-    addresses = Address.query.filter_by(user_id=current_user.id).all()
-    default_address = Address.query.filter_by(user_id=current_user.id, is_default=True).first()
+    
+    if not cart_items:
+        flash('Your exchange list is empty.', 'warning')
+        return redirect(url_for('main.cart'))
+    
+    total_points_required = 0
+    swap_items = []
+    point_items = []
+    
+    for item in cart_items:
+        if item.product.points_required:
+            point_items.append(item)
+            total_points_required += item.product.points_required * item.quantity
+        else:
+            swap_items.append(item)
     
     if request.method == 'POST':
         try:
-            address_data = {
-                'user_id': current_user.id,
-                'address_type': request.form.get('addressType', 'home'),
-                'company_name': request.form.get('companyName'),
-                'street_address': request.form.get('streetAddress'),
-                'apartment': request.form.get('apartment'),
-                'city': request.form.get('city'),
-                'state': request.form.get('state'),
-                'country': request.form.get('country'),
-                'pin_code': request.form.get('pinCode'),
-                'is_default': request.form.get('setAsDefault') == 'on'
-            }
-            if address_data['is_default']:
-                Address.query.filter_by(user_id=current_user.id, is_default=True).update({'is_default': False})
-            new_address = Address(**address_data)
-            db.session.add(new_address)
+            # Process point redemptions
+            if point_items and current_user.points >= total_points_required:
+                for item in point_items:
+                    points_cost = item.product.points_required * item.quantity
+                    redemption = PointRedemption(
+                        user_id=current_user.id,
+                        product_id=item.product.id,
+                        points_used=points_cost,
+                        quantity=item.quantity
+                    )
+                    db.session.add(redemption)
+                
+                current_user.points -= total_points_required
+                
+            elif point_items:
+                flash('Insufficient points for redemption.', 'warning')
+                return redirect(url_for('main.checkout'))
+            
+            # For swap items, we'll add them to user's wishlist for now
+            # Later we can implement a proper swap request system
+            for item in swap_items:
+                # Check if already in wishlist
+                existing_wishlist = WishlistItem.query.filter_by(
+                    user_id=current_user.id, 
+                    product_id=item.product.id
+                ).first()
+                
+                if not existing_wishlist:
+                    wishlist_item = WishlistItem(
+                        user_id=current_user.id,
+                        product_id=item.product.id
+                    )
+                    db.session.add(wishlist_item)
+            
+            # Clear cart
+            CartItem.query.filter_by(user_id=current_user.id).delete()
+            
             db.session.commit()
-            flash('Address saved successfully!', 'success')
-            return redirect(url_for('main.checkout'))
+            flash('Exchange requests submitted successfully!', 'success')
+            return redirect(url_for('main.profile'))
+            
         except Exception as e:
             db.session.rollback()
-            flash(f'Error saving address: {str(e)}', 'danger')
+            flash(f'Error processing exchange: {str(e)}', 'danger')
     
     return render_template('checkout.html',
                          cart_items=cart_items,
-                         subtotal=subtotal,
-                         discount=discount,
-                         tax=tax,
-                         shipping=shipping,
-                         total=total,
-                         addresses=addresses,
-                         default_address=default_address,
+                         point_items=point_items,
+                         swap_items=swap_items,
+                         total_points_required=total_points_required,
+                         user_points=current_user.points,
                          user=current_user)
 
 @main.route('/get_address/<int:address_id>')
@@ -1182,3 +1515,77 @@ def home_products():
         current_app.logger.error(f"Home products error: {str(e)}")
         return jsonify({'best_sellers': [], 'pet_parent_loves': [], 'recommendations': []})
 
+
+@main.route('/add-product', methods=['POST'])
+@login_required
+def add_product():
+    try:
+        # Get form data
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+        points_required = request.form.get('points', type=int)
+        category_id = request.form.get('category_id', type=int)
+        image_url = request.form.get('image_url', '').strip()
+        
+        # Validation
+        if not all([name, description, points_required, category_id]):
+            return jsonify({
+                'success': False,
+                'message': 'Please fill in all required fields.'
+            }), 400
+        
+        if points_required <= 0:
+            return jsonify({
+                'success': False,
+                'message': 'Points required must be greater than 0.'
+            }), 400
+        
+        # Verify category exists
+        category = Category.query.get(category_id)
+        if not category:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid category selected.'
+            }), 400
+        
+        # For ReWear platform, we need a default pet_type (you might want to create a "Clothing" pet type)
+        # For now, let's use the first available pet type or create a default one
+        pet_type = PetType.query.first()
+        if not pet_type:
+            # Create a default "General" pet type if none exists
+            pet_type = PetType(name="General", image_url="")
+            db.session.add(pet_type)
+            db.session.flush()  # Get the ID without committing
+        
+        # Create the product (pending admin approval)
+        product = Product(
+            name=name,
+            description=description,
+            price=0.0,  # Set price to 0 for point-based items
+            stock=1,  # Default stock
+            image_url=image_url if image_url else None,
+            points_required=points_required,
+            pet_type_id=pet_type.id,
+            category_id=category_id,
+            uploader_id=current_user.id,
+            # Approval system - new products need admin approval
+            is_approved=False,
+            approval_status='pending'
+        )
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully submitted "{name}" for approval! It will be visible once approved by admin.',
+            'product_id': product.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Add product error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while adding the product. Please try again.'
+        }), 500
