@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, jsonify, request, redirect, url_fo
 from flask_login import current_user, login_required
 from .models import PetType, Product, Category, WishlistItem, CartItem, Order, User
 from .models import OrderItem, ProductAnalytics, Address, ProductImage, ProductView, Review, ProductAttribute, PromoCode
+from .models import SwapHistory, PointRedemption, ItemReport
 from . import db
 from flask import current_app
 from . import razorpay_client
@@ -72,6 +73,18 @@ def profile():
     addresses = Address.query.filter_by(user_id=current_user.id).all()
     categories = Category.query.all()
     
+    # Get swap history for the current user
+    user_swaps = SwapHistory.query.filter(
+        (SwapHistory.user1_id == current_user.id) | 
+        (SwapHistory.user2_id == current_user.id)
+    ).order_by(SwapHistory.completed_at.desc()).all()
+    
+    # Get point redemptions for the current user
+    point_redemptions = PointRedemption.query.filter_by(user_id=current_user.id).order_by(PointRedemption.redeemed_at.desc()).all()
+    
+    # Get user's uploaded products
+    uploaded_products = Product.query.filter_by(uploader_id=current_user.id).all()
+    
     # Create recent activity data
     recent_activity = []
     
@@ -80,13 +93,40 @@ def profile():
         recent_activity.append({
             'icon': 'shopping_cart',
             'text': f'Purchased items for Rs.{order.total_price:.2f}',
-            'time': order.timestamp.strftime('%B %d, %Y')
+            'time': order.timestamp.strftime('%B %d, %Y'),
+            'timestamp': order.timestamp
         })
     
-
+    # Add recent swaps
+    for swap in user_swaps[:3]:
+        if swap.user1_id == current_user.id:
+            other_user = User.query.get(swap.user2_id)
+            recent_activity.append({
+                'icon': 'swap_horiz',
+                'text': f'Completed swap with {other_user.username}',
+                'time': swap.completed_at.strftime('%B %d, %Y'),
+                'timestamp': swap.completed_at
+            })
+        else:
+            other_user = User.query.get(swap.user1_id)
+            recent_activity.append({
+                'icon': 'swap_horiz',
+                'text': f'Completed swap with {other_user.username}',
+                'time': swap.completed_at.strftime('%B %d, %Y'),
+                'timestamp': swap.completed_at
+            })
     
-    # Sort by time (most recent first)
-    recent_activity.sort(key=lambda x: x['time'], reverse=True)
+    # Add recent point redemptions
+    for redemption in point_redemptions[:3]:
+        recent_activity.append({
+            'icon': 'stars',
+            'text': f'Redeemed {redemption.points_spent} points for {redemption.product.name}',
+            'time': redemption.redeemed_at.strftime('%B %d, %Y'),
+            'timestamp': redemption.redeemed_at
+        })
+    
+    # Sort by timestamp (most recent first)
+    recent_activity.sort(key=lambda x: x['timestamp'], reverse=True)
     recent_activity = recent_activity[:5]  # Limit to 5 most recent activities
     
     return render_template('profile.html', 
@@ -94,7 +134,10 @@ def profile():
                           wishlist_items=wishlist_items,
                           addresses=addresses,
                           categories=categories,
-                          recent_activity=recent_activity)
+                          recent_activity=recent_activity,
+                          user_swaps=user_swaps,
+                          point_redemptions=point_redemptions,
+                          uploaded_products=uploaded_products)
 
 @main.route('/products/<int:pet_type_id>')
 def products(pet_type_id):
@@ -1182,3 +1225,74 @@ def home_products():
         current_app.logger.error(f"Home products error: {str(e)}")
         return jsonify({'best_sellers': [], 'pet_parent_loves': [], 'recommendations': []})
 
+
+@main.route('/add-product', methods=['POST'])
+@login_required
+def add_product():
+    try:
+        # Get form data
+        name = request.form.get('name', '').strip()
+        description = request.form.get('description', '').strip()
+        points_required = request.form.get('points', type=int)
+        category_id = request.form.get('category_id', type=int)
+        image_url = request.form.get('image_url', '').strip()
+        
+        # Validation
+        if not all([name, description, points_required, category_id]):
+            return jsonify({
+                'success': False,
+                'message': 'Please fill in all required fields.'
+            }), 400
+        
+        if points_required <= 0:
+            return jsonify({
+                'success': False,
+                'message': 'Points required must be greater than 0.'
+            }), 400
+        
+        # Verify category exists
+        category = Category.query.get(category_id)
+        if not category:
+            return jsonify({
+                'success': False,
+                'message': 'Invalid category selected.'
+            }), 400
+        
+        # For ReWear platform, we need a default pet_type (you might want to create a "Clothing" pet type)
+        # For now, let's use the first available pet type or create a default one
+        pet_type = PetType.query.first()
+        if not pet_type:
+            # Create a default "General" pet type if none exists
+            pet_type = PetType(name="General", image_url="")
+            db.session.add(pet_type)
+            db.session.flush()  # Get the ID without committing
+        
+        # Create the product
+        product = Product(
+            name=name,
+            description=description,
+            price=0.0,  # Set price to 0 for point-based items
+            stock=1,  # Default stock
+            image_url=image_url if image_url else None,
+            points_required=points_required,
+            pet_type_id=pet_type.id,
+            category_id=category_id,
+            uploader_id=current_user.id
+        )
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully added "{name}" to ReWear!',
+            'product_id': product.id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Add product error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while adding the product. Please try again.'
+        }), 500

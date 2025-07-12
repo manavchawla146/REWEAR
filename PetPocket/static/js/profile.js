@@ -295,48 +295,76 @@ document.addEventListener('DOMContentLoaded', function () {
       // Disable submit button and show loading state
       const originalText = submitButton.textContent;
       submitButton.disabled = true;
-      submitButton.textContent = 'Submitting...';
+      submitButton.textContent = 'Adding Item...';
 
       const formData = new FormData(addItemForm);
-      const data = {
-        name: formData.get('name')?.trim(),
-        description: formData.get('description')?.trim(),
-        points: formData.get('points'),
-        category_id: formData.get('category_id'),
-        image_url: formData.get('image_url')?.trim() || ''
-      };
-
-      // Basic client-side validation
-      if (!data.name || !data.description || !data.points || !data.category_id) {
-        showFlashMessage('All required fields must be filled.', 'danger');
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-        return;
-      }
-
-      // Points validation
-      const points = parseInt(data.points);
-      if (isNaN(points) || points < 1) {
-        showFlashMessage('Please enter a valid number of points (minimum 1).', 'danger');
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-        return;
-      }
-
-      // Show placeholder message for now
-      showFlashMessage('Swap request functionality coming soon! This is a UI preview.', 'success');
-      addItemForm.reset();
       
-      // Switch to swap requests tab
-      setTimeout(() => {
-        const swapRequestsTab = document.querySelector('[data-tab="swap-requests"]');
-        if (swapRequestsTab) {
-          swapRequestsTab.click();
+      // Get CSRF token
+      const csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (csrfToken) {
+        formData.append('csrf_token', csrfToken.getAttribute('content'));
+      }
+
+      // Submit to new endpoint
+      fetch('/add-product', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
         }
-      }, 1500);
-      
-      submitButton.disabled = false;
-      submitButton.textContent = originalText;
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showFlashMessage(data.message, 'success');
+          addItemForm.reset();
+          
+          // Reload page to show the new item
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        } else {
+          showFlashMessage(data.message, 'danger');
+        }
+      })
+      .catch(error => {
+        console.error('Error adding item:', error);
+        showFlashMessage('An error occurred while adding the item. Please try again.', 'danger');
+      })
+      .finally(() => {
+        submitButton.disabled = false;
+        submitButton.textContent = originalText;
+      });
     });
+  }
+
+  // Helper function to show messages
+  function showMessage(message, type) {
+    // Create message element
+    const messageEl = document.createElement('div');
+    messageEl.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    messageEl.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 300px;
+      padding: 15px;
+      border-radius: 5px;
+      background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+      color: ${type === 'success' ? '#155724' : '#721c24'};
+      border: 1px solid ${type === 'success' ? '#c3e6cb' : '#f5c6cb'};
+    `;
+    messageEl.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(messageEl);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      if (messageEl.parentNode) {
+        messageEl.parentNode.removeChild(messageEl);
+      }
+    }, 3000);
   }
 });

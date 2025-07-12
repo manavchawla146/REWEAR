@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Petswale</title>
+  <title>ReWear - Profile</title>
   <!-- Add CSRF token meta tag before other resources -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
@@ -49,7 +49,7 @@
           </div>
           <div class="points-bar">
             <span class="points-label">Points:</span>
-            <span class="points-value">18</span>
+            <span class="points-value">{{ current_user.points_balance }}</span>
             <span class="points-icon">🪙</span>
           </div>
         </div>
@@ -65,15 +65,15 @@
         </button>
         <button class="tab-button" data-tab="swap-requests">
           <span class="material-symbols-outlined">swap_horiz</span>
-          Swap Requests
+          Swap History
         </button>
         <button class="tab-button" data-tab="add-item">
           <span class="material-symbols-outlined">add_circle</span>
-          Add Item
+          List Items
         </button>
         <button class="tab-button" data-tab="my-purchases">
           <span class="material-symbols-outlined">shopping_bag</span>
-          My Purchases
+          Redemptions
         </button>
         <button class="tab-button" data-tab="personal-info">
           <span class="material-symbols-outlined">person</span>
@@ -105,8 +105,16 @@
               <div class="stat-card">
                 <span class="material-symbols-outlined">swap_horiz</span>
                 <div class="stat-content">
-                  <h4>0</h4>
-                  <p>Swap Requests</p>
+                  <h4>{{ user_swaps|length if user_swaps else 0 }}</h4>
+                  <p>Completed Swaps</p>
+                </div>
+              </div>
+              
+              <div class="stat-card">
+                <span class="material-symbols-outlined">stars</span>
+                <div class="stat-content">
+                  <h4>{{ point_redemptions|length if point_redemptions else 0 }}</h4>
+                  <p>Point Redemptions</p>
                 </div>
               </div>
             </div>
@@ -139,32 +147,117 @@
         <!-- Swap Requests Tab -->
         <div class="tab-pane" id="swap-requests">
           <div class="detail-section">
-            <h3>My Swap Requests</h3>
-            <div class="empty-state">
-              <span class="material-symbols-outlined">swap_horiz</span>
-              <p>You haven't made any swap requests yet.</p>
-              <button class="create-request-btn" onclick="showCreateRequestForm()">Create Swap Request</button>
-            </div>
+            <h3>My Swap History</h3>
+            {% if user_swaps and user_swaps|length > 0 %}
+              <div class="swaps-list">
+                {% for swap in user_swaps %}
+                <div class="swap-card">
+                  <div class="swap-header">
+                    <span class="swap-id">Swap #{{ swap.id }}</span>
+                    <span class="swap-date">{{ swap.completed_at.strftime('%B %d, %Y') }}</span>
+                    <span class="swap-status completed">✅ Completed</span>
+                  </div>
+                  <div class="swap-items">
+                    {% if swap.user1_id == current_user.id %}
+                      <div class="swap-item-pair">
+                        <div class="swap-item my-item">
+                          <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
+                          <div class="swap-item-details">
+                            <p class="swap-item-name">{{ swap.item1.name }}</p>
+                            <p class="swap-item-label">Your Item</p>
+                          </div>
+                        </div>
+                        <div class="swap-arrow">⇄</div>
+                        <div class="swap-item their-item">
+                          <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
+                          <div class="swap-item-details">
+                            <p class="swap-item-name">{{ swap.item2.name }}</p>
+                            <p class="swap-item-label">{{ swap.user2.username }}'s Item</p>
+                          </div>
+                        </div>
+                      </div>
+                    {% else %}
+                      <div class="swap-item-pair">
+                        <div class="swap-item my-item">
+                          <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
+                          <div class="swap-item-details">
+                            <p class="swap-item-name">{{ swap.item2.name }}</p>
+                            <p class="swap-item-label">Your Item</p>
+                          </div>
+                        </div>
+                        <div class="swap-arrow">⇄</div>
+                        <div class="swap-item their-item">
+                          <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
+                          <div class="swap-item-details">
+                            <p class="swap-item-name">{{ swap.item1.name }}</p>
+                            <p class="swap-item-label">{{ swap.user1.username }}'s Item</p>
+                          </div>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <span class="material-symbols-outlined">swap_horiz</span>
+                <p>You haven't completed any swaps yet.</p>
+                <button class="create-request-btn" onclick="showCreateRequestForm()">Add Item to Swap</button>
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Point Redemptions Section -->
+          <div class="detail-section">
+            <h3>Point Redemptions</h3>
+            {% if point_redemptions and point_redemptions|length > 0 %}
+              <div class="redemptions-list">
+                {% for redemption in point_redemptions %}
+                <div class="redemption-card">
+                  <div class="redemption-header">
+                    <span class="redemption-date">{{ redemption.redeemed_at.strftime('%B %d, %Y') }}</span>
+                    <span class="points-spent">{{ redemption.points_spent }} points</span>
+                  </div>
+                  <div class="redemption-item">
+                    <img src="{{ redemption.product.image_url }}" alt="{{ redemption.product.name }}" class="redemption-item-image">
+                    <div class="redemption-item-details">
+                      <p class="redemption-item-name">{{ redemption.product.name }}</p>
+                      <p class="redemption-item-category">{{ redemption.product.category.name }}</p>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <span class="material-symbols-outlined">stars</span>
+                <p>You haven't redeemed any points yet.</p>
+                <a href="{{ url_for('main.home') }}" class="shop-now-btn">Browse Items</a>
+              </div>
+            {% endif %}
           </div>
         </div>
 
         <!-- Add Item Tab -->
         <div class="tab-pane" id="add-item">
           <div class="detail-section">
-            <h3>Add New Item</h3>
+            <h3>Add New Item to ReWear</h3>
+            <p class="section-description">Add clothing items you want to exchange or sell for points on the ReWear platform.</p>
             <div class="add-item-form">
               <form id="add-item-form">
                 <div class="form-group">
                   <label for="item-name">Item Name</label>
-                  <input type="text" id="item-name" name="name" required>
+                  <input type="text" id="item-name" name="name" placeholder="e.g., Vintage Denim Jacket" required>
                 </div>
                 <div class="form-group">
                   <label for="item-description">Description</label>
-                  <textarea id="item-description" name="description" rows="4" required></textarea>
+                  <textarea id="item-description" name="description" rows="4" placeholder="Describe the item condition, size, brand, and any other relevant details..." required></textarea>
                 </div>
                 <div class="form-group">
-                  <label for="item-points">Requested Points</label>
-                  <input type="number" id="item-points" name="points" min="1" required>
+                  <label for="item-points">Points Required</label>
+                  <input type="number" id="item-points" name="points" min="1" placeholder="How many points should this item cost?" required>
+                  <small class="form-help">Consider the item's condition, brand, and desirability when setting points.</small>
                 </div>
                 <div class="form-group">
                   <label for="item-category">Category</label>
@@ -178,20 +271,57 @@
                 <div class="form-group">
                   <label for="item-image">Image URL</label>
                   <input type="url" id="item-image" name="image_url" placeholder="https://example.com/image.jpg">
+                  <small class="form-help">Add a clear photo showing the item's condition and details.</small>
                 </div>
                 <div class="form-actions">
-                  <button type="submit" class="save-button">Submit Request</button>
+                  <button type="submit" class="save-button">Add Item to ReWear</button>
                   <button type="reset" class="cancel-button">Clear Form</button>
                 </div>
               </form>
             </div>
           </div>
+          
+          <!-- My Uploaded Items Section -->
+          <div class="detail-section">
+            <h3>My Listed Items</h3>
+            {% if uploaded_products and uploaded_products|length > 0 %}
+              <div class="uploaded-items-list">
+                {% for product in uploaded_products %}
+                <div class="uploaded-item-card">
+                  <img src="{{ product.image_url }}" alt="{{ product.name }}" class="uploaded-item-image">
+                  <div class="uploaded-item-details">
+                    <h4 class="uploaded-item-name">{{ product.name }}</h4>
+                    <p class="uploaded-item-category">{{ product.category.name }}</p>
+                    <div class="uploaded-item-meta">
+                      <span class="uploaded-item-points">{{ product.points_required }} points</span>
+                      <span class="uploaded-item-stock">{{ product.stock }} available</span>
+                    </div>
+                  </div>
+                  <div class="uploaded-item-actions">
+                    <button class="edit-item-btn" data-product-id="{{ product.id }}">
+                      <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button class="remove-item-btn" data-product-id="{{ product.id }}">
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="empty-state">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <p>You haven't uploaded any items yet.</p>
+                <p>Start adding items to build your ReWear inventory!</p>
+              </div>
+            {% endif %}
+          </div>
         </div>
 
-        <!-- My Purchases Tab -->
+        <!-- My Purchases/Redemptions Tab -->
         <div class="tab-pane" id="my-purchases">
           <div class="detail-section">
-            <h3>My Purchases</h3>
+            <h3>Purchase History</h3>
             {% if orders and orders|length > 0 %}
               <div class="purchases-list">
                 {% for order in orders %}
@@ -216,6 +346,9 @@
                       <div class="purchase-item-details">
                         <p class="purchase-item-name">{{ item.product.name }}</p>
                         <p class="purchase-item-price">Rs.{{ item.price_at_purchase }} x {{ item.quantity }}</p>
+                        {% if item.product.points_required %}
+                        <p class="purchase-item-points">{{ item.product.points_required }} points each</p>
+                        {% endif %}
                       </div>
                     </div>
                     {% endfor %}
@@ -230,10 +363,35 @@
               <div class="empty-state">
                 <span class="material-symbols-outlined">shopping_bag</span>
                 <p>You haven't made any purchases yet.</p>
-                <a href="{{ url_for('main.home') }}" class="shop-now-btn">Shop Now</a>
+                <a href="{{ url_for('main.home') }}" class="shop-now-btn">Browse ReWear Items</a>
               </div>
             {% endif %}
           </div>
+          
+          <!-- Point Redemptions in Purchases Tab -->
+          {% if point_redemptions and point_redemptions|length > 0 %}
+          <div class="detail-section">
+            <h3>Point Redemptions</h3>
+            <div class="redemptions-list">
+              {% for redemption in point_redemptions %}
+              <div class="redemption-card">
+                <div class="redemption-header">
+                  <span class="redemption-id">Redemption #{{ redemption.id }}</span>
+                  <span class="redemption-date">{{ redemption.redeemed_at.strftime('%B %d, %Y') }}</span>
+                  <span class="points-spent">{{ redemption.points_spent }} points</span>
+                </div>
+                <div class="redemption-item">
+                  <img src="{{ redemption.product.image_url }}" alt="{{ redemption.product.name }}" class="redemption-item-image">
+                  <div class="redemption-item-details">
+                    <p class="redemption-item-name">{{ redemption.product.name }}</p>
+                    <p class="redemption-item-category">{{ redemption.product.category.name }}</p>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
         </div>
 
         <!-- Personal Info Tab (includes addresses) -->
