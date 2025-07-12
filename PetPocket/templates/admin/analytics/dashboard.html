@@ -78,7 +78,7 @@
         <div class="col-md-3">
             <div class="stats-card">
                 <h3>Total Revenue</h3>
-                <div class="value">₹{{ "{:,.2f}".format(monthly_revenue) }}</div>
+                <div class="value"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "{:,.2f}".format(monthly_revenue) }}</div>
                 <div class="change {% if mom_growth >= 0 %}positive-change{% else %}negative-change{% endif %}">
                     {% if mom_growth >= 0 %}
                         <i class="fa fa-arrow-up"></i> 
@@ -232,7 +232,7 @@
                                 });
                                 const currentValue = dataset.data[tooltipItem.index];
                                 const percentage = Math.floor(((currentValue/total) * 100) + 0.5);
-                                return `${data.labels[tooltipItem.index]}: ₹${currentValue.toFixed(2)} (${percentage}%)`;
+                                return `${data.labels[tooltipItem.index]}: <img src="/static/images/coin.png" class="coin-icon">${currentValue.toFixed(2)} (${percentage}%)`;
                             }
                         }
                     }

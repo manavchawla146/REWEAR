@@ -38,7 +38,7 @@ def update_product_points():
                 product.points_required = points
                 updated_count += 1
                 
-                print(f"Updated '{product.name}' (₹{product.price}) -> {points} points")
+                print(f"Updated '{product.name}' (<img src='/static/images/coin.png' class='coin-icon'>{product.price}) -> {points} points")
             
             # Commit all changes
             db.session.commit()

@@ -41,7 +41,7 @@
                             </div>
                             <div class="item-details">
                                 <h3>{{ item.product.name }}</h3>
-                                <p class="item-price">Rs.{{ "%.2f"|format(item.product.price) }}</p>
+                                <p class="item-price">₹{{ "%.2f"|format(item.product.price) }}</p>
                             </div>
                             </div>
                             
@@ -80,19 +80,19 @@
             <div class="cart-summary">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span class="subtotal">Rs.{{ "%.2f"|format(subtotal|default(0)) }}</span>
+                    <span class="subtotal">₹{{ "%.2f"|format(subtotal|default(0)) }}</span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
-                    <span class="shipping">Rs.{{ "%.2f"|format(shipping|default(0)) }}</span>
+                    <span class="shipping">₹{{ "%.2f"|format(shipping|default(0)) }}</span>
                 </div>
                 <div class="summary-row">
                     <span>Tax</span>
-                    <span class="tax">Rs.{{ "%.2f"|format(tax|default(0)) }}</span>
+                    <span class="tax">₹{{ "%.2f"|format(tax|default(0)) }}</span>
                 </div>
                 <div class="summary-row total">
                     <strong>Total</strong>
-                    <strong class="total-value">Rs.{{ "%.2f"|format(total|default(0)) }}</strong>
+                    <strong class="total-value">₹{{ "%.2f"|format(total|default(0)) }}</strong>
                 </div>
                 <button class="checkout-btn" {% if not cart_items %}disabled{% endif %}>
                     <a href="{{ url_for('main.checkout') }}" {% if not cart_items %}class="disabled"{% endif %}>

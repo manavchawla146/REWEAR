@@ -215,13 +215,13 @@
                       <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="purchase-item-image">
                       <div class="purchase-item-details">
                         <p class="purchase-item-name">{{ item.product.name }}</p>
-                        <p class="purchase-item-price">Rs.{{ item.price_at_purchase }} x {{ item.quantity }}</p>
+                        <p class="purchase-item-price"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ item.price_at_purchase }} x {{ item.quantity }}</p>
                       </div>
                     </div>
                     {% endfor %}
                   </div>
                   <div class="purchase-footer">
-                    <span class="purchase-total">Total: Rs.{{ '%.2f'|format(order.total_price) }}</span>
+                    <span class="purchase-total">Total: <img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ '%.2f'|format(order.total_price) }}</span>
                   </div>
                 </div>
                 {% endfor %}

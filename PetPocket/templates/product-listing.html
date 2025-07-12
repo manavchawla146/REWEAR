@@ -139,7 +139,7 @@
 
   <div class="product-listing-section">
     <div class="title-controls-container">
-      <h1 class="page-title">Discover Curated Products for {{ pet_type.name }}</h1>
+      <h1 class="page-title">Shared Looks for {{ pet_type.name }}</h1>
       
       <div class="controls-section">
         <button class="filter-toggle-btn" id="filterToggleBtn">
@@ -187,39 +187,15 @@
       <div class="product-grid">
         {% for product in products.items %}
           <div class="product-card" data-product-id="{{ product.id }}" data-category="{{ product.category.name | lower }}">
-            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image" />
-            <h3 class="product-name">{{ product.name }}</h3>
-            <div class="product-price-rating">
-              <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
-              <div class="product-rating">
-                {% set total_reviews = product.reviews | length %}
-                {% set avg_rating = 0 %}
-                {% if total_reviews > 0 %}
-                  {% set total_rating = product.reviews | sum(attribute='rating') %}
-                  {% set avg_rating = (total_rating / total_reviews) | round(1) %}
-                {% endif %}
-                {% set full_stars = avg_rating | int %}
-                {% set has_half_star = (avg_rating - full_stars) >= 0.5 %}
-                {% for i in range(5) %}
-                  {% if i < full_stars %}
-                    <span class="star filled">★</span>
-                  {% elif i == full_stars and has_half_star %}
-                    <span class="star filled">★</span>
-                  {% else %}
-                    <span class="star empty">☆</span>
-                  {% endif %}
-                {% endfor %}
-                <span>({{ total_reviews }})</span>
-              </div>
-            </div>
-            <div class="product-actions">
-              <button class="add-to-cart" data-product-id="{{ product.id }}">
-                <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span>
-                <span class="cart-txt">Add to Cart</span>
-              </button>
+            <div class="wishlist-button-top">
               <button class="add-to-wishlist" data-product-id="{{ product.id }}">
                 <span class="material-symbols-outlined">favorite</span>
               </button>
+            </div>
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image" />
+            <h3 class="product-name">{{ product.name }}</h3>
+            <div class="product-price-rating">
+              <span class="product-price"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ "%.2f"|format(product.price) }}</span>
             </div>
           </div>
         {% endfor %}
