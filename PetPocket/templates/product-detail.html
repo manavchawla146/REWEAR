@@ -564,6 +564,49 @@
             }
         }
         
+        .redeem-points {
+            background: #ffca28;
+            color: #fff;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 14px 32px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+        .redeem-points:hover {
+            background: #ffb300;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(255,202,40,0.18);
+        }
+        .request-swap {
+            background: #fff;
+            color: #ffca28;
+            border: 2px solid #ffca28;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 14px 32px;
+            cursor: pointer;
+            transition: background 0.3s, color 0.3s, border 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .request-swap:hover {
+            background: #ffca28;
+            color: #fff;
+            border: 2px solid #ffb300;
+            box-shadow: 0 4px 16px rgba(255,202,40,0.12);
+        }
+        .product-action {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 18px;
+            align-items: stretch;
+        }
     </style>
 
 </head>
@@ -604,14 +647,7 @@
                                 *inclusive of all taxes
                             </div>
                         </div>
-                        <div class="product-rating" style="align-self: flex-start;">
-                            <span class="stars right-rating-stars">
-                                {% for i in range(5) %}
-                                    {% if i < avg_rating|int %}★{% else %}☆{% endif %}
-                                {% endfor %}
-                            </span>
-                            <span class="rating-count right-rating-count">({{ total_reviews }} reviews)</span>
-                        </div>
+                        <div class="product-tag" style="align-self: flex-start; border: 1.5px solid #ffca28; border-radius: 8px; padding: 2px 14px; font-weight: 600; color: #ffca28; font-size: 1em; margin-left: 2vw; margin-top: 4px; height: fit-content; display: flex; align-items: center;">Mens</div>
                     </div>
                 </div>
                
@@ -619,7 +655,7 @@
                 
                 {% if product.category.name == 'Food' and variants|length > 1 %}
                 <div class="qty-btn-container">
-                    <p>Pack Size: </p>
+                    <p>Size: </p>
                     <div class="qty-btns">
                         {% for variant in variants %}
                             <button
@@ -627,78 +663,30 @@
                                 onclick="window.location.href='{{ url_for('main.product_detail', product_id=variant.id) }}'"
                                 {% if variant.id == selected_variant.id %}disabled{% endif %}
                             >
-                                {{ variant.weight|int if variant.weight == variant.weight|int else variant.weight }}kg
+                                Size: M
                             </button>
                         {% endfor %}
                     </div>
                 </div>
                 {% endif %}
-                                    <div class="quantity-stock-row">
-                            <p>Quantity:</p>
-                        <div class="quantity-selector">
-                            
-                            <button class="quantity-btn decrease">-</button>
-                            <input type="number" class="quantity-input" value="1" min="1" max="{{ product.stock }}">
-                            <button class="quantity-btn increase">+</button>
-                        </div>
-                        {% if product.stock > 0 %}
-                            <p class="product-stock in-stock"><span class="material-symbols-outlined">inventory_2</span> In Stock ({{ product.stock }} available)</p>
-                        {% else %}
-                            <p class="product-stock out-of-stock"><span class="material-symbols-outlined">cancel</span> Out of Stock</p>
-                        {% endif %}
-                    </div>
-               </div>
+                </div>
+                <!-- Static product description -->
+                <div class="static-product-description">
+                  Premium dry dog food for large breeds
+                </div>
+                <div class="static-size">Size: M</div>
                 <div class="product-action">
-                    <button id="add-to-cart-btn" class="add-to-cart" data-product-id="{{ product.id }}">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        <p class="cart-txt">Add to Cart</p>
+                    <button id="redeem-points-btn" class="redeem-points" data-product-id="{{ product.id }}">
+                        Redeem for Points
                     </button>
-                    <button id="add-to-wishlist-btn" class="add-to-wishlist" data-product-id="{{ product.id }}">
-                        <span class="material-symbols-outlined">favorite</span>
-                        <span class="wishlist-txt">Add to Wishlist</span>
+                    <button id="request-swap-btn" class="request-swap" data-product-id="{{ product.id }}">
+                        Request Swap
                     </button>
                 </div>
-
-                <div class="info">
-                    <div class="delivery"><i class="ri-truck-line"></i> <p>Fast Delivery!</p></div>
-                    <div class="satisfaction"><i class="ri-user-heart-line"></i> <p>Guranteed Satisfaction</p></div>
-                    <div class="safe-payment"><i class="ri-secure-payment-fill"></i> <p>Secure Payment</p></div>
-                </div>
-              
-                <div class="product-description">
-                    <div class="tabs">
-                        <div class="tab active" data-tab="description">Details</div>
-                        <div class="tab" data-tab="additional-info">Additional Info</div>
-                        <div class="tab" data-tab="food-features">Food Features</div>
-                    </div>
-                    <div id="description" class="tab-content active">
-                        <p>{{ product.description or 'No product description available.' }}</p>
-                        <p>{{ product.category.description or 'No category description available.' }}</p>
-                    </div>
-                    <div id="additional-info" class="tab-content">
-                        <h2>Additional Information</h2>
-                        {% if attributes %}
-                            <table class="specs-table">
-                                {% for attr in attributes %}
-                                    <tr>
-                                        <th>{{ attr.key }}</th>
-                                        <td>{{ attr.value }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </table>
-                        {% else %}
-                            <p>No additional information available.</p>
-                        {% endif %}
-                    </div>
-                    <div id="food-features" class="tab-content">
-                        {% if product.category.description %}
-                            <h2>{{ product.category.name }} Features</h2>
-                            <p>{{ product.category.description }}</p>
-                        {% else %}
-                            <h2>Product Highlights</h2>
-                            <p>{{ product.description|default('Explore this amazing product for your pet!', true) }}</p>
-                        {% endif %}
-                    </div>
+                <div class="product-meta-extra" style="margin-top: 18px; font-size: 1.05em; line-height: 1.7; color: #333;">
+                    <div><strong>Uploader:</strong> @sarah_style (15 swaps)</div>
+                    <div><strong>Status:</strong> <span style="color: #4caf50;">✅ Available</span></div>
+                    <div><strong>Listed:</strong> 3 days ago</div>
                 </div>
             </div>
         </div>
@@ -720,20 +708,10 @@
                         </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
-                          
                         </div>
-                          <div class="product-price-rating">
-                                <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
-                                <div class="product-rating">
-                                    {% set avg_rating = (product.reviews|map(attribute='rating')|sum / product.reviews|length)|round(1) if product.reviews else 0 %}
-                                    <span class="stars">
-                                        {% for i in range(5) %}
-                                            {% if i < avg_rating|int %}★{% else %}☆{% endif %}
-                                        {% endfor %}
-                                    </span>
-                                    <span class="rating-count">({{ product.reviews|length }})</span>
-                                </div>
-                            </div>
+                        <div class="product-price-rating">
+                            <p class="product-price">₹{{ "%.2f"|format(product.price) }}</p>
+                        </div>
                         <div class="product-actions">
                             <button class="add-to-cart" data-product-id="{{ product.id }}">
                                 <span class="material-symbols-outlined">add_shopping_cart</span> <p class="cart-txt">Add to Cart</p>
@@ -747,85 +725,7 @@
             </div>
         </div>
     </div>
-    <div class="customer-reviews-section">
-        <h2>Customer Reviews</h2>
-        <div class="review-summary">
-            <div class="average-rating">
-                <p class="rating-value">{{ avg_rating }}</p>
-                <span class="stars">
-                    {% for i in range(5) %}
-                        {% if i < avg_rating|int %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                </span>
-                <p class="total-reviews">({{ total_reviews }} customer {{ 'review' if total_reviews == 1 else 'reviews' }})</p>
-            </div>
-            <div class="rating-bars">
-                {% for i in range(5, 0, -1) %}
-                    <div class="rating-bar">
-                        <p class="rating-label">{{ i }} Stars</p>
-                        <div class="rating-progress">
-                            <div class="rating-progress-fill" style="width: {{ (rating_counts[i] / total_reviews * 100) if total_reviews > 0 else 0 }}%"></div>
-                        </div>
-                        <p class="rating-count">{{ rating_counts[i] }}</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="review-list">
-            {% for review in reviews %}
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="name-rating">
-                        <p class="reviewer-name">{{ review.reviewer.username }}</p>
-                        <div class="review-rating">
-                            <span class="stars">
-                                {% for i in range(5) %}
-                                    {% if i < review.rating %}★{% else %}☆{% endif %}
-                                {% endfor %}
-                            </span>
-                        </div>
-                        </div>
-                        <div class="date">
-                    <p class="review-date">{{ (review.updated_at or review.created_at).strftime('%B %d, %Y') }}</p>
-                    </div>
-                    </div>
-                    <p class="review-content">{{ review.content }}</p>    
-
-                    
-                </div>
-            {% else %}
-                <p>No reviews yet. Be the first to review this product!</p>
-            {% endfor %}
-        </div>
-        {% if current_user.is_authenticated %}
-            <div class="add-review-section">
-                <h2>Add a Review</h2>
-                <form id="review-form" data-product-id="{{ product.id }}">
-                    <div class="form-group">
-                        <label for="rating">Your Rating *</label>
-                        <div class="rating-select">
-                            {% for i in range(1, 6) %}
-                                <input type="radio" name="rating" id="rating-{{ i }}" value="{{ i }}" required>
-                                <label for="rating-{{ i }}">
-                                    <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                                </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="review-content">Your Review *</label>
-                        <textarea id="review-content" name="content" required></textarea>
-                    </div>
-                    <button type="submit" class="submit-review">
-                        <span class="material-symbols-outlined">rate_review</span> Submit Review
-                    </button>
-                </form>
-            </div>
-        {% else %}
-            <p>Please <a href="{{ url_for('main.signin') }}">login</a> to write a review.</p>
-        {% endif %}
-    </div>
-    
+    <!-- Customer review section and all related HTML, CSS, and JS have been removed as requested. -->
     {% include 'footer.html' %}
       <nav class="mobile-bottom-nav">
         <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
