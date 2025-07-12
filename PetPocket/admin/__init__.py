@@ -8,6 +8,7 @@ from flask_mail import Message, Mail
 from flask_admin.actions import action
 from wtforms import validators, SelectField
 from datetime import datetime
+from flask_admin.model.template import macro
 
 # Base admin view classes with security
 class SecureModelView(ModelView):
@@ -213,6 +214,271 @@ class PromoCodeView(SecureModelView):
             db.session.rollback()
             flash(f'Error toggling status: {str(e)}', 'error')
         return redirect(url_for('promocode.index_view'))
+
+
+# Product Approval Management View
+class ProductApprovalInterfaceView(SecureBaseView):
+    """Custom interface for product approval with better UX"""
+    
+    @expose('/', methods=['GET', 'POST'])
+    def index(self):
+        from ..models import Product
+        
+        if request.method == 'POST':
+            product_id = request.form.get('product_id')
+            action = request.form.get('action')
+            
+            if product_id and action:
+                product = Product.query.get(product_id)
+                if product:
+                    if action == 'approve':
+                        product.approval_status = 'approved'
+                        product.is_approved = True
+                        product.approved_by = current_user.id
+                        product.approved_at = datetime.utcnow()
+                        flash(f'Product "{product.name}" has been approved!', 'success')
+                    elif action == 'reject':
+                        product.approval_status = 'rejected'
+                        product.is_approved = False
+                        product.approved_by = current_user.id
+                        product.approved_at = datetime.utcnow()
+                        product.rejection_reason = 'Rejected by admin'
+                        flash(f'Product "{product.name}" has been rejected.', 'warning')
+                    
+                    try:
+                        from .. import db
+                        db.session.commit()
+                    except Exception as e:
+                        db.session.rollback()
+                        flash(f'Error updating product: {str(e)}', 'error')
+        
+        # Get products with statistics
+        pending_products = Product.query.filter_by(approval_status='pending').order_by(Product.created_at.desc()).all()
+        pending_count = len(pending_products)
+        approved_count = Product.query.filter_by(approval_status='approved').count()
+        rejected_count = Product.query.filter_by(approval_status='rejected').count()
+        
+        return self.render('admin/product_approval.html', 
+                         products=pending_products,
+                         pending_count=pending_count,
+                         approved_count=approved_count,
+                         rejected_count=rejected_count)
+
+
+class AllProductsApprovalView(SecureModelView):
+    """View to see all products with their approval status"""
+    column_list = ['id', 'name', 'uploader.username', 'approval_status', 'is_approved', 'created_at', 'approved_at']
+    column_searchable_list = ['name', 'uploader.username']
+    column_filters = ['approval_status', 'is_approved', 'created_at', 'approved_at', 'uploader.username']
+    column_default_sort = ('created_at', True)
+    can_create = False
+    can_delete = False
+    can_edit = True
+    
+    column_labels = {
+        'uploader.username': 'Uploaded By',
+        'approval_status': 'Status',
+        'is_approved': 'Approved',
+        'approved_at': 'Approval Date'
+    }
+    
+    column_formatters = {
+        'approval_status': lambda v, c, m, n: f'<span class="badge badge-{"success" if m.approval_status == "approved" else "warning" if m.approval_status == "pending" else "danger"}">{m.approval_status.title()}</span>',
+        'is_approved': lambda v, c, m, n: f'<span class="badge badge-{"success" if m.is_approved else "danger"}">{"Yes" if m.is_approved else "No"}</span>'
+    }
+    
+    form_columns = ['approval_status', 'rejection_reason']
+    
+    # Custom form choices for approval status
+    form_choices = {
+        'approval_status': [
+            ('pending', 'Pending'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected')
+        ]
+    }
+    
+    @action('approve_products', 'Approve Selected', 'Are you sure you want to approve selected products?')
+    def action_approve_products(self, ids):
+        from ..models import Product
+        try:
+            count = 0
+            for product_id in ids:
+                product = Product.query.get(product_id)
+                if product and product.approval_status != 'approved':
+                    product.approval_status = 'approved'
+                    product.is_approved = True
+                    product.approved_by = current_user.id
+                    product.approved_at = datetime.utcnow()
+                    count += 1
+            self.session.commit()
+            flash(f'Successfully approved {count} products.', 'success')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            self.session.rollback()
+            flash('Failed to approve products.', 'error')
+    
+    @action('reject_products', 'Reject Selected', 'Are you sure you want to reject selected products?')
+    def action_reject_products(self, ids):
+        from ..models import Product
+        try:
+            count = 0
+            for product_id in ids:
+                product = Product.query.get(product_id)
+                if product and product.approval_status != 'rejected':
+                    product.approval_status = 'rejected'
+                    product.is_approved = False
+                    product.approved_by = current_user.id
+                    product.approved_at = datetime.utcnow()
+                    product.rejection_reason = 'Rejected by admin'
+                    count += 1
+            self.session.commit()
+            flash(f'Successfully rejected {count} products.', 'warning')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            self.session.rollback()
+            flash('Failed to reject products.', 'error')
+    
+    def on_model_change(self, form, model, is_created):
+        if not is_created:  # Only for edits, not new records
+            if model.approval_status == 'approved':
+                model.is_approved = True
+                model.approved_by = current_user.id
+                model.approved_at = datetime.utcnow()
+            elif model.approval_status == 'rejected':
+                model.is_approved = False
+                model.approved_by = current_user.id
+                model.approved_at = datetime.utcnow()
+        
+        super().on_model_change(form, model, is_created)
+
+
+class ProductApprovalView(SecureModelView):
+    column_list = ['id', 'name', 'uploader.username', 'created_at', 'approval_status', 'approved_by', 'approved_at']
+    column_searchable_list = ['name', 'uploader.username']
+    column_filters = ['approval_status', 'created_at', 'approved_at', 'uploader.username']
+    column_default_sort = ('created_at', True)
+    can_create = False
+    can_delete = False
+    can_edit = True
+    
+    # Show only pending products by default
+    def get_query(self):
+        return self.session.query(self.model).filter(self.model.approval_status == 'pending')
+    
+    def get_count_query(self):
+        return self.session.query(self.model).filter(self.model.approval_status == 'pending')
+    
+    column_labels = {
+        'uploader.username': 'Uploaded By',
+        'approval_status': 'Status',
+        'approved_by': 'Approved By',
+        'approved_at': 'Approval Date'
+    }
+    
+    column_formatters = {
+        'approval_status': lambda v, c, m, n: f'<span class="badge badge-{"success" if m.approval_status == "approved" else "warning" if m.approval_status == "pending" else "danger"}">{m.approval_status.title()}</span>'
+    }
+    
+    form_columns = ['approval_status', 'rejection_reason']
+    
+    # Custom form choices for approval status
+    form_choices = {
+        'approval_status': [
+            ('pending', 'Pending'),
+            ('approved', 'Approved'),
+            ('rejected', 'Rejected')
+        ]
+    }
+    
+    @action('approve_products', 'Approve Selected', 'Are you sure you want to approve selected products?')
+    def action_approve_products(self, ids):
+        from ..models import Product
+        from flask_login import current_user
+        from datetime import datetime
+        try:
+            count = 0
+            for product_id in ids:
+                product = Product.query.get(product_id)
+                if product and product.approval_status == 'pending':
+                    product.approval_status = 'approved'
+                    product.is_approved = True
+                    product.approved_by = current_user.id
+                    product.approved_at = datetime.utcnow()
+                    count += 1
+            self.session.commit()
+            flash(f'Successfully approved {count} products.', 'success')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            self.session.rollback()
+            flash('Failed to approve products.', 'error')
+    
+    @action('reject_products', 'Reject Selected', 'Are you sure you want to reject selected products?')
+    def action_reject_products(self, ids):
+        from ..models import Product
+        from flask_login import current_user
+        from datetime import datetime
+        try:
+            count = 0
+            for product_id in ids:
+                product = Product.query.get(product_id)
+                if product and product.approval_status == 'pending':
+                    product.approval_status = 'rejected'
+                    product.is_approved = False
+                    product.approved_by = current_user.id
+                    product.approved_at = datetime.utcnow()
+                    product.rejection_reason = 'Rejected by admin'
+                    count += 1
+            self.session.commit()
+            flash(f'Successfully rejected {count} products.', 'warning')
+        except Exception as ex:
+            if not self.handle_view_exception(ex):
+                raise
+            self.session.rollback()
+            flash('Failed to reject products.', 'error')
+    
+    # Override the edit form to update approval fields automatically
+    def on_model_change(self, form, model, is_created):
+        from flask_login import current_user
+        from datetime import datetime
+        
+        if not is_created:  # Only for edits, not new records
+            if model.approval_status == 'approved':
+                model.is_approved = True
+                model.approved_by = current_user.id
+                model.approved_at = datetime.utcnow()
+            elif model.approval_status == 'rejected':
+                model.is_approved = False
+                model.approved_by = current_user.id
+                model.approved_at = datetime.utcnow()
+        
+        super().on_model_change(form, model, is_created)
+
+
+# Swap Request Management View
+class SwapRequestView(SecureModelView):
+    column_list = ['id', 'requester.username', 'requested_item.name', 'offered_item.name', 'status', 'created_at']
+    column_searchable_list = ['requester.username', 'requested_item.name', 'offered_item.name']
+    column_filters = ['status', 'created_at']
+    column_default_sort = ('created_at', True)
+    can_create = False
+    can_delete = True
+    
+    column_labels = {
+        'requester.username': 'Requester',
+        'requested_item.name': 'Wants Item',
+        'offered_item.name': 'Offers Item',
+        'created_at': 'Requested On'
+    }
+    
+    column_formatters = {
+        'status': lambda v, c, m, n: f'<span class="badge badge-{"success" if m.status == "completed" else "info" if m.status == "approved" else "warning" if m.status == "pending" else "danger"}">{m.status.title()}</span>'
+    }
+    
+    form_columns = ['status', 'rejection_reason']
 
         
 class ProductView(SecureModelView):
@@ -442,7 +708,7 @@ class AnalyticsDashboardView(SecureBaseView):
 def init_admin(app, db):
     from ..models import (
         User, Product, Review, ProductImage, Category, 
-        PetType, Order, OrderItem, Address, ProductAttribute, PromoCode
+        PetType, Order, OrderItem, Address, ProductAttribute, PromoCode, SwapRequest
     )
     
     admin = Admin(
@@ -454,6 +720,10 @@ def init_admin(app, db):
     
     admin.add_view(UserView(User, db.session, name='Users'))
     admin.add_view(ProductView(Product, db.session, name='Products'))
+    admin.add_view(ProductApprovalInterfaceView(name='📋 Product Approvals', endpoint='product_approval_interface'))
+    admin.add_view(ProductApprovalView(Product, db.session, name='Pending Approvals', endpoint='product_approvals'))
+    admin.add_view(AllProductsApprovalView(Product, db.session, name='All Products Status', endpoint='all_products_approval'))
+    admin.add_view(SwapRequestView(SwapRequest, db.session, name='Swap Requests'))
     admin.add_view(CategoryView(Category, db.session, name='Categories'))
     admin.add_view(SecureModelView(PetType, db.session, name='Pet Types'))
     admin.add_view(OrderView(Order, db.session, name='Orders'))

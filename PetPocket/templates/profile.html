@@ -23,6 +23,49 @@
       font-weight: 800 !important;
       letter-spacing: -0.5px;
     }
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: #ffca28;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      margin-left: 8px;
+    }
+    .refresh-btn:hover {
+      background: rgba(255, 202, 40, 0.1);
+      transform: rotate(180deg);
+    }
+    .refresh-btn .material-symbols-outlined {
+      font-size: 16px;
+    }
+    .approval-status {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 4px;
+    }
+    .approval-status.approved {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    .approval-status.pending {
+      background: #fff3e0;
+      color: #ef6c00;
+    }
+    .approval-status.rejected {
+      background: #ffebee;
+      color: #c62828;
+    }
+    .rejection-reason {
+      font-size: 0.85rem;
+      color: #c62828;
+      font-style: italic;
+      margin-top: 4px;
+    }
   </style>
 </head>
 
@@ -49,8 +92,11 @@
           </div>
           <div class="points-bar">
             <span class="points-label">Points:</span>
-            <span class="points-value">{{ current_user.points_balance }}</span>
+            <span class="points-value" id="points-display">{{ current_user.points_balance }}</span>
             <span class="points-icon">🪙</span>
+            <button id="refresh-points-btn" class="refresh-btn" onclick="refreshPoints()" title="Refresh Points">
+              <span class="material-symbols-outlined">refresh</span>
+            </button>
           </div>
         </div>
       </div>
@@ -71,9 +117,9 @@
           <span class="material-symbols-outlined">add_circle</span>
           List Items
         </button>
-        <button class="tab-button" data-tab="my-purchases">
-          <span class="material-symbols-outlined">shopping_bag</span>
-          Redemptions
+        <button class="tab-button" data-tab="my-redemptions">
+          <span class="material-symbols-outlined">stars</span>
+          My Redemptions
         </button>
         <button class="tab-button" data-tab="personal-info">
           <span class="material-symbols-outlined">person</span>
@@ -88,10 +134,10 @@
             <h3>Dashboard Overview</h3>
             <div class="dashboard-stats">
               <div class="stat-card">
-                <span class="material-symbols-outlined">shopping_cart</span>
+                <span class="material-symbols-outlined">inventory_2</span>
                 <div class="stat-content">
-                  <h4>{{ orders|length if orders else 0 }}</h4>
-                  <p>Total Purchases</p>
+                  <h4>{{ uploaded_products|length if uploaded_products else 0 }}</h4>
+                  <p>Items Listed</p>
                 </div>
               </div>
               <div class="stat-card">
@@ -418,7 +464,19 @@
                     <div class="uploaded-item-meta">
                       <span class="uploaded-item-points">{{ product.points_required }} points</span>
                       <span class="uploaded-item-stock">{{ product.stock }} available</span>
+                      <span class="approval-status {{ product.approval_status }}">
+                        {% if product.approval_status == 'approved' %}
+                          ✅ Approved
+                        {% elif product.approval_status == 'pending' %}
+                          ⏳ Pending Approval
+                        {% elif product.approval_status == 'rejected' %}
+                          ❌ Rejected
+                        {% endif %}
+                      </span>
                     </div>
+                    {% if product.approval_status == 'rejected' and product.rejection_reason %}
+                      <p class="rejection-reason">Reason: {{ product.rejection_reason }}</p>
+                    {% endif %}
                   </div>
                   <div class="uploaded-item-actions">
                     <button class="edit-item-btn" data-product-id="{{ product.id }}">
@@ -441,80 +499,58 @@
           </div>
         </div>
 
-        <!-- My Purchases/Redemptions Tab -->
-        <div class="tab-pane" id="my-purchases">
+        <!-- My Redemptions Tab -->
+        <div class="tab-pane" id="my-redemptions">
           <div class="detail-section">
-            <h3>Purchase History</h3>
-            {% if orders and orders|length > 0 %}
-              <div class="purchases-list">
-                {% for order in orders %}
-                <div class="purchase-card">
-                  <div class="purchase-header">
-                    <span class="purchase-id">Order #{{ order.id }}</span>
-                    <span class="purchase-date">{{ order.timestamp.strftime('%B %d, %Y') }}</span>
-                    <span class="purchase-status {{ order.payment_status }}">
-                      {% if order.payment_status == 'completed' %}
-                        ✅ Completed
-                      {% elif order.payment_status == 'pending' %}
-                        ⏳ Pending
-                      {% else %}
-                        {{ order.payment_status|title }}
-                      {% endif %}
-                    </span>
+            <h3>Point Redemptions History</h3>
+            <p class="section-description">Track all your point redemptions and claimed items from the ReWear platform.</p>
+            {% if point_redemptions and point_redemptions|length > 0 %}
+              <div class="redemptions-list">
+                {% for redemption in point_redemptions %}
+                <div class="redemption-card">
+                  <div class="redemption-header">
+                    <span class="redemption-id">Redemption #{{ redemption.id }}</span>
+                    <span class="redemption-date">{{ redemption.redeemed_at.strftime('%B %d, %Y') }}</span>
+                    <span class="points-spent">{{ redemption.points_spent }} points</span>
                   </div>
-                  <div class="purchase-items">
-                    {% for item in order.items %}
-                    <div class="purchase-item">
-                      <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="purchase-item-image">
-                      <div class="purchase-item-details">
-                        <p class="purchase-item-name">{{ item.product.name }}</p>
-                        <p class="purchase-item-price">Rs.{{ item.price_at_purchase }} x {{ item.quantity }}</p>
-                        {% if item.product.points_required %}
-                        <p class="purchase-item-points">{{ item.product.points_required }} points each</p>
-                        {% endif %}
+                  <div class="redemption-item">
+                    <img src="{{ redemption.product.image_url }}" alt="{{ redemption.product.name }}" class="redemption-item-image">
+                    <div class="redemption-item-details">
+                      <p class="redemption-item-name">{{ redemption.product.name }}</p>
+                      <p class="redemption-item-category">{{ redemption.product.category.name }}</p>
+                      <div class="redemption-meta">
+                        <span class="redemption-status">✅ Claimed</span>
+                        <span class="redemption-value">Worth {{ redemption.points_spent }} points</span>
                       </div>
                     </div>
-                    {% endfor %}
-                  </div>
-                  <div class="purchase-footer">
-                    <span class="purchase-total">Total: Rs.{{ '%.2f'|format(order.total_price) }}</span>
                   </div>
                 </div>
                 {% endfor %}
               </div>
-            {% else %}
-              <div class="empty-state">
-                <span class="material-symbols-outlined">shopping_bag</span>
-                <p>You haven't made any purchases yet.</p>
-                <a href="{{ url_for('main.home') }}" class="shop-now-btn">Browse ReWear Items</a>
-              </div>
-            {% endif %}
-          </div>
-          
-          <!-- Point Redemptions in Purchases Tab -->
-          {% if point_redemptions and point_redemptions|length > 0 %}
-          <div class="detail-section">
-            <h3>Point Redemptions</h3>
-            <div class="redemptions-list">
-              {% for redemption in point_redemptions %}
-              <div class="redemption-card">
-                <div class="redemption-header">
-                  <span class="redemption-id">Redemption #{{ redemption.id }}</span>
-                  <span class="redemption-date">{{ redemption.redeemed_at.strftime('%B %d, %Y') }}</span>
-                  <span class="points-spent">{{ redemption.points_spent }} points</span>
-                </div>
-                <div class="redemption-item">
-                  <img src="{{ redemption.product.image_url }}" alt="{{ redemption.product.name }}" class="redemption-item-image">
-                  <div class="redemption-item-details">
-                    <p class="redemption-item-name">{{ redemption.product.name }}</p>
-                    <p class="redemption-item-category">{{ redemption.product.category.name }}</p>
+              
+              <!-- Summary Stats -->
+              <div class="redemption-summary">
+                <h4>Redemption Summary</h4>
+                <div class="summary-stats">
+                  <div class="summary-stat">
+                    <span class="stat-label">Total Redemptions:</span>
+                    <span class="stat-value">{{ point_redemptions|length }}</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-label">Total Points Spent:</span>
+                    <span class="stat-value">{{ point_redemptions|sum(attribute='points_spent') }} points</span>
                   </div>
                 </div>
               </div>
-              {% endfor %}
-            </div>
+            {% else %}
+              <div class="empty-state">
+                <span class="material-symbols-outlined">stars</span>
+                <p>You haven't redeemed any points yet.</p>
+                <p>Start earning points through swaps and redeem them for amazing clothing items!</p>
+                <a href="{{ url_for('main.home') }}" class="shop-now-btn">Browse Items to Redeem</a>
+              </div>
+            {% endif %}
           </div>
-          {% endif %}
         </div>
 
         <!-- Personal Info Tab (includes addresses) -->
@@ -653,6 +689,47 @@
       // Switch to Add Item tab
       document.querySelector('[data-tab="add-item"]').click();
     }
+
+    // Function to refresh points balance
+    function refreshPoints() {
+      const refreshBtn = document.getElementById('refresh-points-btn');
+      const pointsDisplay = document.getElementById('points-display');
+      
+      // Add loading state
+      refreshBtn.style.animation = 'spin 1s linear infinite';
+      
+      fetch('/refresh-points')
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            pointsDisplay.textContent = data.points_balance;
+            // Show success indicator
+            pointsDisplay.style.color = '#4caf50';
+            setTimeout(() => {
+              pointsDisplay.style.color = '';
+            }, 2000);
+          } else {
+            console.error('Failed to refresh points:', data.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error refreshing points:', error);
+        })
+        .finally(() => {
+          // Remove loading state
+          refreshBtn.style.animation = '';
+        });
+    }
+
+    // CSS animation for spin
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
 
     // Swap action functions
     function viewSwapDetails(swapId) {

@@ -373,3 +373,115 @@ document.addEventListener('DOMContentLoaded', function() {
     }).catch(error => console.error('Error tracking product view:', error));
     }
 });
+
+// Global functions for point redemption and swap requests
+function redeemWithPoints(productId, pointsRequired) {
+    if (!confirm(`Are you sure you want to redeem this product for ${pointsRequired} points?`)) {
+        return;
+    }
+
+    // Get CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    fetch('/redeem-points', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            points_required: pointsRequired
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Product redeemed successfully!', 'success');
+            // Reload page to update points balance and product availability
+            setTimeout(() => window.location.reload(), 1500);
+        } else {
+            showNotification(data.message || 'Failed to redeem product', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while redeeming', 'error');
+    });
+}
+
+function requestSwap(productId) {
+    if (!confirm('Are you sure you want to request a swap for this product?')) {
+        return;
+    }
+
+    // Get CSRF token from meta tag
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+    fetch('/request-swap', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            product_id: productId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Swap request sent successfully!', 'success');
+            // Optionally redirect to profile page or reload
+            setTimeout(() => window.location.href = '/profile', 1500);
+        } else {
+            showNotification(data.message || 'Failed to request swap', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while requesting swap', 'error');
+    });
+}
+
+// Helper function for notifications (make it global)
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    
+    // Add notification styles if they don't exist
+    if (!document.querySelector('style[data-notification-styles]')) {
+        const style = document.createElement('style');
+        style.setAttribute('data-notification-styles', '');
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 5px;
+                color: white;
+                font-weight: 500;
+                z-index: 1000;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            }
+            .notification.success { background-color: #4caf50; }
+            .notification.error { background-color: #f44336; }
+            .notification.show {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(notification);
+    setTimeout(() => { notification.classList.add('show'); }, 100);
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => { notification.remove(); }, 300);
+    }, 3000);
+}
