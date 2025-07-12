@@ -27,31 +27,14 @@
         <div class="product-grid">
           {% for product in products %}
             <div class="product-card" data-product-id="{{ product.id }}">
-              <div class="product-image-container">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}">
-              </div>
-              <div class="product-card-bottom">
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-price-rating">
-                  <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
-                  <div class="product-rating">
-                    {% set avg_rating = (product.reviews|map(attribute='rating')|sum / product.reviews|length)|round if product.reviews else 0 %}
-                    {% for i in range(5) %}
-                      {% if i < avg_rating|int %}★{% else %}☆{% endif %}
-                    {% endfor %}
-                    ({{ product.reviews|length }})
-                  </div>
-                </div>
-                <div class="product-actions">
-                  <button class="add-to-cart">
-                    <span class="material-symbols-outlined">add_shopping_cart</span>
-                    <span class="cart-txt">Add to Cart</span>
-                  </button>
-                  <button class="remove-from-wishlist">
-                    <span class="material-symbols-outlined">delete</span>
-                    <span class="del-txt">Remove</span>
-                  </button>
-                </div>
+              <img class="product-image" src="{{ product.image_url }}" alt="{{ product.name }}">
+              <h3 class="product-name">{{ product.name }}</h3>
+              <div class="product-price-rating" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <span class="product-price">₹{{ "%.2f"|format(product.price) }}</span>
+                <button class="remove-from-wishlist" style="background: none; border: none; color: #ff4d4f; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 1em;">
+                  <span class="material-symbols-outlined">delete</span>
+                  <span class="del-txt">Remove</span>
+                </button>
               </div>
             </div>
           {% endfor %}
