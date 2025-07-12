@@ -376,7 +376,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Global functions for point redemption and swap requests
 function redeemWithPoints(productId, pointsRequired) {
-    if (!confirm(`Are you sure you want to redeem this product for ${pointsRequired} points?`)) {
+    // Get current user's points balance from the page (if available)
+    const userPointsElement = document.querySelector('[data-user-points]');
+    const currentPoints = userPointsElement ? parseInt(userPointsElement.dataset.userPoints) : null;
+    
+    // Check if user has enough points before making the request
+    if (currentPoints !== null && currentPoints < pointsRequired) {
+        showNotification(`Not enough coins available. You have ${currentPoints} coins but need ${pointsRequired} coins.`, 'error');
         return;
     }
 
@@ -398,10 +404,31 @@ function redeemWithPoints(productId, pointsRequired) {
     .then(data => {
         if (data.success) {
             showNotification('Product redeemed successfully!', 'success');
-            // Reload page to update points balance and product availability
-            setTimeout(() => window.location.reload(), 1500);
+            // Update UI live: change redeem button to "Redeemed" and disable swap button
+            const redeemBtn = document.getElementById('redeem-points-btn');
+            if (redeemBtn) {
+                redeemBtn.disabled = true;
+                redeemBtn.innerHTML = '<span class="material-symbols-outlined">stars</span>Redeemed';
+                redeemBtn.style.opacity = '0.6';
+                redeemBtn.style.cursor = 'not-allowed';
+                redeemBtn.setAttribute('data-redeemed', 'true');
+            }
+            const swapBtn = document.getElementById('request-swap-btn');
+            if (swapBtn) {
+                swapBtn.disabled = true;
+                swapBtn.title = 'Already redeemed';
+                swapBtn.style.opacity = '0.6';
+                swapBtn.style.cursor = 'not-allowed';
+            }
         } else {
-            showNotification(data.message || 'Failed to redeem product', 'error');
+            // Show specific error messages for different scenarios
+            if (data.message && data.message.includes('Insufficient points')) {
+                showNotification('Not enough coins available for this redemption.', 'error');
+            } else if (data.message && data.message.includes('cannot redeem your own product')) {
+                showNotification('You cannot redeem your own product.', 'error');
+            } else {
+                showNotification(data.message || 'Failed to redeem product', 'error');
+            }
         }
     })
     .catch(error => {

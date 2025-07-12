@@ -600,12 +600,59 @@
             border: 2px solid #ffb300;
             box-shadow: 0 4px 16px rgba(255,202,40,0.12);
         }
+        
+        /* Disabled button styles */
+        .redeem-points:disabled,
+        .request-swap:disabled {
+            opacity: 0.6;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+        
+        .redeem-points:disabled:hover,
+        .request-swap:disabled:hover {
+            background: inherit;
+            color: inherit;
+            box-shadow: inherit;
+        }
+        
+        /* Tooltip styles for disabled buttons */
+        .redeem-points[title]:hover::after,
+        .request-swap[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 8px;
+        }
+        
+        .redeem-points[title]:hover::before,
+        .request-swap[title]:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.8);
+            margin-bottom: 3px;
+        }
+        
         .product-action {
             display: flex;
             flex-direction: column;
             gap: 0;
             margin-top: 18px;
             align-items: stretch;
+            position: relative;
         }
     </style>
 
@@ -640,38 +687,18 @@
                     <div class="product-meta-flex">
                         <div class="price-container" style="display: flex; align-items: start; justify-content: center; flex-direction: column; gap: 0vh;">
                             <div class="upper" style="display: flex; align-items: center; gap: 2vh;">
-                                {% if product.points_required %}
-                                <p class="mrp">Gold</p>
-                                <p class="product-price">{{ product.points_required }} points</p>
-                                {% else %}
-                                <p class="mrp">Available for:</p>
-                                <p class="product-price">Swap Only</p>
-                                {% endif %}
+                                <p class="mrp">MRP:</p>
+                                <p class="product-price"> ₹{{ "%.2f"|format(product.price) }}</p>
                             </div>
                             <div class="tax" style="font-size: 0.7em;">
-                                *Exchange through points or swaps only
+                                *inclusive of all taxes
                             </div>
                         </div>
-                        <div class="product-tag" style="align-self: flex-start; border: 1.5px solid #ffca28; border-radius: 8px; padding: 2px 14px; font-weight: 600; color: #ffca28; font-size: 1em; margin-left: 2vw; margin-top: 4px; height: fit-content; display: flex; align-items: center;">{{ product.category.name }}</div>
+                        <div class="product-tag" style="align-self: flex-start; border: 1.5px solid #ffca28; border-radius: 8px; padding: 2px 14px; font-weight: 600; color: #ffca28; font-size: 1em; margin-left: 2vw; margin-top: 4px; height: fit-content; display: flex; align-items: center;">Mens</div>
                     </div>
                 </div>
                
                <div class="weight-quantity-stock">
-                    <!-- Stock information -->
-                    <div class="stock-info" style="margin: 15px 0;">
-                        {% if product.stock > 0 %}
-                            <span class="in-stock" style="color: #4caf50; font-weight: 600;">
-                                <span class="material-symbols-outlined">check_circle</span>
-                                {{ product.stock }} items in stock
-                            </span>
-                        {% else %}
-                            <span class="out-of-stock" style="color: #f44336; font-weight: 600;">
-                                <span class="material-symbols-outlined">cancel</span>
-                                Out of stock
-                            </span>
-                        {% endif %}
-                    </div>
-
                     <!-- Product attributes -->
                     {% if product.attributes %}
                     <div class="product-attributes" style="margin: 15px 0;">
@@ -694,31 +721,61 @@
                 
                 <div class="static-size">Category: {{ product.category.name }} | Style: {{ product.pet_type.name }}</div>
                 
-                <div class="product-action">
-                    {% if current_user.is_authenticated %}
-                        {% if product.points_required and current_user.points_balance >= product.points_required and product.stock > 0 %}
-                        <button id="redeem-points-btn" class="redeem-points" data-product-id="{{ product.id }}" onclick="redeemWithPoints({{ product.id }}, {{ product.points_required }})">
-                            <span class="material-symbols-outlined">stars</span>
-                            Redeem for {{ product.points_required }} points
-                        </button>
-                        {% elif product.points_required and current_user.points_balance < product.points_required %}
-                        <button class="redeem-points" disabled style="opacity: 0.6; cursor: not-allowed;">
-                            <span class="material-symbols-outlined">stars</span>
-                            Need {{ product.points_required - current_user.points_balance }} more points
-                        </button>
-                        {% endif %}
-                        
-                        {% if product.stock > 0 %}
-                        <button id="request-swap-btn" class="request-swap" data-product-id="{{ product.id }}" onclick="requestSwap({{ product.id }})">
-                            <span class="material-symbols-outlined">swap_horiz</span>
-                            Request Swap
-                        </button>
-                        {% endif %}
-                    {% else %}
-                        <p style="text-align: center; padding: 20px; color: #666;">
-                            <a href="{{ url_for('main.signin') }}" style="color: #ffca28; text-decoration: none; font-weight: 600;">Login</a> to redeem points or request swaps
-                        </p>
+                {% if current_user.is_authenticated %}
+                <div class="user-points-display" style="margin: 15px 0; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ffca28;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined" style="color: #ffca28; font-size: 1.2em;">stars</span>
+                        <span style="font-weight: 600; color: #333;">Your Balance: {{ current_user.points_balance }} coins</span>
+                    </div>
+                    {% if current_user.points_balance < product.points_required %}
+                    <div style="margin-top: 8px; font-size: 0.9em; color: #dc3545;">
+                        <span class="material-symbols-outlined" style="font-size: 0.9em;">warning</span>
+                        You need {{ product.points_required - current_user.points_balance }} more coins to redeem this item
+                    </div>
                     {% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="product-action">
+                    <button id="redeem-points-btn" class="redeem-points" data-product-id="{{ product.id }}"
+                        {% if current_user.is_authenticated %}
+                            data-user-points="{{ current_user.points_balance }}"
+                        {% endif %}
+                        {% if user_has_redeemed %}
+                            data-redeemed="true"
+                            disabled
+                            style="opacity: 0.6; cursor: not-allowed;"
+                        {% elif not current_user.is_authenticated %}
+                            onclick="window.location.href='{{ url_for('main.signin', next_action='redeem') }}'"
+                        {% elif current_user.is_authenticated and product.uploader_id == current_user.id %}
+                            disabled
+                            title="You cannot redeem your own product"
+                            style="opacity: 0.6; cursor: not-allowed;"
+                        {% else %}
+                            onclick="redeemWithPoints({{ product.id }}, {{ product.points_required }})"
+                        {% endif %}
+                    >
+                        <span class="material-symbols-outlined">stars</span>
+                        {% if user_has_redeemed %}Redeemed{% else %}Redeem for {{ product.points_required }} points{% endif %}
+                    </button>
+                    <button id="request-swap-btn" class="request-swap" data-product-id="{{ product.id }}"
+                        {% if user_has_redeemed %}
+                            disabled
+                            title="Already redeemed"
+                            style="opacity: 0.6; cursor: not-allowed;"
+                        {% elif not current_user.is_authenticated %}
+                            onclick="window.location.href='{{ url_for('main.signin', next_action='swap') }}'"
+                        {% elif current_user.is_authenticated and product.uploader_id == current_user.id %}
+                            disabled
+                            title="You cannot swap your own product"
+                            style="opacity: 0.6; cursor: not-allowed;"
+                        {% else %}
+                            onclick="openSwapModal()"
+                        {% endif %}
+                    >
+                        <span class="material-symbols-outlined">swap_horiz</span>
+                        Request Swap
+                    </button>
                 </div>
                 
                 <div class="product-meta-extra" style="margin-top: 18px; font-size: 1.05em; line-height: 1.7; color: #333;">
@@ -729,25 +786,32 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                    <div><strong>Status:</strong> 
-                        {% if product.stock > 0 %}
-                        <span style="color: #4caf50;">✅ Available</span>
-                        {% else %}
-                        <span style="color: #f44336;">❌ Out of Stock</span>
-                        {% endif %}
-                    </div>
                     <div><strong>Listed:</strong> {{ product.created_at.strftime('%B %d, %Y') }}</div>
-                    {% if product.reviews|length > 0 %}
-                    <div><strong>Rating:</strong> 
-                        {% set avg_rating = (product.reviews | sum(attribute='rating')) / (product.reviews | length) %}
-                        <span style="color: #ffca28;">{{ "%.1f"|format(avg_rating) }}/5</span> 
-                        ({{ product.reviews|length }} reviews)
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    <!-- Swap Modal -->
+<div id="swapModal" class="swap-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.35); z-index:1000; align-items:center; justify-content:center;">
+  <div class="swap-modal-content" style="background:#fff; border-radius:12px; max-width:500px; width:90vw; max-height:80vh; overflow:auto; padding:24px; position:relative;">
+    <button id="closeSwapModal" style="position:absolute; top:12px; right:12px; background:none; border:none; font-size:1.5em; cursor:pointer;">&times;</button>
+    <h2 style="margin-bottom:18px;">Select an item to swap</h2>
+    <div id="userItemsGrid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:16px; max-height:45vh; overflow-y:auto; margin-bottom:18px;">
+      {% if user_uploaded_products and user_uploaded_products|length > 0 %}
+        {% for item in user_uploaded_products %}
+          <div class="swap-item-card" data-item-id="{{ item.id }}" style="border: 1.5px solid #eee; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; align-items: center; background: #fafafa;">
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;margin-bottom:8px;">
+            <div style="font-weight:500;font-size:1em;margin-bottom:8px;text-align:center;">{{ item.name }}</div>
+            <button class="select-swap-item-btn" style="background:#ffca28;color:#fff;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:600;">Select</button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column:1/-1;text-align:center;">No items found. <a href="/upload">Upload an item</a></div>
+      {% endif %}
+    </div>
+    <button id="confirmSwapBtn" class="request-swap" style="width:100%; margin-top:10px; display:none;">Confirm Swap</button>
+  </div>
+</div>
     <div class="related-products">
         <div class="product-list-header">
             <h2>You May Also Like</h2>
@@ -761,48 +825,15 @@
                 {% if recommended_products %}
                     {% for product in recommended_products %}
                         <div class="product-card" data-product-id="{{ product.id }}">
-                            <div class="image-container">
-                                <img src="{{ product.image_url or '/static/images/default-product.jpg' }}" alt="{{ product.name }}">
+                            <div class="wishlist-button-top">
+                                <button class="add-to-wishlist" data-product-id="{{ product.id }}">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                </button>
                             </div>
-                            <div class="product-info">
-                                <h3>{{ product.name }}</h3>
-                                {% if product.points_required %}
-                                <p class="points-badge">{{ product.points_required }} points</p>
-                                {% endif %}
-                            </div>
+                            <img class="product-image" src="{{ product.image_url or '/static/images/default-product.jpg' }}" alt="{{ product.name }}">
+                            <h3 class="product-name">{{ product.name }}</h3>
                             <div class="product-price-rating">
-                                {% if product.points_required %}
-                                <p class="product-price">{{ product.points_required }} points</p>
-                                {% else %}
-                                <p class="product-price">Swap Only</p>
-                                {% endif %}
-                                {% if product.reviews|length > 0 %}
-                                    {% set avg_rating = (product.reviews | sum(attribute='rating')) / (product.reviews | length) %}
-                                    <div class="rating">
-                                        <span class="material-symbols-outlined star">star</span>
-                                        <span>{{ "%.1f"|format(avg_rating) }}</span>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="product-actions">
-                                {% if current_user.is_authenticated %}
-                                    {% if product.points_required and current_user.points_balance >= product.points_required %}
-                                    <button class="redeem-points" data-product-id="{{ product.id }}">
-                                        <span class="material-symbols-outlined">stars</span> <p class="cart-txt">Redeem</p>
-                                    </button>
-                                    {% else %}
-                                    <button class="request-swap" data-product-id="{{ product.id }}">
-                                        <span class="material-symbols-outlined">swap_horiz</span> <p class="cart-txt">Swap</p>
-                                    </button>
-                                    {% endif %}
-                                    <button class="add-to-wishlist" data-product-id="{{ product.id }}">
-                                        <span class="material-symbols-outlined">favorite</span>
-                                    </button>
-                                {% else %}
-                                    <a href="{{ url_for('main.signin') }}" class="login-to-action">
-                                        <span class="material-symbols-outlined">login</span> <p class="cart-txt">Login</p>
-                                    </a>
-                                {% endif %}
+                                <span class="product-price"><img src="{{ url_for('static', filename='images/coin.png') }}" class="coin-icon">{{ product.points_required or '0' }}</span>
                             </div>
                         </div>
                     {% endfor %}
@@ -842,6 +873,60 @@
         {% endif %}
     </nav>
     <script src="{{ url_for('static', filename='js/product-detail.js') }}"></script>
+    <script>
+function openSwapModal() {
+  document.getElementById('swapModal').style.display = 'flex';
+  // No need to fetch, items are rendered server-side
+}
+document.getElementById('closeSwapModal').onclick = function() {
+  document.getElementById('swapModal').style.display = 'none';
+}
+
+let selectedSwapItemId = null;
+const grid = document.getElementById('userItemsGrid');
+Array.from(grid.querySelectorAll('.swap-item-card')).forEach(card => {
+  card.querySelector('.select-swap-item-btn').onclick = function() {
+    selectedSwapItemId = card.getAttribute('data-item-id');
+    Array.from(grid.children).forEach(c => c.style.border = '1.5px solid #eee');
+    card.style.border = '2.5px solid #ffca28';
+    document.getElementById('confirmSwapBtn').style.display = 'block';
+  };
+});
+
+document.getElementById('confirmSwapBtn').onclick = function() {
+  if (!selectedSwapItemId) return;
+  
+  // Get CSRF token from meta tag
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+  
+  fetch('/create-swap-request', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken
+    },
+    body: JSON.stringify({
+      requested_item_id: {{ product.id }},
+      offered_item_id: selectedSwapItemId
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showNotification(data.message || 'Swap request sent successfully!', 'success');
+      document.getElementById('swapModal').style.display = 'none';
+      // Optionally redirect to profile page after a delay
+      setTimeout(() => window.location.href = '/profile', 1500);
+    } else {
+      showNotification(data.message || 'Failed to send swap request', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('An error occurred while sending swap request', 'error');
+  });
+};
+</script>
 </body>
 </html>
 
