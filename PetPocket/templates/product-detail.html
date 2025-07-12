@@ -551,6 +551,18 @@
                 /* padding: 6px 8px; */
             }
         }
+
+        @media (max-width: 400px) {
+            .product-list-header h2 {
+                font-size: 0.95rem !important;
+            }
+            .product-list-header {
+                gap: 2px;
+            }
+            .product-header-controls {
+                flex-shrink: 1;
+            }
+        }
         
     </style>
 
@@ -816,22 +828,29 @@
     
     {% include 'footer.html' %}
       <nav class="mobile-bottom-nav">
-        <a href="{{ url_for('main.home') }}">
+        <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
             <span class="material-symbols-outlined">home</span>
             <span>Home</span>
         </a>
-        <a href="{{ url_for('main.search') }}">
+        <a href="{{ url_for('main.search') }}" class="{% if request.endpoint == 'main.search' %}active{% endif %}">
             <span class="material-symbols-outlined">search</span>
             <span>Search</span>
         </a>
-        <a href="{{ url_for('main.wishlist') }}">
+        <a href="{{ url_for('main.wishlist') }}" class="{% if request.endpoint == 'main.wishlist' %}active{% endif %}">
             <span class="material-symbols-outlined">favorite</span>
             <span>Wishlist</span>
         </a>
-        <a href="{{ url_for('main.profile') }}">
-            <span class="material-symbols-outlined">person</span>
-            <span>Profile</span>
-        </a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.profile') }}" class="{% if request.endpoint == 'main.profile' %}active{% endif %}">
+                <span class="material-symbols-outlined">person</span>
+                <span>Profile</span>
+            </a>
+        {% else %}
+            <a href="{{ url_for('main.signin') }}" class="{% if request.endpoint == 'main.signin' %}active{% endif %}">
+                <span class="material-symbols-outlined">login</span>
+                <span>Login</span>
+            </a>
+        {% endif %}
     </nav>
     <script src="{{ url_for('static', filename='js/product-detail.js') }}"></script>
 </body>

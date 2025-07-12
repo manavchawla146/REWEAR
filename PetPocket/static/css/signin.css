@@ -538,3 +538,125 @@ span {
     transform: translateY(20%);
   }
 }
+
+@media (min-width: 768px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+@media (max-width: 767px) {
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+  form {
+    padding-bottom: 80px !important; /* Add space for mobile nav */
+    padding-top: 10px !important;
+  }
+  .google-signin-container {
+    margin: 10px 0 !important;
+  }
+  .divider {
+    margin: 10px 0 !important;
+  }
+  input {
+    margin: 6px 0 !important;
+    padding: 10px !important;
+    font-size: 1rem !important;
+  }
+  button[type="submit"] {
+    margin: 12px 0 0 0 !important;
+    padding: 12px 0 !important;
+    font-size: 1rem !important;
+  }
+  h1 {
+    margin-bottom: 10px !important;
+    font-size: 2rem !important;
+  }
+  span, p {
+    margin: 8px 0 !important;
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .container {
+    display: block !important;
+    width: 100vw !important;
+    height: auto !important;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .form-container,
+  .sign-in-container,
+  .sign-up-container {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    opacity: 1 !important;
+    display: block !important;
+    transform: none !important;
+    z-index: 1 !important;
+  }
+  .overlay-container,
+  .overlay {
+    display: none !important;
+  }
+  /* Only show sign-in by default, show sign-up if .show-signup is on container */
+  .sign-up-container { display: none !important; }
+  .container.show-signup .sign-in-container { display: none !important; }
+  .container.show-signup .sign-up-container { display: block !important; }
+}
+
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 0 4px 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    height: 64px;
+}
+
+.mobile-bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    font-size: 13px;
+    padding: 0 2px;
+    flex: 1 1 0;
+    min-width: 0;
+    transition: color 0.3s ease;
+    height: 100%;
+    justify-content: center;
+}
+
+.mobile-bottom-nav .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif !important;
+    font-variation-settings:
+      'FILL' 0,
+      'wght' 400,
+      'GRAD' 0,
+      'opsz' 24;
+    font-size: 26px;
+    line-height: 1;
+    display: block;
+}
+
+.mobile-bottom-nav a span:last-child {
+    font-size: 12px;
+    margin: 0;
+    line-height: 1;
+    font-weight: 500;
+}
+
+.mobile-bottom-nav a.active,
+.mobile-bottom-nav a.active .material-symbols-outlined {
+    color: #ffca28 !important;
+}

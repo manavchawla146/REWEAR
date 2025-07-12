@@ -1013,11 +1013,11 @@
             }
             .add-to-cart .cart-txt,
             .add-to-cart.go-to-cart .cart-txt {
-                display: inline !important;
-                color: #fff !important;
-                font-weight: 500;
-                margin-left: 8px;
-                font-size: 1em;
+                display: none !important;
+            }
+            .add-to-cart {
+                min-width: 40px;
+                padding: 6px 8px;
             }
         } 
 
@@ -1032,5 +1032,9 @@
             -moz-appearance: textfield; /* Firefox */
         }
 
-        
+        @media (max-width: 767px) {
+            .footer-bottom, .footer {
+                padding-bottom: 120px !important;
+            }
+        }
     

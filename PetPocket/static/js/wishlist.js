@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const isInCartClass = cartItems.includes(product.id) ? 'added-to-cart' : '';
-        const cartButtonText = cartItems.includes(product.id) ? '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart' : '<span class="material-symbols-outlined">add_shopping_cart</span> Add to Cart';
+        const cartButtonText = cartItems.includes(product.id)
+            ? '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>'
+            : '<span class="material-symbols-outlined">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
 
         return `
             <div class="product-card" data-product-id="${product.id}">
@@ -256,12 +258,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(data => {
             console.log('Add to cart response:', data);
             if (data.success) {
-                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span>';
+                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                 btn.classList.add('added-to-cart');
                 btn.disabled = false;
                 btn.removeEventListener('click', addToCartHandler);
                 btn.addEventListener('click', goToCartHandler);
-                showNotification('Added to cart!', 'success');
                 updateCartCount(true);
             } else if (data.redirect) {
                 console.log('Redirecting to:', data.redirect);

@@ -35,15 +35,7 @@
             gap: 10px;
         }
 
-        .billing-section h2 .toggle-arrow {
-            display: none; /* Hidden by default, shown on mobile */
-            font-size: 1.2rem;
-            transition: transform 0.3s ease;
-        }
 
-        .billing-section h2 .toggle-arrow.active {
-            transform: rotate(180deg);
-        }
 
         .billing-form {
             display: flex;
@@ -411,39 +403,20 @@
             }
 
             .billing-section h2 {
-                position: fixed;
-                bottom: 140px; /* Above total and button */
-                left: 0;
-                right: 0;
                 background: #fff;
                 padding: 15px;
-                margin: 0;
-                box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-                z-index: 9;
-                cursor: pointer;
-            }
-
-            .billing-section h2 .toggle-arrow {
-                display: inline-block;
+                margin-bottom: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             }
 
             .billing-form {
-                display: none;
-                position: fixed;
-                bottom: 200px; /* Above the header, total, and button */
-                left: 0;
-                right: 0;
-                top: 10%; /* Extend to top for scrolling */
                 background: #fff;
-                z-index: 8;
-                overflow-y: auto;
                 padding: 15px;
-                box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-                
-            }
-
-            .billing-form.active {
-                display: block;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+                transition: all 0.3s ease;
             }
 
             .save-address-button {
@@ -463,10 +436,10 @@
                 background: #fff;
                 padding: 10px 15px;
                 z-index: 9;
-                display: block;
                 display: flex;
                 flex-direction: column;
                 gap: 2vh;
+                box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
             }
 
             .summary-total-container .summary-total {
@@ -477,6 +450,7 @@
 
             .proceed-button {
                 margin-top: 0;
+                margin-bottom: 18px;
             }
 
             .secure-checkout {
@@ -485,6 +459,10 @@
 
             .mobile-bottom-nav {
                 display: flex;
+            }
+
+            .footer-bottom, .footer {
+                padding-bottom: 120px !important;
             }
         }
 

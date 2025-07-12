@@ -6,7 +6,6 @@
           <input type="email" name="email" placeholder="Enter your email" required aria-label="Email for newsletter">
           <button type="submit">Subscribe</button>
       </form>
-      <p class="success-message" id="subscribe-success" style="display:none;">Thank you for subscribing!</p>
   </div>
   <div class="main-footer">
       <div class="footer-sections">
@@ -50,52 +49,7 @@
           </div>
       </div>
       <div class="footer-bottom">
-          <p>© Petswale 2025. All Rights Reserved. <a href="/privacy">Privacy Policy</a> | Branded by <a href="https://webbloomstudios.com" target="_blank">Webbloom Studios</a></p>
+          <p>© Petswale 2025. All Rights Reserved. <a href="/privacy">Privacy Policy</a><p>
       </div>
   </div>
 </footer>
-
-<style>
-#subscribe-success.flash-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 40px;
-  transform: translateX(-50%);
-  background: #222;
-  color: #fff;
-  padding: 1em 2em;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-  z-index: 9999;
-  font-size: 1.1em;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s, bottom 0.3s;
-}
-#subscribe-success.flash-toast.show {
-  opacity: 1;
-  pointer-events: auto;
-  bottom: 60px;
-}
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('subscribe-form');
-    const successMsg = document.getElementById('subscribe-success');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent redirect
-            successMsg.classList.add('flash-toast', 'show');
-            successMsg.style.display = 'block';
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-                setTimeout(() => {
-                    successMsg.style.display = 'none';
-                    form.reset();
-                }, 300); // Wait for fade-out transition
-            }, 3000); // Hide after 3 seconds
-        });
-    }
-});
-</script>

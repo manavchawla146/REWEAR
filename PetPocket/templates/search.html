@@ -54,8 +54,13 @@
             padding: 0;
             font-family: 'Poppins', sans-serif;
             background: #f5f7fa;
-            padding-bottom: 60px; /* Space for mobile bottom nav */
+            /* Remove padding-bottom to avoid extra space after footer */
+            padding-bottom: 0 !important;
         }
+        /* Only add padding-bottom for mobile if mobile nav is present and not overlapping footer */
+        @media (max-width: 767px) {
+          body.has-mobile-nav {
+            padding-bottom: 60px !important;
 
         .search-container {
             max-width: 600px;
@@ -481,12 +486,18 @@
             document.head.appendChild(style);
         }
 
+        @media (max-width: 991px) {
+          .cart-txt { display: none !important; }
+        }
+
     </style>
 </head>
 <body>
     {% include 'navbar.html' %}
 
-    <h2 class="search-results-title">Search Results</h2>
+    <div class="search-results-title-align">
+        <h2 class="search-results-title">Search Results</h2>
+    </div>
 
     <div data-barba="wrapper">
     <div data-barba="container">
@@ -507,22 +518,29 @@
     {% include 'footer.html' %}
 
     <nav class="mobile-bottom-nav">
-        <a href="{{ url_for('main.home') }}">
+        <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
             <span class="material-symbols-outlined">home</span>
             <span>Home</span>
         </a>
-        <a href="{{ url_for('main.search') }}">
+        <a href="{{ url_for('main.search') }}" class="{% if request.endpoint == 'main.search' %}active{% endif %}">
             <span class="material-symbols-outlined">search</span>
             <span>Search</span>
         </a>
-        <a href="{{ url_for('main.wishlist') }}">
+        <a href="{{ url_for('main.wishlist') }}" class="{% if request.endpoint == 'main.wishlist' %}active{% endif %}">
             <span class="material-symbols-outlined">favorite</span>
             <span>Wishlist</span>
         </a>
-        <a href="{{ url_for('main.profile') }}">
-            <span class="material-symbols-outlined">person</span>
-            <span>Profile</span>
-        </a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.profile') }}" class="{% if request.endpoint == 'main.profile' %}active{% endif %}">
+                <span class="material-symbols-outlined">person</span>
+                <span>Profile</span>
+            </a>
+        {% else %}
+            <a href="{{ url_for('main.signin') }}" class="{% if request.endpoint == 'main.signin' %}active{% endif %}">
+                <span class="material-symbols-outlined">login</span>
+                <span>Login</span>
+            </a>
+        {% endif %}
     </nav>
 
     <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
@@ -617,12 +635,12 @@
                 const isInCart = cartItems.includes(productId);
                 if (isInCart) {
                     btn.classList.add('go-to-cart');
-                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                     btn.style.backgroundColor = '#4caf50';
                     btn.style.color = '#fff';
                 } else {
                     btn.classList.remove('go-to-cart');
-                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Add to Cart';
+                    btn.innerHTML = '<span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
                     btn.style.backgroundColor = '';
                     btn.style.color = '';
                 }
@@ -682,7 +700,7 @@
                     </div>
                     <div class="product-actions">
                         <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id}, this)">
-                            <span class="material-symbols-outlined">shopping_cart</span> <p class="cart-txt">Add to Cart</p>
+                            <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>
                         </button>
                         <button class="add-to-wishlist" onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)">
                             <span class="material-symbols-outlined">favorite</span>
@@ -753,7 +771,7 @@
                     }
                     // Update only the clicked button immediately
                     btn.classList.add('go-to-cart');
-                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                     btn.style.backgroundColor = '#4caf50';
                     btn.style.color = '#fff';
                     updateCartCount(data.cart_count || cartItems.length);

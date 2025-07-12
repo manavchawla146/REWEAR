@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const filterButtons = document.querySelectorAll('.filter-button');
     const productCards = document.querySelectorAll('.product-card');
     const sortSelect = document.getElementById('sort');
     const pagination = document.querySelector('.pagination');
@@ -10,12 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let cartItems = [];
     let wishlistItems = [];
-
-    // Set "All Categories" filter as active by default
-    const allFilterButton = document.querySelector('.filter-button[data-filter="all"]');
-    if (allFilterButton) {
-        allFilterButton.classList.add('active');
-    }
 
     // Toggle sidebar and overlay
     function toggleSidebar() {
@@ -35,46 +28,17 @@ document.addEventListener('DOMContentLoaded', function() {
         sidebarOverlay.addEventListener('click', toggleSidebar);
     }
 
-    // Filter functionality
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const filter = this.getAttribute('data-filter');
-            
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-
-            let visibleCardsCount = 0;
-            productCards.forEach(card => {
-                const cardCategory = card.getAttribute('data-category');
-                if (filter === 'all' || cardCategory === filter) {
-                    card.classList.remove('hidden');
-                    visibleCardsCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            // Update pagination visibility based on visible cards count
-            pagination.style.display = (filter === 'all' || visibleCardsCount >= 3) ? 'flex' : 'none';
-
-            // Close sidebar after filter selection on mobile
-            if (window.innerWidth < 768) {
-                toggleSidebar();
-            }
-        });
-    });
-
     // Sort functionality
-    sortSelect.addEventListener('change', function() {
-        const sortValue = this.value;
+    function sortProducts() {
+        const sortValue = sortSelect.value;
         const productGrid = document.querySelector('.product-grid');
         const cardsArray = Array.from(productCards);
 
         cardsArray.sort((a, b) => {
             const aPrice = parseFloat(a.querySelector('.product-price').textContent.replace('₹', ''));
             const bPrice = parseFloat(b.querySelector('.product-price').textContent.replace('₹', ''));
-            const aName = a.querySelector('.product-name').textContent.toLowerCase();
-            const bName = b.querySelector('.product-name').textContent.toLowerCase();
+            const aName = a.querySelector('.product-name').textContent.trim().toLowerCase();
+            const bName = b.querySelector('.product-name').textContent.trim().toLowerCase();
 
             switch (sortValue) {
                 case 'price-low-to-high':
@@ -93,7 +57,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear and re-append sorted cards
         productGrid.innerHTML = '';
         cardsArray.forEach(card => productGrid.appendChild(card));
-    });
+    }
+
+    sortSelect.addEventListener('change', sortProducts);
+
+    // Trigger sort on page load
+    sortProducts();
 
     // Notification function
     function showNotification(message, type) {
@@ -142,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (isInCart) {
                 btn.classList.add('added', 'go-to-cart');
-                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                 btn.onclick = function(e) {
                     e.stopPropagation();
                     window.location.href = '/cart';
@@ -150,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Reset button state if not in cart
                 btn.classList.remove('added', 'go-to-cart');
-                btn.innerHTML = '<span class="material-symbols-outlined">add_shopping_cart</span> Add to Cart';
+                btn.innerHTML = '<span class="material-symbols-outlined">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
                 btn.onclick = null;
             }
         });
@@ -200,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Update button appearance
                     this.classList.add('added', 'go-to-cart');
-                    this.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                    this.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                     
                     // Update click handler
                     this.onclick = function(e) {
@@ -208,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         window.location.href = '/cart';
                     };
                     
-                    showNotification('Added to cart!', 'success');
                     updateCartCount(data.cart_count);
                 } else if (data.redirect) {
                     window.location.href = data.redirect;
@@ -356,6 +324,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Update cart count on pageshow (for browser back/forward)
+    async function fetchAndUpdateCartCount() {
+        try {
+            const response = await fetch('/check_cart_status');
+            if (response.ok) {
+                const data = await response.json();
+                updateCartCount(data.items ? data.items.length : 0);
+            }
+        } catch (error) {
+            console.error('Error fetching cart count:', error);
+        }
+    }
+    
     window.addEventListener('pageshow', fetchAndUpdateCartCount);
 
     // Check wishlist status on page load and on pageshow event

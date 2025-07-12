@@ -2413,7 +2413,11 @@ html{
 }
 
 .mobile-bottom-nav a.active {
-    color: #FFC107;
+    color: #ffca28 !important;
+}
+
+.mobile-bottom-nav a.active .material-symbols-outlined {
+    color: #ffca28 !important;
 }
 
 .mobile-bottom-nav .material-symbols-outlined {
@@ -2536,4 +2540,26 @@ html{
         opacity: 0.7;
         cursor: not-allowed;
     }
+}
+
+@media (max-width: 991px) {
+  .cart-txt { display: none !important; }
+}
+
+@media (max-width: 400px) {
+  .product-list-header h2 {
+    font-size: 0.95rem !important;
+  }
+  .product-list-header {
+    gap: 2px;
+  }
+  .product-header-controls {
+    flex-shrink: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-bottom, .footer {
+    padding-bottom: 60px !important;
+  }
 }

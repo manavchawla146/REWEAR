@@ -59,14 +59,14 @@
                     </div>
                 {% else %}
                     <div class="empty-cart-message" id="empty-cart-message" style="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,0.07);padding:3rem 2.5rem;max-width:600px;width:100%;">
-                        <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your PetPocket Cart is empty</h2>
+                        <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your Petswale Cart is empty</h2>
                         <p style="font-size:1.2rem;color:#666;margin-bottom:1.5rem;text-align:center;">Looks like you haven't added anything to your cart yet</p>
                         <a href="{{ url_for('main.home') }}#shop-by-category" class="continue-shopping-btn" style="background:#FFD12A;color:#222;font-weight:600;padding:0.8rem 2.5rem;border-radius:2rem;font-size:1.1rem;box-shadow:0 2px 8px rgba(255,209,42,0.12);transition:background 0.2s;">Continue Shopping</a>
                     </div>
                 {% endif %}
             {% else %}
                 <div class="empty-cart-message" id="empty-cart-message" style="margin:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(0,0,0,0.07);padding:3rem 2.5rem;max-width:600px;width:100%;">
-                    <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your PetPocket Cart is empty</h2>
+                    <h2 style="font-size:2.8rem;font-weight:900;margin-bottom:0.5rem;color:#222;letter-spacing:-1px;text-align:center;">Your Petswale Cart is empty</h2>
                     <p style="font-size:1.2rem;color:#666;margin-bottom:1.5rem;text-align:center;">Shop today's deals</p>
                     <div class="auth-buttons">
                         <a href="{{ url_for('main.signin') }}" class="signin-btn">Sign in to your account</a>

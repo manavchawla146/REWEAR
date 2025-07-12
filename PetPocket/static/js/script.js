@@ -1,73 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const carousel = document.querySelector('.carousel');
-    const slides = document.querySelectorAll('.slide');
-    const prevButton = document.querySelector('.carousel-control.prev');
-    const nextButton = document.querySelector('.carousel-control.next');
-    let currentSlide = 0;
-  
-    function thereAreSlides() {
-      return slides.length > 0;
-    }
-  
-    function showSlide(index) {
-      if (!thereAreSlides()) {
-        console.warn('No slides found in carousel.');
-        return;
-      }
-      slides.forEach(slide => {
-        slide.classList.remove('active');
-        slide.style.transform = ''; // Reset transform
-      });
-      if (index >= 0 && index < slides.length) {
-        slides[index].classList.add('active');
-      }
-    }
-  
-    function nextSlide() {
-      if (!thereAreSlides()) return;
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    }
-  
-    function prevSlide() {
-      if (!thereAreSlides()) return;
-      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-      showSlide(currentSlide);
-    }
-  
-    /* @tweakable Time in seconds between automatic slides */
-    const autoSlideInterval = 5;
-    let autoSlideTimer;
-    if (thereAreSlides()) {
-      autoSlideTimer = setInterval(nextSlide, autoSlideInterval * 1000);
-    } else {
-      console.warn('Auto-slide disabled: no slides found.');
-    }
-  
-    function resetTimer() {
-      if (!thereAreSlides()) return;
-      clearInterval(autoSlideTimer);
-      autoSlideTimer = setInterval(nextSlide, autoSlideInterval * 1000);
-    }
-  
-    if (thereAreSlides() && prevButton && nextButton) {
-      prevButton.addEventListener('click', () => {
-        prevSlide();
-        resetTimer();
-      });
-      nextButton.addEventListener('click', () => {
-        nextSlide();
-        resetTimer();
-      });
-            } else {
-      if (prevButton) prevButton.style.display = 'none';
-      if (nextButton) nextButton.style.display = 'none';
-      console.warn('Carousel buttons disabled: no slides found.');
-    }
-  
-    if (thereAreSlides()) {
-      showSlide(currentSlide);
-    }
   
     // FAQ functionality
     const faqItems = document.querySelectorAll('.faq-item');
@@ -156,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                     <div class="product-actions">
                         <button class="add-to-cart">
-                            <span class="material-symbols-outlined">shopping_cart</span> Add to Cart
+                            <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>
                         </button>
                         <button class="add-to-wishlist">
                             <span class="material-symbols-outlined">favorite</span>
@@ -198,8 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data && data.success) {
                         btn.classList.add('go-to-cart');
                         btn.style.backgroundColor = '#4caf50';
-                        btn.style.color = '#fff';
-                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                         updateCartCount(data.cart_count);
                     } else if (data && !data.success) {
                         alert(data.message || 'Failed to add to cart');
@@ -284,15 +214,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (cartItems.includes(productId)) {
                         const btn = card.querySelector('.add-to-cart');
                         btn.classList.add('go-to-cart');
-                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                         btn.style.backgroundColor = '#4caf50';
-                        btn.style.color = '#fff';
                     } else {
                         const btn = card.querySelector('.add-to-cart');
                         btn.classList.remove('go-to-cart');
-                        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <p class="cart-txt">Add to Cart</p>';
+                        btn.innerHTML = '<span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
                         btn.style.backgroundColor = '';
-                        btn.style.color = '';
                     }
                 });
             });
@@ -350,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 button.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Added to Cart';
                 setTimeout(() => {
                     button.classList.remove('added');
-                    button.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Add to Cart';
+                    button.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span>';
                 }, 3000);
                 updateCartCount(data.cart_count);
             } else if (data && !data.success) {
@@ -460,14 +388,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (btn) {
                             if (cartItems.includes(productId)) {
                                 btn.classList.add('go-to-cart');
-                                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
                                 btn.style.backgroundColor = '#4caf50';
-                                btn.style.color = '#fff';
                             } else {
                                 btn.classList.remove('go-to-cart');
-                                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <p class="cart-txt">Add to Cart</p>';
+                                btn.innerHTML = '<span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
                                 btn.style.backgroundColor = '';
-                                btn.style.color = '';
                             }
                         }
                     });
@@ -495,85 +421,165 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Carousel functionality for home page
     const homeCarousel = document.querySelector('.carousel');
-    const homeSlides = document.querySelectorAll('.carousel-slide');
-    const homePrevButton = document.getElementById('prevBtn');
-    const homeNextButton = document.getElementById('nextBtn');
-    let homeCurrentSlide = 0;
+const homeSlides = document.querySelectorAll('.carousel-slide');
+const homePrevButton = document.getElementById('prevBtn');
+const homeNextButton = document.getElementById('nextBtn');
+let homeCurrentSlide = 0;
+const slideCount = homeSlides.length;
+const slideInterval = 5000; // 5 seconds as per your original code
 
-    function homeShowSlide(index) {
-      if (homeSlides.length === 0) return;
-      homeSlides.forEach((slide, i) => {
-        slide.style.display = i === index ? 'block' : 'none';
-        slide.classList.toggle('active', i === index);
-      });
+// Clone first and last slides for infinite loop effect
+if (slideCount > 0) {
+    const firstSlideClone = homeSlides[0].cloneNode(true);
+    const lastSlideClone = homeSlides[slideCount - 1].cloneNode(true);
+    homeCarousel.appendChild(firstSlideClone);
+    homeCarousel.insertBefore(lastSlideClone, homeSlides[0]);
+
+    // Set initial position to account for the cloned last slide
+    homeCarousel.style.transform = `translateX(-${100}%)`;
+}
+
+// Function to move to a specific slide with sliding animation
+function homeShowSlide(index) {
+    if (slideCount === 0) return;
+    
+    // Adjust index for infinite looping
+    homeCurrentSlide = (index + slideCount) % slideCount;
+    homeCarousel.style.transition = 'transform 0.5s ease-in-out';
+    homeCarousel.style.transform = `translateX(-${(homeCurrentSlide + 1) * 100}%)`;
+}
+
+// Handle transition end for infinite loop
+homeCarousel.addEventListener('transitionend', () => {
+    if (homeCurrentSlide === slideCount) {
+        homeCarousel.style.transition = 'none';
+        homeCurrentSlide = 0;
+        homeCarousel.style.transform = `translateX(-${100}%)`;
+    } else if (homeCurrentSlide === -1) {
+        homeCarousel.style.transition = 'none';
+        homeCurrentSlide = slideCount - 1;
+        homeCarousel.style.transform = `translateX(-${(homeCurrentSlide + 1) * 100}%)`;
     }
+});
 
-    function homeNextSlide() {
-      if (homeSlides.length === 0) return;
-      homeCurrentSlide = (homeCurrentSlide + 1) % homeSlides.length;
-      homeShowSlide(homeCurrentSlide);
-    }
+// Automatic sliding
+let homeAutoSlideTimer;
+if (slideCount > 0) {
+    homeShowSlide(homeCurrentSlide);
+    homeAutoSlideTimer = setInterval(() => {
+        homeShowSlide(homeCurrentSlide + 1);
+    }, slideInterval);
+}
 
-    function homePrevSlide() {
-      if (homeSlides.length === 0) return;
-      homeCurrentSlide = (homeCurrentSlide - 1 + homeSlides.length) % homeSlides.length;
-      homeShowSlide(homeCurrentSlide);
-    }
+// Function to reset the auto-slide timer
+function homeResetTimer() {
+    if (slideCount === 0) return;
+    clearInterval(homeAutoSlideTimer);
+    homeAutoSlideTimer = setInterval(() => {
+        homeShowSlide(homeCurrentSlide + 1);
+    }, slideInterval);
+}
 
-    let homeAutoSlideTimer;
-    if (homeSlides.length > 0) {
-      homeShowSlide(homeCurrentSlide);
-      homeAutoSlideTimer = setInterval(homeNextSlide, 5000);
-    }
-
-    function homeResetTimer() {
-      if (homeSlides.length === 0) return;
-      clearInterval(homeAutoSlideTimer);
-      homeAutoSlideTimer = setInterval(homeNextSlide, 5000);
-    }
-
-    if (homePrevButton && homeNextButton && homeSlides.length > 0) {
-      homePrevButton.addEventListener('click', () => {
-        homePrevSlide();
+// Manual controls
+if (homePrevButton && homeNextButton && slideCount > 0) {
+    homePrevButton.addEventListener('click', () => {
+        homeShowSlide(homeCurrentSlide - 1);
         homeResetTimer();
-      });
-      homeNextButton.addEventListener('click', () => {
-        homeNextSlide();
+    });
+    homeNextButton.addEventListener('click', () => {
+        homeShowSlide(homeCurrentSlide + 1);
         homeResetTimer();
-      });
-    }
+    });
 
+    // Pause auto-slide on hover
+    homeCarousel.addEventListener('mouseenter', () => {
+        clearInterval(homeAutoSlideTimer);
+    });
+
+    homeCarousel.addEventListener('mouseleave', () => {
+        homeResetTimer();
+    });
+}
     // Testimonial/Review Carousel functionality
-    const reviewCards = document.querySelectorAll('.reviews-carousel .reviews-card');
-    const reviewPrevBtn = document.getElementById('reviews-prev-btn');
-    const reviewNextBtn = document.getElementById('reviews-next-btn');
-    let reviewCurrent = 0;
+    
+   const reviewCarousel = document.querySelector('.reviews-carousel');
+const reviewCards = document.querySelectorAll('.reviews-carousel .reviews-card');
+const reviewPrevBtn = document.getElementById('reviews-prev-btn');
+const reviewNextBtn = document.getElementById('reviews-next-btn');
+let reviewCurrent = 0;
+const cardCount = reviewCards.length;
+const cardInterval = 5000; // 5 seconds for auto-play
 
-    function showReview(index) {
-      if (reviewCards.length === 0) return;
-      reviewCards.forEach((card, i) => {
-        card.style.display = i === index ? 'block' : 'none';
-        card.classList.toggle('active', i === index);
-      });
-    }
+// Clone first and last cards for infinite loop effect
+if (cardCount > 0) {
+    const firstCardClone = reviewCards[0].cloneNode(true);
+    const lastCardClone = reviewCards[cardCount - 1].cloneNode(true);
+    reviewCarousel.appendChild(firstCardClone);
+    reviewCarousel.insertBefore(lastCardClone, reviewCards[0]);
 
-    function nextReview() {
-      if (reviewCards.length === 0) return;
-      reviewCurrent = (reviewCurrent + 1) % reviewCards.length;
-      showReview(reviewCurrent);
-    }
+    // Set initial position to account for the cloned last card
+    reviewCarousel.style.transform = `translateX(-${100}%)`;
+}
 
-    function prevReview() {
-      if (reviewCards.length === 0) return;
-      reviewCurrent = (reviewCurrent - 1 + reviewCards.length) % reviewCards.length;
-      showReview(reviewCurrent);
-    }
+// Function to show a specific review with sliding animation
+function showReview(index) {
+    if (cardCount === 0) return;
+    
+    // Adjust index for infinite looping
+    reviewCurrent = (index + cardCount) % cardCount;
+    reviewCarousel.style.transition = 'transform 0.5s ease-in-out';
+    reviewCarousel.style.transform = `translateX(-${(reviewCurrent + 1) * 100}%)`;
+}
 
-    if (reviewCards.length > 0) {
-      showReview(reviewCurrent);
+// Handle transition end for infinite loop
+reviewCarousel.addEventListener('transitionend', () => {
+    if (reviewCurrent === cardCount) {
+        reviewCarousel.style.transition = 'none';
+        reviewCurrent = 0;
+        reviewCarousel.style.transform = `translateX(-${100}%)`;
+    } else if (reviewCurrent === -1) {
+        reviewCarousel.style.transition = 'none';
+        reviewCurrent = cardCount - 1;
+        reviewCarousel.style.transform = `translateX(-${(reviewCurrent + 1) * 100}%)`;
     }
-    if (reviewPrevBtn && reviewNextBtn && reviewCards.length > 0) {
-      reviewPrevBtn.addEventListener('click', prevReview);
-      reviewNextBtn.addEventListener('click', nextReview);
-    }
+});
+
+// Automatic sliding
+let autoCardTimer;
+if (cardCount > 0) {
+    showReview(reviewCurrent);
+    autoCardTimer = setInterval(() => {
+        showReview(reviewCurrent + 1);
+    }, cardInterval);
+}
+
+// Function to reset the auto-slide timer
+function resetCardTimer() {
+    if (cardCount === 0) return;
+    clearInterval(autoCardTimer);
+    autoCardTimer = setInterval(() => {
+        showReview(reviewCurrent + 1);
+    }, cardInterval);
+}
+
+// Manual controls
+if (reviewPrevBtn && reviewNextBtn && cardCount > 0) {
+    reviewPrevBtn.addEventListener('click', () => {
+        showReview(reviewCurrent - 1);
+        resetCardTimer();
+    });
+    reviewNextBtn.addEventListener('click', () => {
+        showReview(reviewCurrent + 1);
+        resetCardTimer();
+    });
+
+    // Pause auto-slide on hover
+    reviewCarousel.addEventListener('mouseenter', () => {
+        clearInterval(autoCardTimer);
+    });
+
+    reviewCarousel.addEventListener('mouseleave', () => {
+        resetCardTimer();
+    });
+}
 });

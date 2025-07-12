@@ -81,12 +81,21 @@ def profile():
 def products(pet_type_id):
     pet_type = PetType.query.get_or_404(pet_type_id)
     page = request.args.get('page', 1, type=int)
-    products = Product.query.filter_by(pet_type_id=pet_type_id).paginate(page=page, per_page=15, error_out=False)
+    category_id = request.args.get('category_id', type=int)
+    
+    # Build the query with optional category filtering
+    query = Product.query.filter_by(pet_type_id=pet_type_id)
+    if category_id:
+        query = query.filter_by(category_id=category_id)
+    
+    products = query.paginate(page=page, per_page=15, error_out=False)
     categories = Category.query.all()
+    
     return render_template('product-listing.html',
                           products=products,
                           pet_type=pet_type,
-                          categories=categories)
+                          categories=categories,
+                          selected_category_id=category_id)
 
 @main.route('/get_product_details/<int:product_id>')
 def get_product_details(product_id):

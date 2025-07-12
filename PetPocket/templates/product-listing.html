@@ -26,6 +26,13 @@
           text-decoration: none;
       }
       
+      /* Style filter buttons as links but maintain button appearance */
+      .filter-button {
+          text-decoration: none;
+          color: inherit;
+          display: inline-block;
+      }
+      
       .product-price{
             font-size: clamp(1.3rem, 2vw, 0.95rem);
       }
@@ -120,6 +127,10 @@
           gap: 10px;
         }
       }
+
+      @media (max-width: 991px) {
+        .cart-txt { display: none !important; }
+      }
   </style>
 </head>
 
@@ -163,9 +174,9 @@
       <div class="filter-section">
         <h3 class="filter-section-title">Category</h3>
         <div class="filter-options">
-          <button class="filter-button active" data-filter="all">All Categories</button>
+          <a href="{{ url_for('main.products', pet_type_id=pet_type.id) }}" class="filter-button {% if not selected_category_id %}active{% endif %}">All Categories</a>
           {% for category in categories %}
-            <button class="filter-button" data-filter="{{ category.name | lower }}">{{ category.name }}</button>
+            <a href="{{ url_for('main.products', pet_type_id=pet_type.id, category_id=category.id) }}" class="filter-button {% if selected_category_id == category.id %}active{% endif %}">{{ category.name }}</a>
           {% endfor %}
         </div>
       </div>
@@ -203,7 +214,7 @@
             </div>
             <div class="product-actions">
               <button class="add-to-cart" data-product-id="{{ product.id }}">
-                <span class="material-symbols-outlined">add_shopping_cart</span>
+                <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span>
                 <span class="cart-txt">Add to Cart</span>
               </button>
               <button class="add-to-wishlist" data-product-id="{{ product.id }}">
@@ -217,45 +228,52 @@
 
     <div class="pagination">
       {% if products.has_prev %}
-        <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=products.prev_num) }}" class="pagination-link">Previous</a>
+        <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=products.prev_num, category_id=selected_category_id) }}" class="pagination-link">Previous</a>
       {% endif %}
       {% for page_num in products.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
         {% if page_num %}
           {% if products.page == page_num %}
             <span class="pagination-link active">{{ page_num }}</span>
           {% else %}
-            <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=page_num) }}" class="pagination-link">{{ page_num }}</a>
+            <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=page_num, category_id=selected_category_id) }}" class="pagination-link">{{ page_num }}</a>
           {% endif %}
         {% else %}
           <span class="pagination-ellipsis">...</span>
         {% endif %}
       {% endfor %}
       {% if products.has_next %}
-        <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=products.next_num) }}" class="pagination-link">Next</a>
+        <a href="{{ url_for('main.products', pet_type_id=pet_type.id, page=products.next_num, category_id=selected_category_id) }}" class="pagination-link">Next</a>
       {% endif %}
     </div>
   </div>
 
   {% include 'footer.html' %}
 
-  <div class="mobile-bottom-nav">
-    <a href="/">
+  <nav class="mobile-bottom-nav">
+    <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
       <span class="material-symbols-outlined">home</span>
-      Home
+      <span>Home</span>
     </a>
-    <a href="/search">
+    <a href="{{ url_for('main.search') }}" class="{% if request.endpoint == 'main.search' %}active{% endif %}">
       <span class="material-symbols-outlined">search</span>
-      Search
+      <span>Search</span>
     </a>
-    <a href="/wishlist">
-      <span class="material-symbols-outlined">shopping_cart</span>
-      Wishlist
+    <a href="{{ url_for('main.wishlist') }}" class="{% if request.endpoint == 'main.wishlist' %}active{% endif %}">
+      <span class="material-symbols-outlined">favorite</span>
+      <span>Wishlist</span>
     </a>
-    <a href="/profile">
-      <span class="material-symbols-outlined">person</span>
-      Profile
-    </a>
-  </div>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.profile') }}" class="{% if request.endpoint == 'main.profile' %}active{% endif %}">
+        <span class="material-symbols-outlined">person</span>
+        <span>Profile</span>
+      </a>
+    {% else %}
+      <a href="{{ url_for('main.signin') }}" class="{% if request.endpoint == 'main.signin' %}active{% endif %}">
+        <span class="material-symbols-outlined">login</span>
+        <span>Login</span>
+      </a>
+    {% endif %}
+  </nav>
   
   <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>
   <script src="script.js"></script>

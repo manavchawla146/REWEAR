@@ -1,854 +1,853 @@
- body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            font-weight: 400;
-            line-height: 1.6;
-            padding-bottom: 60px;
-        }
-
-        /* Simplified Navigation */
-        .navbar {
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 15px 20px;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .nav-logo {
-            font-family: 'Playfair Display', 'Georgia', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #222;
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: 1rem;
-            font-weight: 500;
-            color: #555;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #ffca28;
-        }
-
-        /* Profile Container */
-        .profile-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px;
-        }
-
-        .profile-header {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .profile-hero {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .profile-avatar {
-            width: 60px;
-            height: 60px;
-            background: #ffca28;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .profile-icon {
-            font-size: 2rem;
-            color: #fff;
-        }
-
-        .profile-hero h2 {
-            font-size: clamp(1.5rem, 4vw, 1.8rem);
-            font-weight: 500;
-            color: #08284a;
-            margin: 0;
-        }
-
-        .profile-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .edit-button,
-        .admin-button,
-        .logout-button {
-            padding: 10px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .edit-button {
-            background: #fff;
-            color: #222;
-            border: solid #ffb300;
-        }
-
-        .edit-button:hover {
-            background: #ffb300;
-            color: #fff;
-            transform: translateY(-2px);
-            transform: scale(1.05);
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-
-        .admin-button {
-            background: #ffca28;
-            color: #fff;
-        }
-
-        .admin-button:hover {
-            background: #ffb300;
-            transform: translateY(-2px);
-        }
-
-        .logout-button {
-            background: #ff4d4d;
-            color: #fff;
-        }
-
-        .logout-button:hover {
-            background: #ff3333;
-            /* transform: translateY(-2px); */
-            transform: scale(1.05);
-        }
-
-        /* Profile Dashboard */
-        .profile-dashboard {
-            margin-bottom: 20px;
-        }
-
-        .dashboard-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .stat-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .stat-card span.material-symbols-outlined {
-            font-size: 2rem;
-            color: #ffca28;
-        }
-
-        .stat-content {
-            flex: 1;
-        }
-
-        .stat-content h4 {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(1.2rem, 3vw, 1.5rem);
-            font-weight: 600;
-            color: #222;
-            margin: 0;
-        }
-
-        .stat-content p {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #555;
-            margin: 0;
-        }
-
-        /* Profile Tabs */
-        .profile-tabs {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-            padding: 20px;
-        }
-
-        .tab-header {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .tab-button {
-            background: none;
-            border: none;
-            padding: 10px 15px;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.9rem, 2.2vw, 1rem);
-            font-weight: 500;
-            color: #555;
-            cursor: pointer;
-            transition: color 0.3s ease, border-bottom 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
-
-        .tab-button:hover {
-            color: #ffca28;
-        }
-
-        .tab-button.active {
-            color: #ffca28;
-            border-bottom: 2px solid #ffca28;
-        }
-
-        .tab-content {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .tab-pane {
-            display: none;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
-        /* Detail Section */
-        .detail-section {
-            margin-bottom: 20px;
-        }
-
-        .detail-section h3 {
-            font-family: Poppins;
-            font-size: clamp(1.2rem, 4vw, 1.5rem);
-            font-weight: 500;
-            color: #08284a;
-            margin-bottom: 15px;
-        }
-
-        .info-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .info-label {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            color: #222;
-        }
-
-        .info-value {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #555;
-        }
-
-        /* Orders Tab */
-        .orders-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .order-card {
-            background: #f9f9f9;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 15px;
-        }
-
-        .order-header {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-        }
-
-        .order-id {
-            font-weight: 600;
-            color: #ffca28;
-        }
-
-        .order-date {
-            color: #555;
-        }
-
-        .order-status {
-            font-weight: 500;
-            color: #28a745;
-        }
-
-        .order-items {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .order-item {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .order-item-image {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .order-item-details {
-            flex: 1;
-        }
-
-        .order-item-name {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #222;
-            margin: 0;
-        }
-
-        .order-item-price {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            color: #ffca28;
-            margin: 0;
-        }
-
-        .order-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .order-total {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.9rem, 2.2vw, 1rem);
-            font-weight: 600;
-            color: #222;
-        }
-
-        .track-order-btn {
-            padding: 8px 15px;
-            background: #ffca28;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            color: #fff;
-            transition: background-color 0.3s ease;
-        }
-
-        .track-order-btn:hover {
-            background: #ffb300;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .empty-state span.material-symbols-outlined {
-            font-size: 2.5rem;
-            color: #ffca28;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #555;
-            margin-bottom: 15px;
-        }
-
-        .shop-now-btn {
-            padding: 10px 20px;
-            background: #08284a;
-            border: none;
-            border-radius: 20px;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            color: #fff;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }
-
-        .shop-now-btn:hover {
-            background: #0d1b2a;
-        }
-
-        /* Addresses Tab */
-        .section-header {
-            margin-bottom: 15px;
-        }
-
-        .addresses-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .address-card {
-            background: #f9f9f9;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 15px;
-            position: relative;
-        }
-
-        .address-card.default {
-            border: 2px solid #ffca28;
-        }
-
-        .default-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ffca28;
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            font-weight: 500;
-        }
-
-        .address-card h4 {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.1rem);
-            font-weight: 500;
-            color: #222;
-            margin: 0 0 10px 0;
-        }
-
-        .address-card p {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #555;
-            margin: 5px 0;
-        }
-
-        /* Reviews Tab */
-        .reviews-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .review-card {
-            background: #f9f9f9;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            padding: 15px;
-        }
-
-        .review-product {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .review-product-image {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 8px;
-        }
-
-        .review-product-name {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 500;
-            color: #222;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .review-product-name:hover {
-            color: #ffca28;
-        }
-
-        .review-content {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .review-rating {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .review-rating span.material-symbols-outlined {
-            font-size: 1.2rem;
-            color: #ffca28;
-        }
-
-        .review-date {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.75rem, 2vw, 0.85rem);
-            font-weight: 400;
-            color: #555;
-        }
-
-        .review-text {
-            font-family: 'Poppins', 'Arial', sans-serif;
-            font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-            font-weight: 400;
-            color: #555;
-            margin: 0;
-        }
-
-  
-
-        /* Desktop Adjustments */
-        @media (min-width: 768px) {
-            .nav-links a {
-                font-size: 1.1rem;
-            }
-
-            .profile-container {
-                padding: 20px;
-            }
-
-            .profile-header {
-                padding: 25px;
-            }
-
-            .profile-hero {
-                gap: 20px;
-            }
-
-            .profile-avatar {
-                width: 80px;
-                height: 80px;
-            }
-
-            .profile-icon {
-                font-size: 2.5rem;
-            }
-
-            .profile-hero h2 {
-                font-size: clamp(1.5rem, 5vw, 2rem);
-            }
-
-            .profile-actions {
-                flex-direction: row;
-                gap: 15px;
-            }
-
-            .edit-button,
-            .admin-button,
-            .logout-button {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-                padding: 12px 20px;
-            }
-
-            .dashboard-stats {
-                flex-direction: row;
-                gap: 20px;
-            }
-
-            .stat-card {
-                flex: 1;
-                padding: 20px;
-            }
-
-            .stat-card span.material-symbols-outlined {
-                font-size: 2.5rem;
-            }
-
-            .stat-content h4 {
-                font-size: clamp(1.5rem, 3vw, 1.8rem);
-            }
-
-            .stat-content p {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .profile-tabs {
-                padding: 25px;
-            }
-
-            .tab-button {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-                padding: 12px 20px;
-            }
-
-            .detail-section h3 {
-                font-size: clamp(1.5rem, 5vw, 2rem);
-            }
-
-            .info-grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-
-            .info-label,
-            .info-value {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .order-card {
-                padding: 20px;
-            }
-
-            .order-header {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .order-item-image {
-                width: 80px;
-                height: 80px;
-            }
-
-            .order-item-name,
-            .order-item-price {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .order-total {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .track-order-btn {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-                padding: 10px 20px;
-            }
-
-            .empty-state span.material-symbols-outlined {
-                font-size: 3rem;
-            }
-
-            .empty-state p {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .shop-now-btn {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-                padding: 12px 25px;
-            }
-
-            .addresses-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-            }
-
-            .address-card {
-                padding: 20px;
-            }
-
-            .address-card h4 {
-                font-size: clamp(1.2rem, 2.5vw, 1.3rem);
-            }
-
-            .address-card p {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .default-badge {
-                font-size: clamp(0.9rem, 2.2vw, 1rem);
-            }
-
-            .review-card {
-                padding: 20px;
-            }
-
-            .review-product-image {
-                width: 80px;
-                height: 80px;
-            }
-
-            .review-product-name {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-            .review-rating span.material-symbols-outlined {
-                font-size: 1.5rem;
-            }
-
-            .review-date {
-                font-size: clamp(0.9rem, 2.2vw, 1rem);
-            }
-
-            .review-text {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
-
-           
-        }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    font-weight: 400;
+    line-height: 1.6;
+    padding-bottom: 0 !important;
+}
+@media (max-width: 767px) {
+  body.has-mobile-nav {
+    padding-bottom: 60px !important;
+  }
+}
+
+/* Simplified Navigation */
+.navbar {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nav-logo {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #555;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #ffca28;
+}
+
+/* Profile Container */
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+.profile-header {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    background: #ffca28;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-icon {
+    font-size: 2rem;
+    color: #fff;
+}
+
+.profile-hero h2 {
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+    font-weight: 500;
+    color: #08284a;
+    margin: 0;
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.edit-button,
+.admin-button,
+.logout-button {
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.edit-button {
+    background: #fff;
+    color: #222;
+    border: solid #ffb300;
+}
+
+.edit-button:hover {
+    background: #ffb300;
+    color: #fff;
+    transform: translateY(-2px);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.admin-button {
+    background: #ffca28;
+    color: #fff;
+}
+
+.admin-button:hover {
+    background: #ffb300;
+    transform: translateY(-2px);
+}
+
+.logout-button {
+    background: #ff4d4d;
+    color: #fff;
+}
+
+.logout-button:hover {
+    background: #ff3333;
+    /* transform: translateY(-2px); */
+    transform: scale(1.05);
+}
+
+/* Profile Dashboard */
+.profile-dashboard {
+    margin-bottom: 20px;
+}
+
+.dashboard-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-card span.material-symbols-outlined {
+    font-size: 2rem;
+    color: #ffca28;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-content h4 {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    font-weight: 600;
+    color: #222;
+    margin: 0;
+}
+
+.stat-content p {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #555;
+    margin: 0;
+}
+
+/* Profile Tabs */
+.profile-tabs {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+}
+
+.tab-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.9rem, 2.2vw, 1rem);
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button:hover {
+    color: #ffca28;
+}
+
+.tab-button.active {
+    color: #ffca28;
+    border-bottom: 2px solid #ffca28;
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Detail Section */
+.detail-section {
+    margin-bottom: 20px;
+}
+
+.detail-section h3 {
+    font-family: Poppins;
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 500;
+    color: #08284a;
+    margin-bottom: 15px;
+}
+
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-label {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    color: #222;
+}
+
+.info-value {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #555;
+}
+
+/* Orders Tab */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+}
+
+.order-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+}
+
+.order-id {
+    font-weight: 600;
+    color: #ffca28;
+}
+
+.order-date {
+    color: #555;
+}
+
+.order-status {
+    font-weight: 500;
+    color: #28a745;
+}
+
+.order-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.order-item {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.order-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.order-item-details {
+    flex: 1;
+}
+
+.order-item-name {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #222;
+    margin: 0;
+}
+
+.order-item-price {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    color: #ffca28;
+    margin: 0;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.order-total {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.9rem, 2.2vw, 1rem);
+    font-weight: 600;
+    color: #222;
+}
+
+.track-order-btn {
+    padding: 8px 15px;
+    background: #ffca28;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+.track-order-btn:hover {
+    background: #ffb300;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 20px;
+}
+
+.empty-state span.material-symbols-outlined {
+    font-size: 2.5rem;
+    color: #ffca28;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.shop-now-btn {
+    padding: 10px 20px;
+    background: #08284a;
+    border: none;
+    border-radius: 20px;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.shop-now-btn:hover {
+    background: #0d1b2a;
+}
+
+/* Addresses Tab */
+.section-header {
+    margin-bottom: 15px;
+}
+
+.addresses-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.address-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    position: relative;
+}
+
+.address-card.default {
+    border: 2px solid #ffca28;
+}
+
+.default-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ffca28;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    font-weight: 500;
+}
+
+.address-card h4 {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(1rem, 2.5vw, 1.1rem);
+    font-weight: 500;
+    color: #222;
+    margin: 0 0 10px 0;
+}
+
+.address-card p {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #555;
+    margin: 5px 0;
+}
+
+/* Reviews Tab */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.review-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 15px;
+}
+
+.review-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.review-product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.review-product-name {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 500;
+    color: #222;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.review-product-name:hover {
+    color: #ffca28;
+}
+
+.review-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.review-rating span.material-symbols-outlined {
+    font-size: 1.2rem;
+    color: #ffca28;
+}
+
+.review-date {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    font-weight: 400;
+    color: #555;
+}
+
+.review-text {
+    font-family: 'Poppins', 'Arial', sans-serif;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    font-weight: 400;
+    color: #555;
+    margin: 0;
+}
+
+/* Desktop Adjustments */
+@media (min-width: 768px) {
+    .nav-links a {
+        font-size: 1.1rem;
+    }
+
+    .profile-container {
+        padding: 20px;
+    }
+
+    .profile-header {
+        padding: 25px;
+    }
+
+    .profile-hero {
+        gap: 20px;
+    }
+
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profile-icon {
+        font-size: 2.5rem;
+    }
+
+    .profile-hero h2 {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+
+    .profile-actions {
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .edit-button,
+    .admin-button,
+    .logout-button {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+        padding: 12px 20px;
+    }
+
+    .dashboard-stats {
+        flex-direction: row;
+        gap: 20px;
+    }
+
+    .stat-card {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .stat-card span.material-symbols-outlined {
+        font-size: 2.5rem;
+    }
+
+    .stat-content h4 {
+        font-size: clamp(1.5rem, 3vw, 1.8rem);
+    }
+
+    .stat-content p {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .profile-tabs {
+        padding: 25px;
+    }
+
+    .tab-button {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+        padding: 12px 20px;
+    }
+
+    .detail-section h3 {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .info-label,
+    .info-value {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .order-card {
+        padding: 20px;
+    }
+
+    .order-header {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .order-item-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .order-item-name,
+    .order-item-price {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .order-total {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .track-order-btn {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+        padding: 10px 20px;
+    }
+
+    .empty-state span.material-symbols-outlined {
+        font-size: 3rem;
+    }
+
+    .empty-state p {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .shop-now-btn {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+        padding: 12px 25px;
+    }
+
+    .addresses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .address-card {
+        padding: 20px;
+    }
+
+    .address-card h4 {
+        font-size: clamp(1.2rem, 2.5vw, 1.3rem);
+    }
+
+    .address-card p {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .default-badge {
+        font-size: clamp(0.9rem, 2.2vw, 1rem);
+    }
+
+    .review-card {
+        padding: 20px;
+    }
+
+    .review-product-image {
+        width: 80px;
+        height: 80px;
+    }
+
+    .review-product-name {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .review-rating span.material-symbols-outlined {
+        font-size: 1.5rem;
+    }
+
+    .review-date {
+        font-size: clamp(0.9rem, 2.2vw, 1rem);
+    }
+
+    .review-text {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+}
 
 /* Enhanced Footer CSS with improved typography and design */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
- .footer {
-            background: url(https://softivus.com/wp/petiva/wp-content/uploads/2025/03/footer-bg.webp);
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            color: #F5F5F5;
-            padding: 40px 20px;
-            position: relative;
-        }
+.footer {
+    background: url(https://softivus.com/wp/petiva/wp-content/uploads/2025/03/footer-bg.webp);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #F5F5F5;
+    padding: 40px 20px;
+    position: relative;
+}
 
-        /* Subscribe Form Section */
-        .subscribe-form {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-top: 5vh;
-        }
+/* Subscribe Form Section */
+.subscribe-form {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-top: 5vh;
+}
 
-        .subscribe-form h3 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: clamp(1.8rem, 6vw, 2.5rem);
-            color: #FFFFFF;
-            margin-bottom: 10px;
-            line-height: 1.2;            
-        }
+.subscribe-form h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    color: #FFFFFF;
+    margin-bottom: 10px;
+    line-height: 1.2;            
+}
 
-        .subscribe-form p {
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            color: #F5F5F5;
-            margin-bottom: 20px;
-        }
+.subscribe-form p {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    color: #F5F5F5;
+    margin-bottom: 20px;
+}
 
-        #subscribe-form {
-            position: relative;
-            max-width: 400px;
-            margin: 0 auto;
-            display: flex;
-            gap: 2vh;
-        }
+#subscribe-form {
+    position: relative;
+    max-width: 400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 2vh;
+}
 
-        #subscribe-form input[type="email"] {
-            width: 100%;
-            padding: 12px 120px 12px 20px;
-            border: none;
-            border-radius: 25px;
-            font-family: 'Open Sans', sans-serif;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            color: #333;
-            background-color: #FFFFFF;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: box-shadow 0.3s ease;
-        }
+#subscribe-form input[type="email"] {
+    width: 100%;
+    padding: 12px 120px 12px 20px;
+    border: none;
+    border-radius: 25px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    color: #333;
+    background-color: #FFFFFF;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
 
-        #subscribe-form input[type="email"]:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
+#subscribe-form input[type="email"]:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
 
-        #subscribe-form button {
-            
-            
-            background: linear-gradient(135deg, #FFC107, #f8c83a);
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            font-size: clamp(0.9rem, 2.5vw, 1rem);
-            padding: 8px 20px;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease, transform 0.3s ease;
-        }
+#subscribe-form button {
+    background: linear-gradient(135deg, #FFC107, #f8c83a);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    padding: 8px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease, transform 0.3s ease;
+}
 
-        #subscribe-form button:hover {
-          border: 1px solid #f8c83a;
-            background: linear-gradient(135deg, #fff, #fff);
-            color: #222;
-        }
+#subscribe-form button:hover {
+    border: 1px solid #f8c83a;
+    background: linear-gradient(135deg, #fff, #fff);
+    color: #222;
+}
 
-        .success-message {
-            display: none;
-            margin-top: 10px;
-            font-size: clamp(0.85rem, 2vw, 0.9rem);
-            color: #FFFFFF;
-        }
+.success-message {
+    display: none;
+    margin-top: 10px;
+    font-size: clamp(0.85rem, 2vw, 0.9rem);
+    color: #FFFFFF;
+}
 
-        /* Main Footer Sections */
-        .main-footer {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+/* Main Footer Sections */
+.main-footer {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-        .footer-sections {
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
+.footer-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
 
-        .footer-section {
-            text-align: center;
-        }
+.footer-section {
+    text-align: center;
+}
 
-        .footer-section ul li a,
+.footer-section ul li a,
 .footer-bottom a {
     position: relative;
     transition: color 0.3s ease;
@@ -874,194 +873,199 @@
 .footer-bottom a:hover::after {
     width: 10%; /* For footer-bottom links without icons */
 }
-        .footer-section h1,
-        .footer-section h4 {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            color: #FFFFFF;
-            margin-bottom: 15px;
-        }
+.footer-section h1,
+.footer-section h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #FFFFFF;
+    margin-bottom: 15px;
+}
 
-        .footer-section h1 {
-            font-size: clamp(1.5rem, 5vw, 2rem);
-        }
+.footer-section h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+}
 
-        .footer-section h4 {
-            font-size: clamp(1.1rem, 3vw, 1.2rem);
-        }
+.footer-section h4 {
+    font-size: clamp(1.1rem, 3vw, 1.2rem);
+}
 
-        .footer-section p,
-        .footer-section ul li {
-            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
-            color: #F5F5F5;
-            line-height: 1.6;
-        }
+.footer-section p,
+.footer-section ul li {
+    font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+    color: #F5F5F5;
+    line-height: 1.6;
+}
 
-        .footer-section ul {
-            list-style: none;
-        }
+.footer-section ul {
+    list-style: none;
+}
 
-        .footer-section ul li {
-            margin-bottom: 10px;
-        }
+.footer-section ul li {
+    margin-bottom: 10px;
+}
 
-        .footer-section ul li a {
-            color: #F5F5F5;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: color 0.3s ease;
-        }
+.footer-section ul li a {
+    color: #F5F5F5;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+}
 
-        .footer-section ul li a:hover {
-            color: #FFFFFF;
-        }
+.footer-section ul li a:hover {
+    color: #FFFFFF;
+}
 
-        .footer-section ul li a i {
-            font-size: 1.2rem;
-        }
+.footer-section ul li a i {
+    font-size: 1.2rem;
+}
 
-        /* Footer Bottom */
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            padding-top: 20px;
-            margin-top: 30px;
-            text-align: center;
-            font-size: clamp(0.8rem, 2vw, 0.85rem);
-            color: #F5F5F5;
-        }
+/* Footer Bottom */
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+    margin-top: 30px;
+    text-align: center;
+    font-size: clamp(0.8rem, 2vw, 0.85rem);
+    color: #F5F5F5;
+}
 
-        .footer-bottom a {
-            color: #FFFFFF;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+.footer-bottom a {
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
 
-        .footer-bottom a:hover {
-            color: #F5F5F5;
-        }
+.footer-bottom a:hover {
+    color: #F5F5F5;
+}
 
-        /* Responsive Adjustments */
-        @media (min-width: 768px) {
-            .footer {
-                padding: 60px 20px;
-            }
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .footer {
+        padding: 60px 20px;
+    }
 
-            .subscribe-form {
-                margin-bottom: 60px;
-            }
+    .subscribe-form {
+        margin-bottom: 60px;
+    }
 
-            .subscribe-form h3 {
-                font-size: clamp(2rem, 5vw, 2.8rem);
-            }
+    .subscribe-form h3 {
+        font-size: clamp(2rem, 5vw, 2.8rem);
+    }
 
-            .subscribe-form p {
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
+    .subscribe-form p {
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
 
-            #subscribe-form {
-                max-width: 500px;
-            }
+    #subscribe-form {
+        max-width: 500px;
+    }
 
-            #subscribe-form input[type="email"] {
-                padding: 14px 130px 14px 25px;
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
+    #subscribe-form input[type="email"] {
+        padding: 14px 130px 14px 25px;
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
 
-            #subscribe-form button {
-                padding: 10px 25px;
-                font-size: clamp(1rem, 2.5vw, 1.1rem);
-            }
+    #subscribe-form button {
+        padding: 10px 25px;
+        font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
 
-            .success-message {
-                font-size: clamp(0.9rem, 2vw, 1rem);
-            }
+    .success-message {
+        font-size: clamp(0.9rem, 2vw, 1rem);
+    }
 
-            .footer-sections {
-                flex-direction: row;
-                justify-content: space-between;
-                gap: 20px;
-            }
+    .footer-sections {
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 20px;
+    }
 
-            .footer-section {
-                text-align: left;
-                flex: 1;
-            }
+    .footer-section {
+        text-align: left;
+        flex: 1;
+    }
 
-            .footer-section ul li a {
-                justify-content: flex-start;
-            }
+    .footer-section ul li a {
+        justify-content: flex-start;
+    }
 
-            .footer-section h1 {
-                font-size: clamp(1.8rem, 5vw, 2.2rem);
-            }
+    .footer-section h1 {
+        font-size: clamp(1.8rem, 5vw, 2.2rem);
+    }
 
-            .footer-section h4 {
-                font-size: clamp(1.2rem, 3vw, 1.3rem);
-            }
+    .footer-section h4 {
+        font-size: clamp(1.2rem, 3vw, 1.3rem);
+    }
 
-            .footer-section p,
-            .footer-section ul li {
-                font-size: clamp(0.9rem, 2.5vw, 1rem);
-            }
-        }
+    .footer-section p,
+    .footer-section ul li {
+        font-size: clamp(0.9rem, 2.5vw, 1rem);
+    }
+}
 
-        @media (max-width: 480px) {
-            .footer {
-                padding: 30px 15px;
-            }
+@media (max-width: 480px) {
+    .footer {
+        padding: 30px 15px;
+    }
 
-            #subscribe-form {
-                margin-bottom: 30px;
-                display: flex;
-                flex-direction: column;
-            }
+    #subscribe-form {
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+    }
 
-            .subscribe-form h3 {
-                font-size: clamp(1.5rem, 5vw, 1.8rem);
-            }
+    .subscribe-form h3 {
+        font-size: clamp(1.5rem, 5vw, 1.8rem);
+    }
 
-            .subscribe-form p {
-                font-size: clamp(0.85rem, 2vw, 0.9rem);
-            }
+    .subscribe-form p {
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
+    }
 
-            #subscribe-form input[type="email"] {
-                padding: 10px 100px 10px 15px;
-                font-size: clamp(0.85rem, 2vw, 0.9rem);
-            }
+    #subscribe-form input[type="email"] {
+        padding: 10px 100px 10px 15px;
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
+    }
 
-            #subscribe-form button {
-                padding: 6px 15px;
-                font-size: clamp(0.85rem, 2vw, 0.9rem);
-                right: 10%;
-            }
+    #subscribe-form button {
+        padding: 6px 15px;
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
+        right: 10%;
+    }
 
-            .footer-sections {
-                gap: 20px;
-            }
+    .footer-sections {
+        gap: 20px;
+    }
 
-            .footer-section h1 {
-                font-size: clamp(1.2rem, 4vw, 1.5rem);
-            }
+    .footer-section h1 {
+        font-size: clamp(1.2rem, 4vw, 1.5rem);
+    }
 
-            .footer-section h4 {
-                font-size: clamp(1rem, 3vw, 1.1rem);
-            }
+    .footer-section h4 {
+        font-size: clamp(1rem, 3vw, 1.1rem);
+    }
 
-            .footer-section p,
-            .footer-section ul li {
-                font-size: clamp(0.8rem, 2vw, 0.85rem);
-            }
+    .footer-section p,
+    .footer-section ul li {
+        font-size: clamp(0.8rem, 2vw, 0.85rem);
+    }
 
-            .footer-bottom {
-                margin-top: 20px;
-                padding-top: 15px;
-                font-size: clamp(0.75rem, 2vw, 0.8rem);
-            }
-        }
+    .footer-bottom {
+        margin-top: 20px;
+        padding-top: 15px;
+        font-size: clamp(0.75rem, 2vw, 0.8rem);
+    }
+}
 
+@media (max-width: 1024px) {
+    
+    #subscribe-form button {
+        padding: 6px 15px;
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
         @media (max-width: 1024px) {
             
             #subscribe-form button {
@@ -1238,3 +1242,168 @@
             font-size: 0.95rem;
         }
     }
+
+/* Remove or override all less-specific .form-group input, .save-button, and .cancel-button rules for the edit profile form */
+.form-group input, .save-button, .cancel-button {
+    all: unset;
+}
+
+/* Re-apply only the correct styles for the edit profile form at the end of the file for maximum specificity */
+#personal-info-form input[type="text"],
+#personal-info-form input[type="email"],
+#personal-info-form input[type="tel"] {
+    width: 100% !important;
+    border: 1.5px solid #ffca28 !important;
+    border-radius: 8px !important;
+    padding: 10px 12px !important;
+    font-size: 1rem !important;
+    background: #faf8f3 !important;
+    color: #222 !important;
+    margin-bottom: 8px !important;
+    transition: border-color 0.2s, background 0.2s !important;
+    box-sizing: border-box !important;
+    font-family: 'Poppins', 'Arial', sans-serif !important;
+    display: block !important;
+}
+#personal-info-form input[type="text"]:focus,
+#personal-info-form input[type="email"]:focus,
+#personal-info-form input[type="tel"]:focus {
+    border-color: #ffb300 !important;
+    background: #fffbe6 !important;
+    outline: none !important;
+}
+#personal-info-form .form-actions {
+    display: flex !important;
+    gap: 12px !important;
+    margin-top: 10px !important;
+}
+#personal-info-form .save-button,
+#personal-info-form .cancel-button {
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-size: 1rem !important;
+    font-weight: 500 !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: background 0.2s, color 0.2s !important;
+    font-family: 'Poppins', 'Arial', sans-serif !important;
+    display: inline-block !important;
+}
+#personal-info-form .save-button {
+    background: #ffca28 !important;
+    color: #fff !important;
+}
+#personal-info-form .save-button:hover {
+    background: #ffb300 !important;
+}
+#personal-info-form .cancel-button {
+    background: #f5f5f5 !important;
+    color: #222 !important;
+    border: 1.5px solid #ddd !important;
+}
+#personal-info-form .cancel-button:hover {
+    background: #ffe082 !important;
+    color: #222 !important;
+}
+
+/* --- FINAL PROFILE EDIT FORM OVERRIDES --- */
+#personal-info-form {
+  background: #fff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.10) !important;
+  padding: 32px 24px 24px 24px !important;
+  margin: 32px auto 0 auto !important;
+  max-width: 420px !important;
+  width: 100% !important;
+  display: block !important;
+}
+#personal-info-form .form-group {
+  margin-bottom: 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+#personal-info-form label {
+  font-weight: 600 !important;
+  color: #222 !important;
+  margin-bottom: 2px !important;
+  font-size: 1rem !important;
+}
+#personal-info-form input[type="text"],
+#personal-info-form input[type="email"],
+#personal-info-form input[type="tel"] {
+  width: 100% !important;
+  border: 1.5px solid #ffca28 !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  font-size: 1rem !important;
+  background: #faf8f3 !important;
+  color: #222 !important;
+  margin-bottom: 8px !important;
+  transition: border-color 0.2s, background 0.2s !important;
+  box-sizing: border-box !important;
+  font-family: 'Poppins', 'Arial', sans-serif !important;
+  display: block !important;
+}
+#personal-info-form input[type="text"]:focus,
+#personal-info-form input[type="email"]:focus,
+#personal-info-form input[type="tel"]:focus {
+  border-color: #ffb300 !important;
+  background: #fffbe6 !important;
+  outline: none !important;
+}
+#personal-info-form .form-actions {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: flex-end !important;
+  margin-top: 8px !important;
+}
+#personal-info-form .save-button {
+  background: #ffca28 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 22px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.2s, color 0.2s !important;
+  font-family: 'Poppins', 'Arial', sans-serif !important;
+}
+#personal-info-form .save-button:hover {
+  background: #ffb300 !important;
+  color: #fff !important;
+}
+#personal-info-form .cancel-button {
+  background: #eee !important;
+  color: #222 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 22px !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.2s, color 0.2s !important;
+  font-family: 'Poppins', 'Arial', sans-serif !important;
+}
+#personal-info-form .cancel-button:hover {
+  background: #e0e0e0 !important;
+  color: #222 !important;
+}
+@media (max-width: 600px) {
+  #personal-info-form {
+    padding: 18px 8px 16px 8px !important;
+    max-width: 98vw !important;
+  }
+  #personal-info-form .form-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+  #personal-info-form .save-button,
+  #personal-info-form .cancel-button {
+    width: 100% !important;
+    padding: 12px 0 !important;
+    font-size: 1.05rem !important;
+  }
+}

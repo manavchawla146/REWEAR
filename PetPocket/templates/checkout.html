@@ -23,7 +23,7 @@
     <div class="checkout-container">
       <div class="checkout-left">
         <div class="billing-section">
-          <h2>Billing Details <span class="material-symbols-outlined toggle-arrow">expand_less</span></h2>
+          <h2>Billing Details</h2>
           
           {% if addresses %}
           <div class="saved-addresses">
@@ -41,7 +41,7 @@
           </div>
           {% endif %}
           
-          <form class="billing-form" id="billingForm" method="POST" action="{{ url_for('main.checkout') }}">
+          <form class="billing-form" id="billingForm" method="POST" action="{{ url_for('main.checkout') }}" style="display: none;">
             <div class="form-row">
               <div class="form-group">
                 <label for="firstName">First name <span class="required">*</span></label>
@@ -217,7 +217,7 @@
       <p class="email-confirmation">A confirmation email has been sent to your email address.</p>
       <div class="action-buttons">
         <button onclick="window.location.href='{{ url_for('main.home') }}#shop-by-category'" class="secondary-button">Continue Shopping</button>
-        <button onclick="window.location.href='/order-confirmation/' + document.getElementById('orderIdDisplay').textContent" class="primary-button">View Order</button>
+        <button onclick="window.location.href='/profile#orders'" class="primary-button">View Order</button>
       </div>
     </div>
   </div>
@@ -227,39 +227,38 @@
 
 
   <nav class="mobile-bottom-nav">
-    <a href="{{ url_for('main.home') }}"> 
+    <a href="{{ url_for('main.home') }}" class="{% if request.endpoint == 'main.home' %}active{% endif %}">
       <span class="material-symbols-outlined">home</span>
       <span>Home</span>
     </a>
-    <a href="{{ url_for('main.search') }}">
+    <a href="{{ url_for('main.search') }}" class="{% if request.endpoint == 'main.search' %}active{% endif %}">
       <span class="material-symbols-outlined">search</span>
       <span>Search</span>
     </a>
-    <a href="{{ url_for('main.wishlist') }}">
+    <a href="{{ url_for('main.wishlist') }}" class="{% if request.endpoint == 'main.wishlist' %}active{% endif %}">
       <span class="material-symbols-outlined">favorite</span>
       <span>Wishlist</span>
     </a>
-    <a href="{{ url_for('main.profile') }}">
-      <span class="material-symbols-outlined">person</span>
-      <span>Profile</span>
-    </a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.profile') }}" class="{% if request.endpoint == 'main.profile' %}active{% endif %}">
+        <span class="material-symbols-outlined">person</span>
+        <span>Profile</span>
+      </a>
+    {% else %}
+      <a href="{{ url_for('main.signin') }}" class="{% if request.endpoint == 'main.signin' %}active{% endif %}">
+        <span class="material-symbols-outlined">login</span>
+        <span>Login</span>
+      </a>
+    {% endif %}
   </nav>
 
   <!-- Scripts -->
   <script>
-        // Toggle billing form on mobile
+        // Form validation on payment
         document.addEventListener('DOMContentLoaded', function() {
-            const billingHeader = document.querySelector('.billing-section h2');
             const billingForm = document.querySelector('.billing-form');
-            const toggleArrow = document.querySelector('.toggle-arrow');
-
-            billingHeader.addEventListener('click', function() {
-                billingForm.classList.toggle('active');
-                toggleArrow.classList.toggle('active');
-            });
-
-            // Mock payment functionality
             const proceedButtons = document.querySelectorAll('.proceed-button');
+            
             proceedButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     // Validate form (basic check)
@@ -276,18 +275,13 @@
                     });
 
                     if (!isValid) {
-                        
-                        billingForm.classList.add('active');
-                        toggleArrow.classList.add('active');
+                        // Show form and scroll to it if validation fails
+                        billingForm.style.display = 'flex';
+                        billingForm.scrollIntoView({ behavior: 'smooth' });
                         return;
                     }
-
-                
-                    
                 });
             });
-
-            
         });
 
         function closePaymentPopup() {
@@ -431,8 +425,16 @@
       
       savedAddressesSelect.addEventListener('change', function() {
         if (this.value === "") {
+          // Show form for new address
+          billingForm.style.display = 'flex';
           resetForm();
+          // Smooth scroll to form
+          setTimeout(() => {
+            billingForm.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
         } else {
+          // Hide form and populate with selected address
+          billingForm.style.display = 'none';
           fetch(`/get_address/${this.value}`)
             .then(response => response.json())
             .then(data => {
@@ -447,7 +449,10 @@
         }
       });
       
+      // Handle initial state
       if (savedAddressesSelect.value) {
+        // If a saved address is selected, hide the form
+        billingForm.style.display = 'none';
         fetch(`/get_address/${savedAddressesSelect.value}`)
           .then(response => response.json())
           .then(data => {
@@ -458,33 +463,39 @@
           .catch(error => {
             console.error('Error fetching initial address:', error);
           });
+      } else {
+        // If no address is selected, show the form for new address
+        billingForm.style.display = 'flex';
       }
 
-      // Form validation
-      billingForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Basic validation
-        const requiredFields = billingForm.querySelectorAll('[required]');
-        let isValid = true;
-        
-        requiredFields.forEach(field => {
-          if (!field.value.trim()) {
-            isValid = false;
-            field.classList.add('error');
-          } else {
-            field.classList.remove('error');
+              // Form validation
+        billingForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Basic validation
+          const requiredFields = billingForm.querySelectorAll('[required]');
+          let isValid = true;
+          
+          requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+              isValid = false;
+              field.classList.add('error');
+            } else {
+              field.classList.remove('error');
+            }
+          });
+
+          if (!isValid) {
+            alert('Please fill in all required fields');
+            // Show form if validation fails
+            billingForm.style.display = 'flex';
+            billingForm.scrollIntoView({ behavior: 'smooth' });
+            return;
           }
+
+          // Submit the form
+          this.submit();
         });
-
-        if (!isValid) {
-          alert('Please fill in all required fields');
-          return;
-        }
-
-        // Submit the form
-        this.submit();
-      });
     });
   </script>
   <script src="https://kit.fontawesome.com/51c1e7b4cb.js" crossorigin="anonymous"></script>

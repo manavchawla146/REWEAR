@@ -104,21 +104,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.add-to-cart').forEach(btn => {
             const productId = parseInt(btn.dataset.productId);
             const isInCart = cartItems.includes(productId);
+            const isMainButton = btn.closest('.product-action');
 
             if (isInCart) {
                 btn.classList.add('added', 'go-to-cart');
-                btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                if (isMainButton) {
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Go to Cart';
+                } else {
+                    btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> <span class="cart-txt">Go to Cart</span>';
+                }
                 btn.style.backgroundColor = '#4caf50';
                 btn.style.color = '#fff';
             } else {
                 btn.classList.remove('added', 'go-to-cart');
-                const isMainButton = btn.closest('.product-action');
                 if (isMainButton) {
                     btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Add to Cart';
                 } else {
-                    // For related products, check if mobile view
-                    const isMobile = window.innerWidth <= 767;
-                    btn.innerHTML = `<span class="material-symbols-outlined">add_shopping_cart</span>${isMobile ? '' : ' <p class="cart-txt">Add to Cart</p>'}`;
+                    btn.innerHTML = '<span class="material-symbols-outlined">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>';
                 }
                 btn.style.backgroundColor = '';
                 btn.style.color = '';
