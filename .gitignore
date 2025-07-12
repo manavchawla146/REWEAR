@@ -164,7 +164,10 @@ cython_debug/
 # Flask specific
 *.db
 *.sqlite
-instance/
+# Ignore instance directory except for the main database
+instance/*
+# Exception: allow the main database file
+!instance/petpocket.db
 config.py
 
 # Node.js (if using frontend build tools)
