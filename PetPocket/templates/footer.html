@@ -1,7 +1,8 @@
 <footer class="footer" id="contact">
   <div class="subscribe-form">
-      <h3>Subscribe for Updates & Exclusive Offers!</h3>
+      <h3>Subscribe for Updates & Exclusive Swaps!</h3>
       <form id="subscribe-form" action="#" method="POST">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="access_key" value="069d3d07-40a8-46ce-9d3d-2f7f4b72480c">
           <input type="email" name="email" placeholder="Enter your email" required aria-label="Email for newsletter">
           <button type="submit">Subscribe</button>
@@ -10,25 +11,24 @@
   <div class="main-footer">
       <div class="footer-sections">
           <div class="footer-section">
-              <h1>Petswale</h1>
+              <h1>ReWear</h1>
               <div class="footer-quote">
-                  <p>Your trusted partner in pet care, delivering love and quality to every furry friend.</p>
+                  <p>Where clothing meets care, and community comes first.</p>
               </div>
           </div>
           <div class="footer-section">
               <h4>Explore</h4>
               <ul>
                   <li><a href="/">Home</a></li>
-                  <li><a href="/#blogs">Blog</a></li>
-                  <li><a href="/products/1">Dog</a></li>
-                  <li><a href="/products/2">Cat</a></li>
+                  <li><a href="/products/1">Mens</a></li>
+                  <li><a href="/products/2">Womens</a></li>
               </ul>
           </div>
           <div class="footer-section">
               <h4>Your Account</h4>
               <ul>
                   <li><a href="/wishlist">Wishlist</a></li>
-                  <li><a href="/cart">Cart</a></li>
+                  <li><a href="/#">Swaps</a></li>
                   <li><a href="/profile">My Account</a></li>
               </ul>
           </div>
@@ -43,13 +43,13 @@
           <div class="footer-section">
               <h4>Contact</h4>
               <ul>
-                  <li><p>Tel: +91 95376 64929</p></li>
-                  <li><p><a href="mailto:petswale.in@gmail.com">petswale.in@gmail.com</a></p></li>
+                  <li><p>Tel: +91 93161 83909</p></li>
+                  <li><p><a href="mailto:petswale.in@gmail.com">rewear.in@gmail.com</a></p></li>
               </ul>
           </div>
       </div>
       <div class="footer-bottom">
-          <p>© Petswale 2025. All Rights Reserved. <a href="/privacy">Privacy Policy</a><p>
+          <p>© ReWear 2025. All Rights Reserved. <a href="/privacy">Privacy Policy</a><p>
       </div>
   </div>
 </footer>
