@@ -39,35 +39,35 @@ class User(UserMixin, db.Model):
             return False
         return check_password_hash(self.password_hash, password)
     
-def __repr__(self):
-    return f'<User {self.username}>'
-    
-def add_points(self, amount, reason=None):
-    self.points_balance += amount
-    log = AdminAuditLog(
-        admin_id=self.id if self.is_admin else None,
-        action='add_points',
-        target_type='user',
-        target_id=self.id,
-        message=reason or f'Added {amount} points'
-    )
-    db.session.add(log)
-    db.session.commit()
-
-def deduct_points(self, amount, reason=None):
-    if self.points_balance >= amount:
-        self.points_balance -= amount
+    def __repr__(self):
+        return f'<User {self.username}>'
+        
+    def add_points(self, amount, reason=None):
+        self.points_balance += amount
         log = AdminAuditLog(
             admin_id=self.id if self.is_admin else None,
-            action='deduct_points',
+            action='add_points',
             target_type='user',
             target_id=self.id,
-            message=reason or f'Deducted {amount} points'
+            message=reason or f'Added {amount} points'
         )
         db.session.add(log)
         db.session.commit()
-        return True
-    return False
+
+    def deduct_points(self, amount, reason=None):
+        if self.points_balance >= amount:
+            self.points_balance -= amount
+            log = AdminAuditLog(
+                admin_id=self.id if self.is_admin else None,
+                action='deduct_points',
+                target_type='user',
+                target_id=self.id,
+                message=reason or f'Deducted {amount} points'
+            )
+            db.session.add(log)
+            db.session.commit()
+            return True
+        return False
 
 
 class PetType(db.Model):

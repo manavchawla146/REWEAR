@@ -149,55 +149,178 @@
           <div class="detail-section">
             <h3>My Swap History</h3>
             {% if user_swaps and user_swaps|length > 0 %}
-              <div class="swaps-list">
-                {% for swap in user_swaps %}
-                <div class="swap-card">
-                  <div class="swap-header">
-                    <span class="swap-id">Swap #{{ swap.id }}</span>
-                    <span class="swap-date">{{ swap.completed_at.strftime('%B %d, %Y') }}</span>
-                    <span class="swap-status completed">✅ Completed</span>
+              <div class="swaps-carousel-container">
+                <div class="swaps-carousel-header">
+                  <div class="swap-counter">
+                    <span id="current-swap-index">1</span> of {{ user_swaps|length }} swaps
                   </div>
+                  <div class="carousel-controls">
+                    <button class="carousel-btn prev" id="prev-swap" onclick="previousSwap()">
+                      <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <button class="carousel-btn next" id="next-swap" onclick="nextSwap()">
+                      <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="swaps-carousel">
+                  {% for swap in user_swaps %}
+                <div class="swap-card" data-swap-index="{{ loop.index0 }}" {% if loop.index0 == 0 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                  <div class="swap-header">
+                    <div class="swap-id-section">
+                      <span class="swap-id">Swap #{{ swap.id }}</span>
+                      <span class="swap-participants">
+                        <span class="material-symbols-outlined">people</span>
+                        {{ swap.user1.username }} ⇄ {{ swap.user2.username }}
+                      </span>
+                    </div>
+                    <div class="swap-meta">
+                      <span class="swap-date">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        {{ swap.completed_at.strftime('%B %d, %Y') }}
+                      </span>
+                      <span class="swap-status completed">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        Completed
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="swap-summary">
+                    <p class="swap-description">
+                      Successfully exchanged clothing items between 
+                      <strong>{{ swap.user1.username }}</strong> and <strong>{{ swap.user2.username }}</strong>
+                    </p>
+                  </div>
+
                   <div class="swap-items">
                     {% if swap.user1_id == current_user.id %}
                       <div class="swap-item-pair">
                         <div class="swap-item my-item">
-                          <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
-                          <div class="swap-item-details">
-                            <p class="swap-item-name">{{ swap.item1.name }}</p>
-                            <p class="swap-item-label">Your Item</p>
+                          <div class="swap-item-header">
+                            <span class="material-symbols-outlined">person</span>
+                            <span class="swap-item-owner">Your Item</span>
+                          </div>
+                          <div class="swap-item-content">
+                            <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
+                            <div class="swap-item-details">
+                              <h4 class="swap-item-name">{{ swap.item1.name }}</h4>
+                              <p class="swap-item-category">{{ swap.item1.category.name if swap.item1.category else 'Clothing' }}</p>
+                              {% if swap.item1.points_required %}
+                              <span class="swap-item-points">
+                                <span class="material-symbols-outlined">stars</span>
+                                {{ swap.item1.points_required }} points value
+                              </span>
+                              {% endif %}
+                            </div>
                           </div>
                         </div>
-                        <div class="swap-arrow">⇄</div>
+                        
+                        <div class="swap-arrow-container">
+                          <div class="swap-arrow">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                          </div>
+                          <span class="swap-arrow-label">Exchanged</span>
+                        </div>
+                        
                         <div class="swap-item their-item">
-                          <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
-                          <div class="swap-item-details">
-                            <p class="swap-item-name">{{ swap.item2.name }}</p>
-                            <p class="swap-item-label">{{ swap.user2.username }}'s Item</p>
+                          <div class="swap-item-header">
+                            <span class="material-symbols-outlined">person_outline</span>
+                            <span class="swap-item-owner">{{ swap.user2.username }}'s Item</span>
+                          </div>
+                          <div class="swap-item-content">
+                            <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
+                            <div class="swap-item-details">
+                              <h4 class="swap-item-name">{{ swap.item2.name }}</h4>
+                              <p class="swap-item-category">{{ swap.item2.category.name if swap.item2.category else 'Clothing' }}</p>
+                              {% if swap.item2.points_required %}
+                              <span class="swap-item-points">
+                                <span class="material-symbols-outlined">stars</span>
+                                {{ swap.item2.points_required }} points value
+                              </span>
+                              {% endif %}
+                            </div>
                           </div>
                         </div>
                       </div>
                     {% else %}
                       <div class="swap-item-pair">
                         <div class="swap-item my-item">
-                          <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
-                          <div class="swap-item-details">
-                            <p class="swap-item-name">{{ swap.item2.name }}</p>
-                            <p class="swap-item-label">Your Item</p>
+                          <div class="swap-item-header">
+                            <span class="material-symbols-outlined">person</span>
+                            <span class="swap-item-owner">Your Item</span>
+                          </div>
+                          <div class="swap-item-content">
+                            <img src="{{ swap.item2.image_url }}" alt="{{ swap.item2.name }}" class="swap-item-image">
+                            <div class="swap-item-details">
+                              <h4 class="swap-item-name">{{ swap.item2.name }}</h4>
+                              <p class="swap-item-category">{{ swap.item2.category.name if swap.item2.category else 'Clothing' }}</p>
+                              {% if swap.item2.points_required %}
+                              <span class="swap-item-points">
+                                <span class="material-symbols-outlined">stars</span>
+                                {{ swap.item2.points_required }} points value
+                              </span>
+                              {% endif %}
+                            </div>
                           </div>
                         </div>
-                        <div class="swap-arrow">⇄</div>
+                        
+                        <div class="swap-arrow-container">
+                          <div class="swap-arrow">
+                            <span class="material-symbols-outlined">swap_horiz</span>
+                          </div>
+                          <span class="swap-arrow-label">Exchanged</span>
+                        </div>
+                        
                         <div class="swap-item their-item">
-                          <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
-                          <div class="swap-item-details">
-                            <p class="swap-item-name">{{ swap.item1.name }}</p>
-                            <p class="swap-item-label">{{ swap.user1.username }}'s Item</p>
+                          <div class="swap-item-header">
+                            <span class="material-symbols-outlined">person_outline</span>
+                            <span class="swap-item-owner">{{ swap.user1.username }}'s Item</span>
+                          </div>
+                          <div class="swap-item-content">
+                            <img src="{{ swap.item1.image_url }}" alt="{{ swap.item1.name }}" class="swap-item-image">
+                            <div class="swap-item-details">
+                              <h4 class="swap-item-name">{{ swap.item1.name }}</h4>
+                              <p class="swap-item-category">{{ swap.item1.category.name if swap.item1.category else 'Clothing' }}</p>
+                              {% if swap.item1.points_required %}
+                              <span class="swap-item-points">
+                                <span class="material-symbols-outlined">stars</span>
+                                {{ swap.item1.points_required }} points value
+                              </span>
+                              {% endif %}
+                            </div>
                           </div>
                         </div>
                       </div>
                     {% endif %}
                   </div>
+                  
+                  <div class="swap-footer">
+                    <div class="swap-actions">
+                      <button class="action-btn secondary" onclick="viewSwapDetails({{ swap.id }})">
+                        <span class="material-symbols-outlined">visibility</span>
+                        View Details
+                      </button>
+                      <button class="action-btn secondary" onclick="downloadSwapReceipt({{ swap.id }})">
+                        <span class="material-symbols-outlined">download</span>
+                        Receipt
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 {% endfor %}
+                </div>
+                
+                <!-- Carousel Indicators -->
+                <div class="carousel-indicators">
+                  {% for swap in user_swaps %}
+                  <button class="indicator {% if loop.index0 == 0 %}active{% endif %}" 
+                          onclick="goToSwap({{ loop.index0 }})" 
+                          data-swap-target="{{ loop.index0 }}">
+                  </button>
+                  {% endfor %}
+                </div>
               </div>
             {% else %}
               <div class="empty-state">
@@ -530,6 +653,114 @@
       // Switch to Add Item tab
       document.querySelector('[data-tab="add-item"]').click();
     }
+
+    // Swap action functions
+    function viewSwapDetails(swapId) {
+      // Create a modal or detailed view for the swap
+      alert(`Viewing details for Swap #${swapId}. This feature will show complete swap history, messaging, and transaction details.`);
+      // TODO: Implement detailed swap view modal
+    }
+
+    function downloadSwapReceipt(swapId) {
+      // Generate and download swap receipt
+      alert(`Downloading receipt for Swap #${swapId}. This will generate a PDF receipt with swap details.`);
+      // TODO: Implement receipt generation and download
+    }
+
+    // Carousel functionality for swaps
+    let currentSwapIndex = 0;
+    const totalSwaps = document.querySelectorAll('.swap-card').length;
+
+    function updateSwapDisplay() {
+      // Hide all swap cards
+      document.querySelectorAll('.swap-card').forEach((card, index) => {
+        card.style.display = index === currentSwapIndex ? 'block' : 'none';
+      });
+
+      // Update indicators
+      document.querySelectorAll('.indicator').forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentSwapIndex);
+      });
+
+      // Update counter
+      document.getElementById('current-swap-index').textContent = currentSwapIndex + 1;
+
+      // Update button states
+      document.getElementById('prev-swap').disabled = currentSwapIndex === 0;
+      document.getElementById('next-swap').disabled = currentSwapIndex === totalSwaps - 1;
+    }
+
+    function nextSwap() {
+      if (currentSwapIndex < totalSwaps - 1) {
+        currentSwapIndex++;
+        updateSwapDisplay();
+      }
+    }
+
+    function previousSwap() {
+      if (currentSwapIndex > 0) {
+        currentSwapIndex--;
+        updateSwapDisplay();
+      }
+    }
+
+    function goToSwap(index) {
+      currentSwapIndex = index;
+      updateSwapDisplay();
+    }
+
+    // Initialize carousel on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (totalSwaps > 0) {
+        updateSwapDisplay();
+        
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+          // Only work if we're on the swap history tab
+          const swapTab = document.getElementById('swap-requests');
+          if (swapTab && swapTab.classList.contains('active')) {
+            if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              previousSwap();
+            } else if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              nextSwap();
+            }
+          }
+        });
+
+        // Add touch/swipe support for mobile
+        let startX = 0;
+        let endX = 0;
+        const carousel = document.querySelector('.swaps-carousel');
+        
+        if (carousel) {
+          carousel.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+          });
+
+          carousel.addEventListener('touchend', function(e) {
+            endX = e.changedTouches[0].clientX;
+            handleSwipe();
+          });
+
+          function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = startX - endX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+              if (diff > 0) {
+                // Swiped left, go to next
+                nextSwap();
+              } else {
+                // Swiped right, go to previous
+                previousSwap();
+              }
+            }
+          }
+        }
+      }
+    });
   </script>
 </body>
 
