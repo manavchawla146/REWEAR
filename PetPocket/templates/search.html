@@ -690,21 +690,15 @@
         function createProductCard(product) {
             return `
                 <div class="product-card" data-product-id="${product.id}" data-category="${product.category || ''}" onclick="window.location.href='/product/${product.id}'">
-                    <div class="product-content">
-                        <img src="${product.image_url || 'https://placehold.co/200x200/46f27a/ffffff?text=Product'}" alt="${product.name}">
-                        <h3>${product.name}</h3>
-                        <div class="product-details">
-                            <span class="product-price">₹${product.price.toFixed(2)}</span>
-                            <span class="product-rating">★★★★☆ (4)</span>
-                        </div>
-                    </div>
-                    <div class="product-actions">
-                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id}, this)">
-                            <span class="material-symbols-outlined add-cart-icon">add_shopping_cart</span> <span class="cart-txt">Add to Cart</span>
-                        </button>
+                    <div class="wishlist-button-top">
                         <button class="add-to-wishlist" onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)">
                             <span class="material-symbols-outlined">favorite</span>
                         </button>
+                    </div>
+                    <img class="product-image" src="${product.image_url || 'https://placehold.co/200x200/46f27a/ffffff?text=Product'}" alt="${product.name}">
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-price-rating">
+                        <span class="product-price">₹${product.price.toFixed(2)}</span>
                     </div>
                 </div>
             `;
