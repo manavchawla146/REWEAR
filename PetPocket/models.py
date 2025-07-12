@@ -334,7 +334,7 @@ class PromoCode(db.Model):
         if self.max_uses is not None and self.uses >= self.max_uses:
             return False, "Promo code usage limit reached"
         if self.min_order_value is not None and order_value < self.min_order_value:
-            return False, f"Order value must be at least ₹{self.min_order_value} to use this promo code"
+            return False, f"Order value must be at least <img src='/static/images/coin.png' class='coin-icon'>{self.min_order_value} to use this promo code"
         return True, "Promo code is valid"
     
     def apply_discount(self, subtotal):

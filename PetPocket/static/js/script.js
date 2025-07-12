@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function () {
                              alt="${product.name}">
                         <h3>${product.name}</h3>
                         <div class="product-details">
-                            <span class="product-price">₹${product.price.toFixed(2)}</span>
+                            <span class="product-price"><img src="/static/images/coin.png" class="coin-icon">${product.price.toFixed(2)}</span>
                         </div>
                     </div>
                 </div>

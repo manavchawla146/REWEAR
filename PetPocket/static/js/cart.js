@@ -22,10 +22,10 @@ function updateQuantity(productId, delta) {
           
           // Update subtotal, tax, shipping, and total
           if (data.cart_total) {
-              document.querySelector('.subtotal').textContent = `Rs.${data.cart_total.subtotal.toFixed(2)}`;
-              document.querySelector('.tax').textContent = `Rs.${data.cart_total.tax.toFixed(2)}`;
-              document.querySelector('.shipping').textContent = `Rs.${data.cart_total.shipping.toFixed(2)}`;
-              document.querySelector('.total-value').textContent = `Rs.${data.cart_total.total.toFixed(2)}`;
+              document.querySelector('.subtotal').innerHTML = `₹${data.cart_total.subtotal.toFixed(2)}`;
+              document.querySelector('.tax').innerHTML = `₹${data.cart_total.tax.toFixed(2)}`;
+              document.querySelector('.shipping').innerHTML = `₹${data.cart_total.shipping.toFixed(2)}`;
+              document.querySelector('.total-value').innerHTML = `₹${data.cart_total.total.toFixed(2)}`;
           } else {
               location.reload();
           }
@@ -87,11 +87,11 @@ function removeItem(productId) {
           
           // Update cart totals
           if (data.cart_total) {
-              document.querySelector('.subtotal').textContent = `Rs.${data.cart_total.subtotal.toFixed(2)}`;
-              document.querySelector('.tax').textContent = `Rs.${data.cart_total.tax.toFixed(2)}`;
-              document.querySelector('.shipping').textContent = `Rs.${data.cart_total.shipping.toFixed(2)}`;
+              document.querySelector('.subtotal').innerHTML = `₹${data.cart_total.subtotal.toFixed(2)}`;
+              document.querySelector('.tax').innerHTML = `₹${data.cart_total.tax.toFixed(2)}`;
+              document.querySelector('.shipping').innerHTML = `₹${data.cart_total.shipping.toFixed(2)}`;
               // Update the selector here too
-              document.querySelector('.total-value').textContent = `Rs.${data.cart_total.total.toFixed(2)}`;
+              document.querySelector('.total-value').innerHTML = `₹${data.cart_total.total.toFixed(2)}`;
               
               // Update cart count in navbar
               const cartBadge = document.querySelector('.cart-badge');

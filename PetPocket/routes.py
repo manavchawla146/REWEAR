@@ -79,7 +79,7 @@ def profile():
     for order in orders[:3]:
         recent_activity.append({
             'icon': 'shopping_cart',
-            'text': f'Purchased items for Rs.{order.total_price:.2f}',
+            'text': f'Purchased items for <img src="/static/images/coin.png" class="coin-icon">{order.total_price:.2f}',
             'time': order.timestamp.strftime('%B %d, %Y')
         })
     
