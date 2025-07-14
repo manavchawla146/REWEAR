@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!e.target.closest('.add-to-cart') && !e.target.closest('.add-to-wishlist')) {
                 const productId = this.getAttribute('data-product-id');
                 console.log(`Navigating to product: ${productId}`); // Debug log
-                window.location.href = `/product/${productId}`;
+                window.location.href = `/rewear/product/${productId}`;
             }
         });
     });

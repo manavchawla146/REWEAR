@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petswale</title>
+    <title>ReWear</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/search.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
@@ -689,7 +689,7 @@
 
         function createProductCard(product) {
             return `
-                <div class="product-card" data-product-id="${product.id}" data-category="${product.category || ''}" onclick="window.location.href='/product/${product.id}'">
+                <div class="product-card" data-product-id="${product.id}" data-category="${product.category || ''}" onclick="window.location.href='/rewear/product/${product.id}'">
                     <div class="wishlist-button-top">
                         <button class="add-to-wishlist" onclick="event.stopPropagation(); toggleWishlist(${product.id}, this)">
                             <span class="material-symbols-outlined">favorite</span>

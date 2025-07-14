@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const stars = '★'.repeat(Math.round(product.rating)) + '☆'.repeat(5 - Math.round(product.rating));
             const card = `
                 <div class="product-card" data-product-id="${product.id}">
-                    <div class="product-content" onclick="window.location.href='/product/${product.id}'">
+                    <div class="product-content" onclick="window.location.href='/rewear/product/${product.id}'">
                         <div class="wishlist-button-top">
                             <button class="add-to-wishlist">
                                 <span class="material-symbols-outlined">favorite</span>

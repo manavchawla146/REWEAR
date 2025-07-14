@@ -4,6 +4,9 @@ class Config:
     # Basic Flask config
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-go-here'
     
+    # Application root for subdirectory hosting
+    APPLICATION_ROOT = os.environ.get('APPLICATION_ROOT') or '/'
+    
     # Database config
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///petpocket.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -21,6 +24,7 @@ class Config:
     SESSION_COOKIE_SECURE = False  # Set to True in production
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_PATH = '/'  # Will be updated for subdirectory
     
     # Security headers
     SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT') or 'your-password-salt'
@@ -40,8 +44,12 @@ class ProductionConfig(Config):
     DEBUG = False
     # Use environment variables for production
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///petpocket.db'
-    SESSION_COOKIE_SECURE = True
-    WTF_CSRF_SSL_STRICT = True
+    SESSION_COOKIE_SECURE = False  # Set to True when using HTTPS
+    WTF_CSRF_SSL_STRICT = False   # Set to True when using HTTPS
+    
+    # For subdirectory hosting under /rewear
+    APPLICATION_ROOT = '/rewear'
+    SESSION_COOKIE_PATH = '/rewear'
     
     # Override mail settings for production
     MAIL_SERVER = 'smtp.gmail.com'
@@ -49,7 +57,6 @@ class ProductionConfig(Config):
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = ('PetPocket', os.environ.get('MAIL_USERNAME'))
 
 config = {
     'development': DevelopmentConfig,

@@ -1,0 +1,44 @@
+runtime: python39
+
+# Environment variables
+env_variables:
+  SECRET_KEY: "your-production-secret-key-here-make-it-long-and-random"
+  FLASK_ENV: "production"
+  DATABASE_URL: "sqlite:///petpocket.db"
+  RAZORPAY_KEY_ID: "rzp_test_QTmdq1PBiByYN9"
+  RAZORPAY_KEY_SECRET: "TNgY0GTvtMjHsl5pSm9Stlsy"
+  GOOGLE_CLIENT_ID: "780308680733-150vt09u8286otguf6krlq5um3nsbrf7.apps.googleusercontent.com"
+  GOOGLE_CLIENT_SECRET: "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"
+  MAIL_USERNAME: "manavdodani2005@gmail.com"
+  MAIL_PASSWORD: "efpd snbt djxw wesj"
+
+# Instance configuration
+instance_class: F2
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10
+  target_cpu_utilization: 0.6
+
+# Handle static files
+handlers:
+- url: /static
+  static_dir: PetPocket/static
+  
+- url: /.*
+  script: auto
+  secure: always
+  redirect_http_response_code: 301
+
+# Files to skip during deployment
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+- ^(.*/)?.*\.bak$
+- ^(.*/)?temp.*$
+- ^(.*/)?test.*$
+- ^(.*/)?migrations/.*$
+- ^(.*/)?instance/.*$
+- ^(.*/)?__pycache__/.*$

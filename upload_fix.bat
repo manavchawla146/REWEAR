@@ -1,0 +1,23 @@
+@echo off
+echo Uploading fixed files to server...
+
+echo Copying run_production.py...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute scp run_production.py pet-pocket-vm:/tmp/run_production.py --zone=us-west1-b
+
+echo Copying prefix_middleware.py...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute scp prefix_middleware.py pet-pocket-vm:/tmp/prefix_middleware.py --zone=us-west1-b
+
+echo Copying config_domain.py...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute scp config_domain.py pet-pocket-vm:/tmp/config_domain.py --zone=us-west1-b
+
+echo Copying nginx configuration...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute scp nginx_domain.conf pet-pocket-vm:/tmp/nginx_domain.conf --zone=us-west1-b
+
+echo Copying deployment script...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute scp deploy_fix.sh pet-pocket-vm:/tmp/deploy_fix.sh --zone=us-west1-b
+
+echo Running deployment script on server...
+"C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd" compute ssh pet-pocket-vm --zone=us-west1-b --command="chmod +x /tmp/deploy_fix.sh && /tmp/deploy_fix.sh"
+
+echo Deployment complete!
+pause

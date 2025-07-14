@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!e.target.closest('.add-to-cart') && !e.target.closest('.remove-from-wishlist')) {
             const productId = this.dataset.productId;
             console.log('Navigating to product:', productId);
-            window.location.href = `/product/${productId}`;
+            window.location.href = `/rewear/product/${productId}`;
         }
     }
 
