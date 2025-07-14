@@ -33,6 +33,21 @@
     {% endif %}
   {% endwith %}
 
+  <!-- Demo Credentials - Always Visible -->
+  <div style="position: fixed; top: 10px; right: 10px; z-index: 9999; background-color: #fff3cd !important; border: 3px solid #ffc107 !important; border-radius: 10px !important; padding: 25px !important; font-size: 16px !important; text-align: left !important; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important; display: block !important; visibility: visible !important; max-width: 400px !important;">
+    <h4 style="color: #333 !important; margin-bottom: 15px !important; font-size: 18px !important; font-weight: 700 !important; text-align: center !important;">🔑 Demo Credentials</h4>
+    <div style="margin: 15px 0 !important; color: #333 !important; font-size: 16px !important; font-weight: 500 !important;">
+      <strong style="color: #dc3545 !important; font-weight: 700 !important;">Customer:</strong><br>
+      trendy@example.com<br>
+      password123
+    </div>
+    <div style="margin: 15px 0 !important; color: #333 !important; font-size: 16px !important; font-weight: 500 !important;">
+      <strong style="color: #dc3545 !important; font-weight: 700 !important;">Admin:</strong><br>
+      admin@rewear.com<br>
+      admin123
+    </div>
+  </div>
+
   <div class="container" id="container">
     <div class="form-container sign-in-container">
       <form action="{{ url_for('auth.login') }}" method="POST">
@@ -61,17 +76,6 @@
         
         <div class="divider">
           <span>or use your email</span>
-        </div>
-        
-        <!-- Demo Credentials -->
-        <div class="demo-credentials" style="background-color: #fff3cd !important; border: 2px solid #ffc107 !important; border-radius: 8px !important; padding: 20px !important; margin: 20px 0 !important; width: 100% !important; max-width: 350px !important; font-size: 14px !important; text-align: left !important; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important; display: block !important; visibility: visible !important;">
-          <h4 style="color: #333 !important; margin-bottom: 15px !important; font-size: 16px !important; font-weight: 700 !important; text-align: center !important;">Demo Credentials:</h4>
-          <div class="credential-item" style="margin: 12px 0 !important; color: #333 !important; font-size: 14px !important; font-weight: 500 !important;">
-            <strong style="color: #dc3545 !important; font-weight: 700 !important;">Customer:</strong> trendy@example.com / password123
-          </div>
-          <div class="credential-item" style="margin: 12px 0 !important; color: #333 !important; font-size: 14px !important; font-weight: 500 !important;">
-            <strong style="color: #dc3545 !important; font-weight: 700 !important;">Admin:</strong> admin@rewear.com / admin123
-          </div>
         </div>
         
         <input type="email" name="email" placeholder="Email" required>
