@@ -47,6 +47,10 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     WTF_CSRF_SSL_STRICT = True
     
+    # Force template reloading in production to fix demo credentials
+    TEMPLATES_AUTO_RELOAD = True
+    SEND_FILE_MAX_AGE_DEFAULT = 0
+    
     # Override mail settings for production
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587

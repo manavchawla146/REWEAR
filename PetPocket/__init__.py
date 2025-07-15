@@ -27,6 +27,12 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
+    # Force template reloading - critical for demo credentials to show
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    app.jinja_env.auto_reload = True
+    app.jinja_env.cache = {}
+    
     # Initialize extensions
     db.init_app(app)
     login_manager = LoginManager()
