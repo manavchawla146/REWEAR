@@ -16,7 +16,7 @@ from prefix_middleware import PrefixMiddleware
 app = create_app(ProductionConfig)
 
 # Wrap the app with the prefix middleware
-# app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/rewear')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/rewear')
 
 # Initialize database tables
 with app.app_context():
