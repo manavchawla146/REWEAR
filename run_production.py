@@ -5,7 +5,8 @@ import os
 import sys
 
 # Add the application directory to Python path
-sys.path.insert(0, '/var/www/petpocket')
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
 
 from PetPocket import create_app, db
 from config_domain import ProductionConfig
@@ -15,7 +16,7 @@ from prefix_middleware import PrefixMiddleware
 app = create_app(ProductionConfig)
 
 # Wrap the app with the prefix middleware
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/rewear')
+# app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/rewear')
 
 # Initialize database tables
 with app.app_context():
